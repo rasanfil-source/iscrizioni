@@ -524,12 +524,171 @@
       color: #999;
       margin-top: 12px;
     }
+
+    /* ─────────────────────────────────────────
+       STEP INDICATOR (3 passi)
+    ───────────────────────────────────────── */
+    .stepper {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 14px 0 18px;
+      padding: 10px 12px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #cbd5e0;
+      color: #4a5568;
+      font-weight: 700;
+      font-size: .9rem;
+      flex: 0 0 auto;
+    }
+
+    .step-label {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: .92rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .step-desc {
+      font-size: .78rem;
+      color: #718096;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .step.is-active .step-dot {
+      border-color: #3182ce;
+      color: #2b6cb0;
+    }
+
+    .step.is-done .step-dot {
+      border-color: #38a169;
+      background: #c6f6d5;
+      color: #276749;
+    }
+
+    .step-sep {
+      width: 22px;
+      height: 1px;
+      background: #e2e8f0;
+      flex: 0 0 auto;
+    }
+
+    /* ─────────────────────────────────────────
+       BANNER “RICALCOLO NECESSARIO”
+    ───────────────────────────────────────── */
+    .recalc-banner {
+      display: none;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #fffaf0;
+      border: 1px solid #fbd38d;
+      color: #7b341e;
+      font-size: .88rem;
+    }
+
+    .recalc-banner.active {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .recalc-banner button {
+      border: 1px solid #f6ad55;
+      background: #fff;
+      color: #7b341e;
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .recalc-banner button:hover {
+      background: #fff3d6;
+    }
+
+    /* ─────────────────────────────────────────
+       ACCESSIBILITÀ
+    ───────────────────────────────────────── */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* focus visibile (chiaro) */
+    :focus-visible {
+      outline: 3px solid rgba(49, 130, 206, .45);
+      outline-offset: 2px;
+    }
   </style>
 </head>
 
 <body>
   <div class="page">
     <h1>Calcolo saldo prenotazioni – Cammino 2026</h1>
+
+    <div id="stepper" class="stepper" aria-label="Stato procedura">
+      <div class="step is-active" data-step="1">
+        <div class="step-dot" aria-hidden="true">1</div>
+        <div class="step-label">
+          <div class="step-title">Cerca prenotazione</div>
+          <div class="step-desc">Inserisci cognome e nome</div>
+        </div>
+      </div>
+      <div class="step-sep" aria-hidden="true"></div>
+      <div class="step" data-step="2">
+        <div class="step-dot" aria-hidden="true">2</div>
+        <div class="step-label">
+          <div class="step-title">Scegli opzioni</div>
+          <div class="step-desc">Transfer e servizi</div>
+        </div>
+      </div>
+      <div class="step-sep" aria-hidden="true"></div>
+      <div class="step" data-step="3">
+        <div class="step-dot" aria-hidden="true">3</div>
+        <div class="step-label">
+          <div class="step-title">Calcola e invia/paga</div>
+          <div class="step-desc">Saldo e riepilogo</div>
+        </div>
+      </div>
+    </div>
 
     <div class="layout">
 
@@ -565,6 +724,10 @@
           </div>
           <button class="secondary" id="payBtn" type="button" disabled
             style="background:#e67e22;border-color:#e67e22;">💳 Paga subito con carta</button>
+          <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
+            <span>Hai modificato le opzioni: è necessario <b>ricalcolare</b> il totale.</span>
+            <button id="recalcNowBtn" type="button">Ricalcola</button>
+          </div>
         </div>
 
         <div id="globalStatus" class="status"></div>
@@ -616,9 +779,9 @@
   </template>
 
   <!-- Popup dati per Tinaba -->
-  <div class="popup-overlay" id="payPopup">
-    <div class="popup-box">
-      <h3>Dati da inserire su Tinaba</h3>
+  <div class="popup-overlay" id="payPopup" role="dialog" aria-modal="true" aria-labelledby="popupTitle" tabindex="-1">
+    <div class="popup-box" role="document">
+      <h3 id="popupTitle">Dati da inserire su Tinaba</h3>
       <div class="popup-subtitle">Copia ogni campo e incollalo sulla pagina di pagamento</div>
 
       <div class="popup-field">
@@ -776,11 +939,152 @@
     btnAdd.addEventListener('click', addPersonCard);
     btnCalc.addEventListener('click', calcolaTotale);
     btnSave.addEventListener('click', salvaEInvia);
-    btnPay.addEventListener('click', openPayPopup);
+    btnPay.addEventListener('click', () => openModal());
     document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
-    document.getElementById('popupCloseBtn').addEventListener('click', () => {
-      document.getElementById('payPopup').classList.remove('active');
+
+    /***************
+     * UX helpers
+     ***************/
+
+    // valuta: € 1.234,00
+    const euroFmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+    function formatEuro(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return '€ —';
+      return euroFmt.format(n);
+    }
+
+    // Stepper (3 passi)
+    function updateStepper() {
+      const stepEls = Array.from(document.querySelectorAll('#stepper .step'));
+      const loadedCount = persone.filter(p => p.loaded).length;
+
+      const step1Done = loadedCount > 0;
+      const step2Done = step1Done;
+      const step3Done = !!lastCalcResult && !recalcNeeded;
+
+      let active = 1;
+      if (step1Done && !step3Done) active = 2;
+      if (step3Done) active = 3;
+
+      stepEls.forEach(el => {
+        const n = Number(el.getAttribute('data-step'));
+        el.classList.remove('is-active', 'is-done');
+
+        if ((n === 1 && step1Done) || (n === 2 && step2Done) || (n === 3 && step3Done)) {
+          el.classList.add('is-done');
+        }
+        if (n === active) el.classList.add('is-active');
+      });
+    }
+
+    // Banner ricalcolo necessario
+    let recalcNeeded = false;
+    const recalcBanner = document.getElementById('recalcBanner');
+    const recalcNowBtn = document.getElementById('recalcNowBtn');
+
+    function showRecalcBanner() {
+      recalcNeeded = true;
+      recalcBanner?.classList.add('active');
+      btnCalc.textContent = 'Ricalcola';
+      btnSave.disabled = true;
+      btnPay.disabled = true;
+      document.getElementById('orDivider').style.color = '#a0aec0';
+      updateStepper();
+    }
+
+    function hideRecalcBanner() {
+      recalcNeeded = false;
+      recalcBanner?.classList.remove('active');
+      updateStepper();
+    }
+
+    // quando cambiano transfer: se già calcolato → banner, altrimenti reset normale
+    function onOptionsChanged() {
+      if (lastCalcResult) {
+        showRecalcBanner();
+        setGlobalStatus('', '');
+        totalBox.textContent = 'Saldo da versare: € —';
+        breakdownBox.style.display = 'none';
+        summaryBox.textContent = 'Opzioni modificate: premi “Ricalcola” per aggiornare il totale.';
+      } else {
+        resetCalcState();
+      }
+    }
+
+    recalcNowBtn?.addEventListener('click', calcolaTotale);
+
+    /***************
+     * MODAL accessibile (focus + ESC + trap)
+     ***************/
+    const payPopup = document.getElementById('payPopup');
+    const popupCloseBtn = document.getElementById('popupCloseBtn');
+    const popupOpenBtn = document.getElementById('popupOpenBtn');
+
+    let _lastFocusBeforeModal = null;
+
+    function getFocusableInModal() {
+      if (!payPopup) return [];
+      return Array.from(payPopup.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
+    }
+
+    function openModal() {
+      if (!payPopup) return;
+      _lastFocusBeforeModal = document.activeElement;
+      payPopup.classList.add('active');
+      payPopup.setAttribute('aria-hidden', 'false');
+
+      const focusables = getFocusableInModal();
+      (focusables[0] || payPopup).focus();
+
+      document.addEventListener('keydown', onModalKeydown, true);
+    }
+
+    function closeModal() {
+      if (!payPopup) return;
+      payPopup.classList.remove('active');
+      payPopup.setAttribute('aria-hidden', 'true');
+      document.removeEventListener('keydown', onModalKeydown, true);
+
+      if (_lastFocusBeforeModal && typeof _lastFocusBeforeModal.focus === 'function') {
+        _lastFocusBeforeModal.focus();
+      }
+    }
+
+    function onModalKeydown(e) {
+      if (!payPopup.classList.contains('active')) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeModal();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const focusables = getFocusableInModal();
+        if (focusables.length === 0) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    popupCloseBtn?.addEventListener('click', closeModal);
+    payPopup?.addEventListener('mousedown', (e) => {
+      if (e.target === payPopup) closeModal();
     });
+
+    // Inizializza
+    updateStepper();
 
     /***************
      * GESTIONE CARD
@@ -823,9 +1127,9 @@
 
       bindLookupEvents(card, index);
 
-      // Transfer → invalida calcolo
+      // Transfer → infligge eventuale banner o reset
       card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
-        chk.addEventListener('change', resetCalcState);
+        chk.addEventListener('change', onOptionsChanged);
       });
 
       // Bottone rimuovi
@@ -1139,7 +1443,7 @@
       loaded.forEach(p => {
         const s = calcolaSaldoPersona(p);
         totOpzioni += s;
-        lines.push(p.nome + ' ' + p.cognome + ': €' + s);
+        lines.push(`${p.nome} ${p.cognome}: ${formatEuro(s)}`);
       });
 
       const caparra = COSTI.caparra * loaded.length;
@@ -1161,9 +1465,9 @@
       });
 
       breakdownBox.style.display = 'block';
-      document.getElementById('totaleOpzioni').textContent = '€' + totOpzioni;
-      document.getElementById('caparraVersata').textContent = '€' + caparra;
-      totalBox.textContent = 'Saldo da versare: €' + saldo;
+      document.getElementById('totaleOpzioni').textContent = formatEuro(totOpzioni);
+      document.getElementById('caparraVersata').textContent = formatEuro(caparra);
+      totalBox.textContent = 'Saldo da versare: ' + formatEuro(saldo);
 
       lastCalcResult = {
         persone: loaded.map(p => ({
@@ -1179,6 +1483,10 @@
       btnPay.disabled = false;
       document.getElementById('orDivider').style.color = '#666';
       setGlobalStatus('ok', 'Totale calcolato. Puoi salvare e inviare.');
+
+      hideRecalcBanner();
+      btnCalc.textContent = 'Ricalcola';
+      updateStepper();
     }
 
     function resetCalcState() {
@@ -1191,7 +1499,10 @@
       summaryBox.textContent = 'Carica almeno una prenotazione per vedere il riepilogo.';
       breakdownBox.style.display = 'none';
       totalBox.textContent = 'Saldo da versare: € —';
+      btnCalc.textContent = 'Calcola totale';
+      hideRecalcBanner();
       setGlobalStatus('', '');
+      updateStepper();
     }
 
     /***************
@@ -1277,7 +1588,7 @@
       }
       btnPay.disabled = false;
 
-      document.getElementById('popupImporto').textContent = lastCalcResult.saldo;
+      document.getElementById('popupImporto').textContent = formatEuro(lastCalcResult.saldo);
       document.getElementById('popupCausale').textContent = causale;
 
       document.querySelectorAll('.popup-btn-copy-sm').forEach(btn => {
@@ -1285,7 +1596,7 @@
         btn.classList.remove('copied');
       });
 
-      document.getElementById('payPopup').classList.add('active');
+      openModal();
     }
 
     async function copyPopupField(fieldId, btn) {
