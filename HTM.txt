@@ -440,7 +440,21 @@ aside {
       <h2>Riepilogo</h2>
 
       <div id="summaryBox">—</div>
-      <div id="totalBox" style="font-weight:600;margin-top:10px;">Totale da saldare: € —</div>
+      
+      <div id="breakdownBox" style="display:none; margin-top:12px; font-size:0.9rem; border-top:1px solid #e2e8f0; padding-top:12px;">
+        <div style="font-weight:600; margin-bottom:6px; color:#4a5568;">Dettaglio opzioni</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Colazione</span><span id="totColazione">€ 0,00</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Assicurazione annullamento</span><span id="totAssicurazione">€ 0,00</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Transfer opzionali</span><span id="totTransfer">€ 0,00</span></div>
+        <div style="display:flex; justify-content:space-between; margin-top:8px; padding-top:8px; border-top:1px solid #e2e8f0; font-weight:600;"><span>Totale opzioni</span><span id="totOpzioni">€ 0,00</span></div>
+        
+        <div style="display:flex; justify-content:space-between; margin-top:16px; color:#718096;"><span>Caparra versata</span><span id="caparraVersata">€ 0,00</span></div>
+      </div>
+
+      <div id="totalBox" style="font-weight:700; font-size:1.1rem; color:#2d3748; margin-top:16px; padding-top:12px; border-top:2px solid #cbd5e0; display:flex; justify-content:space-between;">
+        <span>Saldo da versare</span>
+        <span id="saldoDaVersare">€ —</span>
+      </div>
 
       <div style="margin-top:16px;">
         <label>Email per il riepilogo</label>
@@ -707,9 +721,13 @@ function addPersonCard(prefill) {
     <label style="margin-top:12px;">Alloggio</label>
     <div class="readonly-box alloggio-box">—</div>
 
-    <div class="options readonly">
-      <label><input type="checkbox" class="colazione" disabled> Colazione</label>
-      <label><input type="checkbox" class="assicurazione" disabled> Assicurazione annullamento</label>
+    <div class="promemoria-bozza" style="margin-top:16px; background:#f9fafb; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+      <label style="margin-top:0; color:#4a5568;"><span class="partner-badge" style="background:transparent; border:1px solid #cbd5e0; color:#4a5568; padding:2px 6px; font-size:0.75rem;">🔒 Solo promemoria</span></label>
+      <div style="font-size:0.8rem; color:#718096; margin-bottom:10px;">Queste opzioni sono già registrate e non si possono modificare.</div>
+      <div class="options readonly" style="margin-top:0;">
+        <label style="cursor:default;"><input type="checkbox" class="colazione" disabled> 🔒 Colazione</label>
+        <label style="cursor:default;"><input type="checkbox" class="assicurazione" disabled> 🔒 Assicurazione annullamento</label>
+      </div>
     </div>
 
     <label style="margin-top:12px;font-size:.9rem;">🚌 Transfer opzionali</label>
@@ -973,21 +991,52 @@ function calcolaTotale() {
     return;
   }
 
-  let totale = 0;
+  let totaleCorrente = 0;
+  let totColazione = 0;
+  let totAssicurazione = 0;
+  let totTransfer = 0;
+
   const righe = [];
   loaded.forEach(p => {
-    const costo = calcCardCosts(p.cardEl);
-    totale += costo;
-    righe.push(`${p.nome} ${p.cognome}: ${formatEuro(costo)}`);
+    const card = p.cardEl;
+    let s = 0;
+    
+    // Per il riepilogo "per persona" manteniamo il totale
+    let tmpCol = 0, tmpAss = 0, tmpTr = 0;
+    
+    if (card.querySelector('.colazione')?.checked)     { tmpCol += COSTI.colazione; }
+    if (card.querySelector('.assicurazione')?.checked) { tmpAss += COSTI.assicurazione; }
+    if (card.querySelector('.tr-rf')?.checked) { tmpTr += COSTI.transfer.rf; }
+    if (card.querySelector('.tr-pt')?.checked) { tmpTr += COSTI.transfer.pt; }
+    if (card.querySelector('.tr-sc')?.checked) { tmpTr += COSTI.transfer.sc; }
+    if (card.querySelector('.tr-fr')?.checked) { tmpTr += COSTI.transfer.fr; }
+    
+    const alloggioCosto = getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
+    
+    s = alloggioCosto + tmpCol + tmpAss + tmpTr;
+    totaleCorrente += s;
+    
+    totColazione += tmpCol;
+    totAssicurazione += tmpAss;
+    totTransfer += tmpTr;
+
+    righe.push(`${p.nome} ${p.cognome}: ${formatEuro(s)}`);
   });
 
   const caparraTotale = loaded.length * COSTI.caparra;
-  const saldo = totale - caparraTotale;
+  const saldo = totaleCorrente - caparraTotale;
 
-  document.getElementById('summaryBox').innerHTML =
-    righe.map(r => '<div>' + r + '</div>').join('');
-  document.getElementById('totalBox').textContent =
-    'Totale da saldare: ' + formatEuro(saldo);
+  document.getElementById('summaryBox').innerHTML = righe.map(r => '<div>' + r + '</div>').join('');
+  
+  // Popola la breakdown box
+  document.getElementById('breakdownBox').style.display = 'block';
+  document.getElementById('totColazione').textContent = formatEuro(totColazione);
+  document.getElementById('totAssicurazione').textContent = formatEuro(totAssicurazione);
+  document.getElementById('totTransfer').textContent = formatEuro(totTransfer);
+  document.getElementById('totOpzioni').textContent = formatEuro(totaleCorrente);
+  document.getElementById('caparraVersata').textContent = formatEuro(caparraTotale);
+  document.getElementById('saldoDaVersare').textContent = formatEuro(saldo);
+  document.getElementById('totalBox').style.display = 'flex';
 
   document.getElementById('saveBtn').disabled = false;
   document.getElementById('saveBtn').style.display = 'block';
@@ -995,7 +1044,7 @@ function calcolaTotale() {
   document.getElementById('payBtn').disabled = false;
   document.getElementById('payBtn').style.display = 'block';
 
-  lastCalcResult = { totale, caparra: caparraTotale, saldo, personePayload: [] };
+  lastCalcResult = { totale: totaleCorrente, caparra: caparraTotale, saldo, personePayload: [] };
   hideRecalcBanner();
   btnCalc.textContent = 'Calcola totale';
   updateStepper();
@@ -1017,7 +1066,8 @@ function resetCalcState() {
   btnPay.disabled = true;
   document.getElementById('orDivider').style.color = '#a0aec0';
   document.getElementById('summaryBox').textContent = '—';
-  document.getElementById('totalBox').textContent = 'Totale da saldare: € —';
+  document.getElementById('breakdownBox').style.display = 'none';
+  document.getElementById('saldoDaVersare').textContent = '€ —';
   btnCalc.textContent = 'Calcola totale';
   hideRecalcBanner();
   setGlobal('', '');
