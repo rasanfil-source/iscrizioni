@@ -326,6 +326,8 @@ aside {
 <script>
 const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbypOQa6JsgF6Ga1SMzZlTFWFoSBo9kUxHOK319CpzePwRQkrYKCcFi6KIpZVz93-7gD/exec';
 
+const FETCH_TIMEOUT_MS = 12000;
+
 const COSTI = {
   alloggio: { M: 250, S: 640, DM: 475, DS: 475, T: 460 },
   colazione: 70,
@@ -334,8 +336,19 @@ const COSTI = {
   caparra: 150
 };
 
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /* ── STATE ── */
-let persone = [];        // { id, cardEl, loaded, cognome, nome, isPartner }
+let persone = [];        // { id, cardEl, loaded, cognome, nome, isPartner, partnerId }
 let idCounter = 0;
 const container = document.getElementById('personsContainer');
 
@@ -399,7 +412,8 @@ function addPersonCard(prefill) {
   const p = {
     id, cardEl: div, loaded: false,
     cognome: '', nome: '', row: null,
-    isPartner: isPartner
+    isPartner: isPartner,
+    partnerId: prefill?.partnerId ?? null
   };
   persone.push(p);
 
@@ -435,6 +449,7 @@ function addPersonCard(prefill) {
   if (btnRm) btnRm.addEventListener('click', () => removeCard(id));
 
   updateTitles();
+  return id;
 }
 
 function removeCard(id) {
@@ -443,13 +458,15 @@ function removeCard(id) {
 
   // Se ha un partner caricato, rimuovi anche quello
   const person = persone[idx];
-  if (!person.isPartner) {
-    // Cerca se ha un partner associato (card subito dopo con isPartner)
-    const partnerIdx = persone.findIndex(p => p.isPartner && p.id > person.id);
+  if (!person.isPartner && person.partnerId != null) {
+    const partnerIdx = persone.findIndex(p => p.id === person.partnerId);
     if (partnerIdx !== -1) {
       persone[partnerIdx].cardEl.remove();
       persone.splice(partnerIdx, 1);
     }
+  } else if (person.isPartner && person.partnerId != null) {
+    const owner = persone.find(p => p.id === person.partnerId);
+    if (owner) owner.partnerId = null;
   }
 
   person.cardEl.remove();
@@ -481,12 +498,14 @@ function resetCardData(cardEl, id) {
   setCardStatus(cardEl, '', '');
 
   // Rimuovi eventuale partner associato
-  const partnerIdx = persone.findIndex(pp => pp.isPartner && pp.id > p.id &&
-    (persone.indexOf(pp) === persone.indexOf(p) + 1));
+  const partnerIdx = p.partnerId != null
+    ? persone.findIndex(pp => pp.id === p.partnerId)
+    : -1;
   if (partnerIdx !== -1) {
     persone[partnerIdx].cardEl.remove();
     persone.splice(partnerIdx, 1);
   }
+  p.partnerId = null;
   updateTitles();
 }
 
@@ -514,7 +533,7 @@ async function lookupPersona(cardEl, id) {
       ? { action: 'lookupPersona', nome, cognome }
       : { action: 'lookupByCognome', cognome };
 
-    const res = await fetch(GAS_ENDPOINT, {
+    const res = await fetchWithTimeout(GAS_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
@@ -563,20 +582,27 @@ async function lookupPersona(cardEl, id) {
     // Partner camera DM → aggiungi card automatica
     if (data.partner && !persone.some(pp => pp.row === data.partner.row)) {
       const pp = data.partner.persona;
-      addPersonCard({
+      const partnerId = addPersonCard({
         cognome: pp.cognome,
         nome: pp.nome,
         alloggio: pp.alloggio,
         colazione: pp.colazione,
         assicurazione: pp.assicurazione,
         row: data.partner.row,
-        isPartner: true
+        isPartner: true,
+        partnerId: p.id
       });
+      p.partnerId = partnerId;
+      const partner = persone.find(pp => pp.id === partnerId);
+      if (partner) partner.partnerId = p.id;
     }
 
   } catch (err) {
     console.error(err);
-    setCardStatus(cardEl, 'error', 'Errore di caricamento.');
+    const msg = err.name === 'AbortError'
+      ? 'Timeout di caricamento. Riprova tra qualche secondo.'
+      : 'Errore di caricamento.';
+    setCardStatus(cardEl, 'error', msg);
   }
 }
 
@@ -620,7 +646,7 @@ function calcolaTotale() {
   loaded.forEach(p => {
     const costo = calcCardCosts(p.cardEl);
     totale += costo;
-    righe.push(`${p.nome} ${p.cognome}: € ${costo - COSTI.caparra}`);
+    righe.push(`${p.nome} ${p.cognome}: € ${costo}`);
   });
 
   const caparraTotale = loaded.length * COSTI.caparra;
@@ -674,7 +700,7 @@ async function salvaEInvia() {
   document.getElementById('saveBtn').disabled = true;
 
   try {
-    const res = await fetch(GAS_ENDPOINT, {
+    const res = await fetchWithTimeout(GAS_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({

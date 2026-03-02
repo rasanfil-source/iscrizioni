@@ -606,14 +606,8 @@
     /***************
      * GESTIONE CARD
      ***************/
-    function addPersonCard() {
-      const clone = template.content.cloneNode(true);
-      const card = clone.querySelector('.person-card');
-      const index = personCounter++;
-
-      card.dataset.personIndex = index;
-      card.querySelector('.card-title').textContent = 'Persona ' + (persone.length + 1);
-      if (persone.length > 0) card.classList.add('removable');
+    function bindLookupEvents(card, index) {
+      if (card.dataset.lookupBound === 'true') return;
 
       const nomeInput = card.querySelector('.person-nome');
       const cognomeInput = card.querySelector('.person-cognome');
@@ -635,6 +629,20 @@
       };
       nomeInput.addEventListener('input', resetAndCancel);
       cognomeInput.addEventListener('input', resetAndCancel);
+
+      card.dataset.lookupBound = 'true';
+    }
+
+    function addPersonCard() {
+      const clone = template.content.cloneNode(true);
+      const card = clone.querySelector('.person-card');
+      const index = personCounter++;
+
+      card.dataset.personIndex = index;
+      card.querySelector('.card-title').textContent = 'Persona ' + (persone.length + 1);
+      if (persone.length > 0) card.classList.add('removable');
+
+      bindLookupEvents(card, index);
 
       // Transfer → invalida calcolo
       card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
@@ -710,6 +718,8 @@
       const p = persone.find(p => p.index === index);
       if (!p) return;
 
+      lookupCache.delete(makeCacheKey(p.nome, p.cognome));
+
       // Rimuovi l'eventuale partner card generata automaticamente
       if (p.partnerIndex != null) {
         removeCard(p.partnerIndex);
@@ -729,6 +739,8 @@
       p.nome = ''; p.cognome = ''; p.row = null;
       p.alloggio = ''; p.colazione = false; p.assicurazione = false;
       p.loaded = false;
+
+      bindLookupEvents(card, index);
 
       setCardStatus(card, '', '');
       updateCardTitles();
@@ -787,6 +799,7 @@
 
       card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
       card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
+      bindLookupEvents(card, index);
 
       container.appendChild(card);
 
@@ -952,6 +965,13 @@
 
       const caparra = COSTI.caparra * loaded.length;
       const saldo = totOpzioni - caparra;
+
+      if (saldo < 0) {
+        setGlobalStatus('error', 'Il saldo calcolato è negativo. Verifica i dati con la segreteria prima di procedere.');
+        btnSave.disabled = true;
+        lastCalcResult = null;
+        return;
+      }
 
       summaryBox.textContent = '';
       lines.forEach(l => {
