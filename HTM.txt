@@ -178,8 +178,9 @@ aside {
   inset: 0;
   background: rgba(0,0,0,.45);
   z-index: 999999;
+  align-items: flex-start;
+  justify-content: center;
   overflow-y: auto;
-  padding: 140px 20px 40px 20px; /* 140px per non finire sotto l'header del sito */
 }
 .popup-overlay.active { display: flex; }
 .popup-box {
@@ -187,9 +188,10 @@ aside {
   border-radius: 14px;
   padding: 26px 28px;
   max-width: 440px;
-  width: 100%;
+  width: 92%;
   box-shadow: 0 8px 30px rgba(0,0,0,.22);
-  margin: auto; /* Centra orizzontalmente e verticalmente se c'è spazio */
+  margin-top: 140px; /* Spazio per l'header del sito */
+  margin-bottom: 40px; /* Spazio in basso quando si scorre */
 }
 .popup-box h3 { margin: 0 0 6px; font-size: 1.15rem; text-align: center; }
 .popup-box .popup-subtitle { text-align: center; color: #666; font-size: .85rem; margin-bottom: 16px; }
