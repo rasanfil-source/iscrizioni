@@ -261,6 +261,16 @@ aside {
   color: #999;
   margin-top: 12px;
 }
+.popup-note {
+  margin-top: 12px;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: .8rem;
+  color: #4a5568;
+  line-height: 1.45;
+}
 </style>
 
 <div class="page">
@@ -310,9 +320,33 @@ aside {
       <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupImporto',this)">📋</button>
     </div>
     <div class="popup-field">
+      <span class="popup-field-label">Nome</span>
+      <span class="popup-field-value" id="popupNome"></span>
+      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupNome',this)">📋</button>
+    </div>
+    <div class="popup-field">
+      <span class="popup-field-label">Cognome</span>
+      <span class="popup-field-value" id="popupCognome"></span>
+      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupCognome',this)">📋</button>
+    </div>
+    <div class="popup-field">
+      <span class="popup-field-label">Email</span>
+      <span class="popup-field-value" id="popupEmail"></span>
+      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupEmail',this)">📋</button>
+    </div>
+    <div class="popup-field">
       <span class="popup-field-label">Messaggio</span>
       <span class="popup-field-value" id="popupCausale"></span>
       <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupCausale',this)">📋</button>
+    </div>
+    <div class="popup-field">
+      <span class="popup-field-label">Privacy</span>
+      <span class="popup-field-value" id="popupPrivacy">Partecipa pubblicamente</span>
+      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupPrivacy',this)">📋</button>
+    </div>
+
+    <div class="popup-note">
+      Su Tinaba verifica/attiva anche il checkbox <strong>"Confermo di aver preso visione..."</strong> prima dell'invio.
     </div>
 
     <div class="popup-actions">
@@ -734,6 +768,7 @@ async function salvaEInvia() {
    PAGA CON CARTA (popup persistente + copia campi)
    ══════════════════════════════════════════ */
 const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
+let tinabaPrefill = null;
 
 function openPayPopup() {
   const loaded = persone.filter(p => p.loaded);
@@ -750,7 +785,19 @@ function openPayPopup() {
 
   // Popola i campi del popup
   document.getElementById('popupImporto').textContent = saldo;
+  document.getElementById('popupNome').textContent = primo.nome || '—';
+  document.getElementById('popupCognome').textContent = primo.cognome || '—';
+  document.getElementById('popupEmail').textContent = email || '—';
   document.getElementById('popupCausale').textContent = causale;
+  document.getElementById('popupPrivacy').textContent = 'Partecipa pubblicamente';
+
+  tinabaPrefill = {
+    amount: String(saldo),
+    name: primo.nome || '',
+    surname: primo.cognome || '',
+    email,
+    notes: causale
+  };
 
   // Reset bottoni copia
   document.querySelectorAll('.popup-btn-copy-sm').forEach(btn => {
@@ -774,7 +821,18 @@ async function copyPopupField(fieldId, btn) {
 }
 
 function openTinaba() {
-  window.open(TINABA_URL, '_blank');
+  const url = new URL(TINABA_URL);
+
+  if (tinabaPrefill) {
+    // Funziona solo se il form Tinaba accetta prefill via querystring con questi nomi.
+    url.searchParams.set('input_amount', tinabaPrefill.amount);
+    url.searchParams.set('input_name', tinabaPrefill.name);
+    url.searchParams.set('input_surname', tinabaPrefill.surname);
+    url.searchParams.set('input_email', tinabaPrefill.email);
+    url.searchParams.set('input_notes', tinabaPrefill.notes);
+  }
+
+  window.open(url.toString(), '_blank');
 }
 
 function setGlobal(type, msg) {
