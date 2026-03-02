@@ -358,23 +358,10 @@ aside {
 .recalc-banner.active {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
 }
 
-.recalc-banner button {
-  border: 1px solid #f6ad55;
-  background: #fff;
-  color: #7b341e;
-  border-radius: 8px;
-  padding: 7px 10px;
-  cursor: pointer;
-  font-weight: 700;
-}
 
-.recalc-banner button:hover {
-  background: #fff3d6;
-}
 
 /* ─────────────────────────────────────────
    ACCESSIBILITÀ
@@ -474,7 +461,6 @@ aside {
         <button id="payBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#e67e22;color:#fff;border:1px solid #e67e22;cursor:pointer;font-weight:600;">💳 Paga subito con carta</button>
         <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
           <span>Hai modificato le opzioni: è necessario <b>ricalcolare</b> il totale.</span>
-          <button id="recalcNowBtn" type="button">Ricalcola</button>
         </div>
       </div>
 
@@ -587,7 +573,6 @@ function updateStepper() {
 
 // Banner ricalcolo necessario
 const recalcBanner = document.getElementById('recalcBanner');
-const recalcNowBtn = document.getElementById('recalcNowBtn');
 const btnCalc = document.getElementById('calcBtn');
 const btnSave = document.getElementById('saveBtn');
 const btnPay = document.getElementById('payBtn');
@@ -616,15 +601,15 @@ function onOptionsChanged() {
   if (lastCalcResult) {
     showRecalcBanner();
     setGlobal('', '');
-    totalBox.textContent = 'Totale da saldare: € —';
-    summaryBox.textContent = 'Opzioni modificate: premi “Ricalcola” per aggiornare il totale.';
+    document.getElementById('saldoDaVersare').textContent = '€ —';
+    document.getElementById('breakdownBox').style.display = 'none';
+    summaryBox.textContent = 'Opzioni modificate: premi il tasto blu “Ricalcola” per aggiornare il totale.';
   } else {
     resetCalcState();
   }
 }
 
-// click sul banner → ricalcola
-recalcNowBtn?.addEventListener('click', calcolaTotale);
+
 
 /***************
  * MODAL accessibile (focus + ESC + trap)
