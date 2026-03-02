@@ -519,28 +519,6 @@
       color: #999;
       margin-top: 12px;
     }
-
-    .popup-btn-copy-all {
-      flex: 1;
-      border: 1px solid #3182ce;
-      color: #2c5282;
-      background: #ebf8ff;
-      border-radius: 8px;
-      padding: 11px 14px;
-      font-size: .9rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .popup-btn-copy-all:hover {
-      background: #bee3f8;
-    }
-
-    .popup-btn-copy-all.copied {
-      background: #c6f6d5;
-      border-color: #38a169;
-      color: #22543d;
-    }
   </style>
 </head>
 
@@ -634,8 +612,7 @@
   <div class="popup-overlay" id="payPopup">
     <div class="popup-box">
       <h3>Dati da inserire su Tinaba</h3>
-      <div class="popup-subtitle">Tinaba non consente precompilazione via URL: copia e incolla manualmente ogni campo.
-      </div>
+      <div class="popup-subtitle">Copia ogni campo e incollalo sulla pagina di pagamento</div>
 
       <div class="popup-field">
         <span class="popup-field-label">Importo</span>
@@ -647,40 +624,12 @@
         <span class="popup-field-value" id="popupCausale"></span>
         <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupCausale',this)">📋</button>
       </div>
-      <div class="popup-field">
-        <span class="popup-field-label">Nome</span>
-        <span class="popup-field-value" id="popupNome"></span>
-        <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupNome',this)">📋</button>
-      </div>
-      <div class="popup-field">
-        <span class="popup-field-label">Cognome</span>
-        <span class="popup-field-value" id="popupCognome"></span>
-        <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupCognome',this)">📋</button>
-      </div>
-      <div class="popup-field">
-        <span class="popup-field-label">Email</span>
-        <span class="popup-field-value" id="popupEmail"></span>
-        <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupEmail',this)">📋</button>
-      </div>
-      <div class="popup-field">
-        <span class="popup-field-label">Privacy</span>
-        <span class="popup-field-value" id="popupPrivacy"></span>
-        <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupPrivacy',this)">📋</button>
-      </div>
-      <div class="popup-field">
-        <span class="popup-field-label">Termini</span>
-        <span class="popup-field-value" id="popupTermini"></span>
-        <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupTermini',this)">📋</button>
-      </div>
 
       <div class="popup-actions">
-        <button type="button" class="popup-btn-copy-all" id="popupCopyAllBtn" onclick="copyPopupBundle(this)">📋 Copia
-          tutti i dati</button>
-        <button type="button" class="popup-btn-open" id="popupOpenBtn">Apri Tinaba (compilazione manuale) →</button>
+        <button type="button" class="popup-btn-open" id="popupOpenBtn">Apri Tinaba →</button>
         <button type="button" class="popup-btn-close" id="popupCloseBtn">Chiudi</button>
       </div>
-      <div class="popup-hint">Nessun dato viene trasferito automaticamente: usa i tasti 📋 e compila a mano su Tinaba.
-      </div>
+      <div class="popup-hint">Il popup resta aperto — passa all’altro tab per incollare i dati.</div>
     </div>
   </div>
 
@@ -1286,23 +1235,13 @@
 
       const primo = loaded[0];
       const causale = 'Saldo Cammino 2026 ' + primo.cognome;
-      const email = emailInput.value.trim();
 
       document.getElementById('popupImporto').textContent = lastCalcResult.saldo;
       document.getElementById('popupCausale').textContent = causale;
-      document.getElementById('popupNome').textContent = primo.nome;
-      document.getElementById('popupCognome').textContent = primo.cognome;
-      document.getElementById('popupEmail').textContent = email || 'Compila con la tua email su Tinaba';
-      document.getElementById('popupPrivacy').textContent = 'Seleziona la modalità privacy desiderata su Tinaba (riservata o pubblica).';
-      document.getElementById('popupTermini').textContent = 'Spunta manualmente il checkbox dei termini su Tinaba prima di confermare il pagamento.';
 
-      document.querySelectorAll('.popup-btn-copy-sm, .popup-btn-copy-all').forEach(btn => {
+      document.querySelectorAll('.popup-btn-copy-sm').forEach(btn => {
+        btn.textContent = '📋';
         btn.classList.remove('copied');
-        if (btn.classList.contains('popup-btn-copy-all')) {
-          btn.textContent = '📋 Copia tutti i dati';
-        } else {
-          btn.textContent = '📋';
-        }
       });
 
       document.getElementById('payPopup').classList.add('active');
@@ -1317,34 +1256,6 @@
         setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
       } catch {
         prompt('Copia manualmente:', value);
-      }
-    }
-
-    async function copyPopupBundle(btn) {
-      const labels = {
-        popupImporto: 'Importo',
-        popupCausale: 'Messaggio',
-        popupNome: 'Nome',
-        popupCognome: 'Cognome',
-        popupEmail: 'Email',
-        popupPrivacy: 'Privacy',
-        popupTermini: 'Termini'
-      };
-      const orderedIds = Object.keys(labels);
-      const bundle = orderedIds
-        .map(id => `${labels[id]}: ${document.getElementById(id)?.textContent || ''}`)
-        .join('\n');
-
-      try {
-        await navigator.clipboard.writeText(bundle);
-        btn.textContent = '✅ Copiato';
-        btn.classList.add('copied');
-        setTimeout(() => {
-          btn.textContent = '📋 Copia tutti i dati';
-          btn.classList.remove('copied');
-        }, 2200);
-      } catch {
-        prompt('Copia manualmente questo blocco:', bundle);
       }
     }
 
