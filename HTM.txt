@@ -735,17 +735,59 @@ async function salvaEInvia() {
    ══════════════════════════════════════════ */
 const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
 
-function openPayPopup() {
+async function openPayPopup() {
   const loaded = persone.filter(p => p.loaded);
   if (loaded.length === 0) return;
 
   const primo = loaded[0];
   const causale = 'Saldo Cammino 2026 ' + primo.cognome;
+  const email = document.getElementById('emailInput').value.trim();
 
   // Ricalcola il saldo
   let totale = 0;
-  loaded.forEach(p => { totale += calcCardCosts(p.cardEl); });
-  const saldo = totale - loaded.length * COSTI.caparra;
+  const personePayload = loaded.map(p => {
+    const card = p.cardEl;
+    const costo = calcCardCosts(card);
+    totale += costo;
+    return {
+      nome: p.nome, cognome: p.cognome, row: p.row,
+      transfer: {
+        rf: !!card.querySelector('.tr-rf')?.checked,
+        pt: !!card.querySelector('.tr-pt')?.checked,
+        sc: !!card.querySelector('.tr-sc')?.checked,
+        fr: !!card.querySelector('.tr-fr')?.checked
+      }
+    };
+  });
+  const caparraTotale = loaded.length * COSTI.caparra;
+  const saldo = totale - caparraTotale;
+
+  // Salva transfer nel foglio Google
+  setGlobal('', 'Salvataggio scelte in corso…');
+  document.getElementById('payBtn').disabled = true;
+  try {
+    const res = await fetchWithTimeout(GAS_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'salvaTransfer',
+        email,
+        persone: personePayload,
+        totale, caparra: caparraTotale, saldo
+      })
+    });
+    let data;
+    try { data = JSON.parse(await res.text()); }
+    catch { throw new Error('Risposta non valida'); }
+    if (!data.success) throw new Error(data.message || data.error || 'Errore salvataggio');
+    setGlobal('ok', 'Scelte salvate. Compila il pagamento su Tinaba.');
+  } catch (err) {
+    console.error(err);
+    setGlobal('error', 'Errore salvataggio: ' + err.message);
+    document.getElementById('payBtn').disabled = false;
+    return; // Non mostrare il popup se il salvataggio fallisce
+  }
+  document.getElementById('payBtn').disabled = false;
 
   // Popola i campi del popup
   document.getElementById('popupImporto').textContent = saldo;

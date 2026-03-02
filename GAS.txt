@@ -257,8 +257,6 @@ function doPost(e) {
       const caparra = payload.caparra;
       const saldo   = payload.saldo;
 
-      if (!email || !email.includes('@'))
-        return jsonOut({ success: false, message: 'Email non valida' });
       if (!Array.isArray(persone) || persone.length === 0)
         return jsonOut({ success: false, message: 'Nessuna persona da salvare' });
 
@@ -291,21 +289,25 @@ function doPost(e) {
       // Dopo la scrittura, invalida la cache così il prossimo lookup rilegge il foglio
       invalidateCache_();
 
-      // Invio email
-      try {
-        GmailApp.sendEmail(
-          email,
-          'Cammino 2026 – Riepilogo e saldo da versare',
-          buildEmailPlain_(persone, totale, caparra, saldo),
-          { name: 'Parrocchia S. Eugenio', htmlBody: buildEmailHtml_(persone, totale, caparra, saldo) }
-        );
-        Logger.log('✅ Email inviata a %s', email);
-      } catch (emailErr) {
-        Logger.log('❌ Errore email: %s', emailErr);
-        return jsonOut({ success: false, message: 'Transfer salvati ma errore email: ' + emailErr.message, risultati });
+      // Invio email solo se presente un indirizzo valido
+      if (email && email.includes('@')) {
+        try {
+          GmailApp.sendEmail(
+            email,
+            'Cammino 2026 – Riepilogo e saldo da versare',
+            buildEmailPlain_(persone, totale, caparra, saldo),
+            { name: 'Parrocchia S. Eugenio', htmlBody: buildEmailHtml_(persone, totale, caparra, saldo) }
+          );
+          Logger.log('✅ Email inviata a %s', email);
+        } catch (emailErr) {
+          Logger.log('❌ Errore email: %s', emailErr);
+          return jsonOut({ success: false, message: 'Transfer salvati ma errore email: ' + emailErr.message, risultati });
+        }
+      } else {
+        Logger.log('ℹ️ Nessuna email fornita, transfer salvati senza invio email');
       }
 
-      return jsonOut({ success: true, risultati });
+      return jsonOut({ success: true, emailSent: !!(email && email.includes('@')), risultati });
     }
 
     return jsonOut({ success: false, error: 'Azione non valida: ' + action });

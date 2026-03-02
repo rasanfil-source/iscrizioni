@@ -1227,7 +1227,7 @@
     /***************
      * PAGA CON CARTA (popup persistente + copia campi)
      ***************/
-    function openPayPopup() {
+    async function openPayPopup() {
       if (!lastCalcResult) return;
 
       const loaded = persone.filter(p => p.loaded);
@@ -1235,6 +1235,36 @@
 
       const primo = loaded[0];
       const causale = 'Saldo Cammino 2026 ' + primo.cognome;
+      const email = emailInput.value.trim();
+
+      // Salva transfer nel foglio Google
+      setGlobalStatus('', 'Salvataggio scelte in corso…');
+      btnPay.disabled = true;
+      try {
+        const res = await fetchWithTimeout(GAS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'salvaTransfer',
+            email,
+            persone: lastCalcResult.persone,
+            totale: lastCalcResult.totaleOpzioni,
+            caparra: lastCalcResult.caparra,
+            saldo: lastCalcResult.saldo
+          })
+        });
+        let data;
+        try { data = JSON.parse(await res.text()); }
+        catch { throw new Error('Risposta non valida'); }
+        if (!data.success) throw new Error(data.message || data.error || 'Errore salvataggio');
+        setGlobalStatus('ok', 'Scelte salvate. Compila il pagamento su Tinaba.');
+      } catch (err) {
+        console.error(err);
+        setGlobalStatus('error', 'Errore salvataggio: ' + err.message);
+        btnPay.disabled = false;
+        return;
+      }
+      btnPay.disabled = false;
 
       document.getElementById('popupImporto').textContent = lastCalcResult.saldo;
       document.getElementById('popupCausale').textContent = causale;
