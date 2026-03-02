@@ -946,9 +946,13 @@
       const caparra = COSTI.caparra * loaded.length;
       const saldo = totOpzioni - caparra;
 
-      summaryBox.innerHTML = lines
-        .map(l => '<div class="summary-line">' + l + '</div>')
-        .join('');
+      summaryBox.textContent = '';
+      lines.forEach(l => {
+        const row = document.createElement('div');
+        row.className = 'summary-line';
+        row.textContent = l;
+        summaryBox.appendChild(row);
+      });
 
       breakdownBox.style.display = 'block';
       document.getElementById('totaleOpzioni').textContent = '€' + totOpzioni;
@@ -972,6 +976,7 @@
     function resetCalcState() {
       lastCalcResult = null;
       btnSave.disabled = true;
+      btnSave.textContent = 'Salva e Invia email';
       summaryBox.textContent = 'Carica almeno una prenotazione per vedere il riepilogo.';
       breakdownBox.style.display = 'none';
       totalBox.textContent = 'Saldo da versare: € —';
