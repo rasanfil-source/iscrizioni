@@ -908,6 +908,8 @@
     let persone = [];
     let personCounter = 0;
     let lastCalcResult = null;
+    let recalcNeeded = false;
+    let _lastSavedHash = null;
     const lookupTimers = {};
     const lookupControllers = {};
     const latestLookupToken = {};
@@ -979,7 +981,6 @@
     }
 
     // Banner ricalcolo necessario
-    let recalcNeeded = false;
     const recalcBanner = document.getElementById('recalcBanner');
     const recalcNowBtn = document.getElementById('recalcNowBtn');
 
@@ -1508,7 +1509,6 @@
     /***************
      * SALVA TRANSFER — funzione condivisa con hash dedup
      ***************/
-    let _lastSavedHash = null;
 
     function _calcResultHash(result, email) {
       return JSON.stringify({ ...result, email });

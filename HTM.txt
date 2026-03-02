@@ -516,6 +516,9 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS)
 /* ── STATE ── */
 let persone = [];        // { id, cardEl, loaded, cognome, nome, isPartner, partnerId }
 let idCounter = 0;
+let lastCalcResult = null;
+let recalcNeeded = false;
+let _lastSavedHash = null;
 const container = document.getElementById('personsContainer');
 
 /* ── INIT ── */
@@ -563,7 +566,6 @@ function updateStepper() {
 }
 
 // Banner ricalcolo necessario
-let recalcNeeded = false;
 const recalcBanner = document.getElementById('recalcBanner');
 const recalcNowBtn = document.getElementById('recalcNowBtn');
 const btnCalc = document.getElementById('calcBtn');
@@ -999,8 +1001,6 @@ function calcolaTotale() {
 /* ══════════════════════════════════════════
    SALVA TRANSFER — funzione condivisa con hash dedup
    ══════════════════════════════════════════ */
-let lastCalcResult = null;
-let _lastSavedHash = null;
 
 function resetCalcState() {
   lastCalcResult = null;
