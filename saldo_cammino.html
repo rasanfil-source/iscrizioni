@@ -703,7 +703,7 @@
         <div id="warmupBadge">⏳ Connessione al server…</div>
         <h2>Riepilogo</h2>
 
-        <div id="summaryBox">Carica almeno una prenotazione per vedere il riepilogo.</div>
+        <div id="summaryBox">—</div>
 
         <div class="breakdown" id="breakdownBox" style="display:none;">
           <div><span>Totale opzioni:</span><span id="totaleOpzioni">€ 0</span></div>
@@ -1497,7 +1497,7 @@
       btnPay.disabled = true;
       btnSave.textContent = 'Invia riepilogo via email';
       document.getElementById('orDivider').style.color = '#a0aec0';
-      summaryBox.textContent = 'Carica almeno una prenotazione per vedere il riepilogo.';
+      summaryBox.textContent = '—';
       breakdownBox.style.display = 'none';
       totalBox.textContent = 'Saldo da versare: € —';
       btnCalc.textContent = 'Calcola totale';

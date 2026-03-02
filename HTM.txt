@@ -1008,7 +1008,7 @@ function resetCalcState() {
   btnSave.disabled = true;
   btnPay.disabled = true;
   document.getElementById('orDivider').style.color = '#a0aec0';
-  document.getElementById('summaryBox').textContent = 'Carica almeno una prenotazione per vedere il riepilogo.';
+  document.getElementById('summaryBox').textContent = '—';
   document.getElementById('totalBox').textContent = 'Totale da saldare: € —';
   btnCalc.textContent = 'Calcola totale';
   hideRecalcBanner();
