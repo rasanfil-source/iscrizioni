@@ -557,9 +557,9 @@
 
         <div style="margin-top:18px;">
           <button class="primary" id="calcBtn" type="button">Calcola totale</button>
-          <button class="secondary" id="saveBtn" type="button" disabled>Salva e Invia email</button>
+          <button class="secondary" id="saveBtn" type="button" disabled>Riepilogo e IBAN via email</button>
           <button class="secondary" id="payBtn" type="button" disabled
-            style="background:#e67e22;border-color:#e67e22;">Paga subito con carta</button>
+            style="background:#e67e22;border-color:#e67e22;">💳 Paga subito con carta</button>
         </div>
 
         <div id="globalStatus" class="status"></div>
@@ -1180,7 +1180,7 @@
       _lastSavedHash = null;
       btnSave.disabled = true;
       btnPay.disabled = true;
-      btnSave.textContent = 'Salva e Invia email';
+      btnSave.textContent = 'Riepilogo e IBAN via email';
       summaryBox.textContent = 'Carica almeno una prenotazione per vedere il riepilogo.';
       breakdownBox.style.display = 'none';
       totalBox.textContent = 'Saldo da versare: € —';
@@ -1231,7 +1231,7 @@
       }
 
       btnSave.disabled = true;
-      setGlobalStatus('loading', '<span class="spinner"></span>Salvataggio in corso…');
+      setGlobalStatus('loading', '<span class="spinner"></span>Salvataggio in corso... attendere prego.');
 
       try {
         await doSalvaTransfer(email);
@@ -1257,7 +1257,7 @@
       const causale = 'Saldo Cammino 2026 ' + primo.cognome;
       const email = emailInput.value.trim();
 
-      setGlobalStatus('', 'Salvataggio scelte in corso…');
+      setGlobalStatus('', 'Salvataggio scelte in corso... attendere prego.');
       btnPay.disabled = true;
       try {
         await doSalvaTransfer(email);

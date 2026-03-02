@@ -289,8 +289,8 @@ aside {
 
       <div style="margin-top:16px;">
         <button class="primary" id="calcBtn">Calcola totale</button>
-        <button id="saveBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#38a169;color:#fff;border:1px solid #38a169;cursor:pointer;font-weight:600;">Salva e Invia email</button>
-        <button id="payBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#e67e22;color:#fff;border:1px solid #e67e22;cursor:pointer;font-weight:600;">Paga subito con carta</button>
+        <button id="saveBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#38a169;color:#fff;border:1px solid #38a169;cursor:pointer;font-weight:600;">Riepilogo e IBAN via email</button>
+        <button id="payBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#e67e22;color:#fff;border:1px solid #e67e22;cursor:pointer;font-weight:600;">💳 Paga subito con carta</button>
       </div>
 
       <div id="globalStatus" class="status"></div>
@@ -727,7 +727,7 @@ async function salvaEInvia() {
   const caparraTotale = loaded.length * COSTI.caparra;
   const saldo = totale - caparraTotale;
 
-  setGlobal('', 'Salvataggio in corso…');
+  setGlobal('', 'Salvataggio in corso... attendere prego.');
   document.getElementById('saveBtn').disabled = true;
 
   try {
@@ -773,7 +773,7 @@ async function openPayPopup() {
   const saldo = totale - caparraTotale;
 
   // Salva transfer nel foglio Google (dedup: se già salvato con stessi dati, skip)
-  setGlobal('', 'Salvataggio scelte in corso…');
+  setGlobal('', 'Salvataggio scelte in corso... attendere prego.');
   document.getElementById('payBtn').disabled = true;
   try {
     await doSalvaTransfer(email, personePayload, totale, caparraTotale, saldo);
