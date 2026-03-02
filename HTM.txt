@@ -526,7 +526,7 @@ addPersonCard();
 document.getElementById('btnAddPerson').addEventListener('click', addPersonCard);
 document.getElementById('calcBtn').addEventListener('click', calcolaTotale);
 document.getElementById('saveBtn').addEventListener('click', salvaEInvia);
-document.getElementById('payBtn').addEventListener('click', () => openModal());
+document.getElementById('payBtn').addEventListener('click', openPayPopup);
 document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
 
 /***************
