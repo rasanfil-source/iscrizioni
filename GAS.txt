@@ -17,7 +17,7 @@ const COL_TR_SC          = 20; // T  Santiago → A Coruña
 const COL_TR_FR          = 21; // U  Fiumicino → Roma
 
 // Riga dalla quale partono i dati (la riga 2 contiene i costi)
-const DATA_START_ROW     = 2;
+const DATA_START_ROW     = 3;
 
 // Costi transfer (scritti nelle celle)
 const COSTI_TR = { rf: 10, pt: 15, sc: 15, fr: 10 };

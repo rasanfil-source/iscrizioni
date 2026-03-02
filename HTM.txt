@@ -169,13 +169,14 @@ aside {
 
 .status.ok { color: #0b6b0b; }
 .status.error { color: #b00020; }
+.status.loading { color: #2563eb; font-weight: 500; }
 
 /* ── Popup pagamento ── */
 .popup-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.4);
+  background: rgba(0,0,0,.45);
   z-index: 1000;
   align-items: center;
   justify-content: center;
@@ -183,41 +184,82 @@ aside {
 .popup-overlay.active { display: flex; }
 .popup-box {
   background: #fff;
-  border-radius: 12px;
-  padding: 24px 28px;
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-  box-shadow: 0 8px 30px rgba(0,0,0,.2);
+  border-radius: 14px;
+  padding: 26px 28px;
+  max-width: 440px;
+  width: 92%;
+  box-shadow: 0 8px 30px rgba(0,0,0,.22);
 }
-.popup-box h3 { margin: 0 0 14px; font-size: 1.15rem; }
-.popup-causale {
+.popup-box h3 { margin: 0 0 6px; font-size: 1.15rem; text-align: center; }
+.popup-box .popup-subtitle { text-align: center; color: #666; font-size: .85rem; margin-bottom: 16px; }
+.popup-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.popup-field-label {
+  font-size: .8rem;
+  font-weight: 600;
+  color: #4a5568;
+  min-width: 72px;
+  text-align: right;
+}
+.popup-field-value {
+  flex: 1;
   background: #f7f7f7;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 1rem;
-  margin-bottom: 14px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: .95rem;
   word-break: break-word;
+  color: #222;
 }
-.popup-btn-copy {
-  background: #0056b3;
+.popup-field-value.importo { font-weight: 700; color: #c53030; font-size: 1.05rem; }
+.popup-btn-copy-sm {
+  background: none;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: .85rem;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.popup-btn-copy-sm:hover { background: #ebf8ff; border-color: #3182ce; }
+.popup-btn-copy-sm.copied { background: #c6f6d5; border-color: #38a169; }
+.popup-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.popup-btn-open {
+  flex: 1;
+  background: #e67e22;
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 10px 24px;
+  padding: 11px 18px;
   font-size: 1rem;
   cursor: pointer;
   font-weight: 600;
 }
-.popup-btn-copy:hover { background: #004494; }
-.popup-close {
-  margin-top: 10px;
-  background: none;
-  border: none;
-  color: #888;
+.popup-btn-open:hover { background: #d35400; }
+.popup-btn-close {
+  background: #fff;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  padding: 11px 18px;
+  font-size: .95rem;
   cursor: pointer;
-  font-size: 0.85rem;
+  color: #4a5568;
+}
+.popup-btn-close:hover { background: #f7fafc; }
+.popup-hint {
+  text-align: center;
+  font-size: .78rem;
+  color: #999;
+  margin-top: 12px;
 }
 </style>
 
@@ -256,16 +298,28 @@ aside {
   </div>
 </div>
 
-<!-- Popup causale pagamento -->
+<!-- Popup dati per Tinaba -->
 <div class="popup-overlay" id="payPopup">
   <div class="popup-box">
-    <h3>Prima di pagare, copia la causale</h3>
-    <div class="popup-causale" id="popupCausale"></div>
-    <div><strong>Importo: </strong><span id="popupImporto" style="color:#e07070;font-weight:600;font-size:1.1rem;"></span></div>
-    <br>
-    <button class="popup-btn-copy" id="popupCopyBtn">📋 Copia causale</button>
-    <br>
-    <button class="popup-close" id="popupCloseBtn">Annulla</button>
+    <h3>Dati da inserire su Tinaba</h3>
+    <div class="popup-subtitle">Copia ogni campo e incollalo sulla pagina di pagamento</div>
+
+    <div class="popup-field">
+      <span class="popup-field-label">Importo</span>
+      <span class="popup-field-value importo" id="popupImporto"></span>
+      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupImporto',this)">📋</button>
+    </div>
+    <div class="popup-field">
+      <span class="popup-field-label">Messaggio</span>
+      <span class="popup-field-value" id="popupCausale"></span>
+      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupCausale',this)">📋</button>
+    </div>
+
+    <div class="popup-actions">
+      <button type="button" class="popup-btn-open" id="popupOpenBtn">Apri Tinaba →</button>
+      <button type="button" class="popup-btn-close" id="popupCloseBtn">Chiudi</button>
+    </div>
+    <div class="popup-hint">Il popup resta aperto — passa all'altro tab per incollare i dati.</div>
   </div>
 </div>
 
@@ -291,7 +345,7 @@ document.getElementById('btnAddPerson').addEventListener('click', addPersonCard)
 document.getElementById('calcBtn').addEventListener('click', calcolaTotale);
 document.getElementById('saveBtn').addEventListener('click', salvaEInvia);
 document.getElementById('payBtn').addEventListener('click', openPayPopup);
-document.getElementById('popupCopyBtn').addEventListener('click', copyCausaleAndPay);
+document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
 document.getElementById('popupCloseBtn').addEventListener('click', () => {
   document.getElementById('payPopup').classList.remove('active');
 });
@@ -331,6 +385,7 @@ function addPersonCard(prefill) {
       <label><input type="checkbox" class="assicurazione" disabled> Assicurazione annullamento</label>
     </div>
 
+    <label style="margin-top:12px;font-size:.9rem;">🚌 Transfer opzionali</label>
     <div class="options">
       <label><input type="checkbox" class="tr-rf"> Roma→Fiumicino (€10)</label>
       <label><input type="checkbox" class="tr-pt"> Porto→Tui (€15)</label>
@@ -452,7 +507,7 @@ async function lookupPersona(cardEl, id) {
   const nome    = cardEl.querySelector('.person-nome').value.trim();
   if (!cognome) return;
 
-  setCardStatus(cardEl, '', 'Caricamento…');
+  setCardStatus(cardEl, 'loading', 'Caricamento…');
 
   try {
     const payload = nome
@@ -650,9 +705,9 @@ async function salvaEInvia() {
 }
 
 /* ══════════════════════════════════════════
-   PAGA CON CARTA (popup + copia causale)
+   PAGA CON CARTA (popup persistente + copia campi)
    ══════════════════════════════════════════ */
-let lastSaldoCalcolato = 0;
+const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
 
 function openPayPopup() {
   const loaded = persone.filter(p => p.loaded);
@@ -660,31 +715,40 @@ function openPayPopup() {
 
   const primo = loaded[0];
   const causale = 'Saldo Cammino 2026 ' + primo.cognome;
+  const email = document.getElementById('emailInput').value.trim();
 
   // Ricalcola il saldo
   let totale = 0;
   loaded.forEach(p => { totale += calcCardCosts(p.cardEl); });
-  lastSaldoCalcolato = totale - loaded.length * COSTI.caparra;
+  const saldo = totale - loaded.length * COSTI.caparra;
 
+  // Popola i campi del popup
+  document.getElementById('popupImporto').textContent = saldo;
   document.getElementById('popupCausale').textContent = causale;
-  document.getElementById('popupImporto').textContent = '€ ' + lastSaldoCalcolato;
-  document.getElementById('popupCopyBtn').textContent = '📋 Copia causale';
+
+  // Reset bottoni copia
+  document.querySelectorAll('.popup-btn-copy-sm').forEach(btn => {
+    btn.textContent = '📋';
+    btn.classList.remove('copied');
+  });
+
   document.getElementById('payPopup').classList.add('active');
 }
 
-async function copyCausaleAndPay() {
-  const causale = document.getElementById('popupCausale').textContent;
+async function copyPopupField(fieldId, btn) {
+  const value = document.getElementById(fieldId).textContent;
   try {
-    await navigator.clipboard.writeText(causale);
-    document.getElementById('popupCopyBtn').textContent = '✅ Copiato!';
+    await navigator.clipboard.writeText(value);
+    btn.textContent = '✅';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
   } catch {
-    // fallback: selezione manuale
-    prompt('Copia questa causale:', causale);
+    prompt('Copia manualmente:', value);
   }
-  setTimeout(() => {
-    document.getElementById('payPopup').classList.remove('active');
-    window.open('https://crowdfunding.tinaba.it/donate-with-card/1020284', '_blank');
-  }, 800);
+}
+
+function openTinaba() {
+  window.open(TINABA_URL, '_blank');
 }
 
 function setGlobal(type, msg) {
