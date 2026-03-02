@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calcolo Saldo – Cammino 2026</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #222;
+      margin: 0;
+      background: #f0f2f5;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 14px 60px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 28px;
+      font-size: 1.6rem;
+      color: #1a365d;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 32px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Card persona ── */
+    .person-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #2d3748;
+    }
+
+    .btn-remove {
+      background: #e53e3e;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      display: none;
+    }
+
+    .btn-remove:hover {
+      background: #c53030;
+    }
+
+    .person-card.removable .btn-remove {
+      display: block;
+    }
+
+    /* Bottone "Cambia persona" (visibile quando la card è bloccata) */
+    .btn-change {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e0;
+      background: #fff;
+      cursor: pointer;
+      color: #4a5568;
+      display: none;
+    }
+
+    .btn-change:hover {
+      background: #f7fafc;
+      color: #e53e3e;
+      border-color: #e53e3e;
+    }
+
+    .person-card.locked .btn-change {
+      display: inline-block;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 500px) {
+      .input-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #4a5568;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color .2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      outline: none;
+      border-color: #3182ce;
+      box-shadow: 0 0 0 3px rgba(49, 130, 206, .15);
+    }
+
+    input[type="text"][readonly] {
+      background: #e2e8f0;
+      color: #2d3748;
+      cursor: not-allowed;
+      border-color: #e2e8f0;
+    }
+
+    input[type="text"][readonly]:focus {
+      box-shadow: none;
+    }
+
+    .readonly-box {
+      background: #e2e8f0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      color: #2d3748;
+      font-weight: 500;
+    }
+
+    .options {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .options.readonly {
+      opacity: .7;
+    }
+
+    .options label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: normal;
+      cursor: pointer;
+      padding: 6px 0;
+    }
+
+    .options input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #3182ce;
+    }
+
+    .section-label {
+      font-size: .85rem;
+      font-weight: 600;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Bottoni ── */
+    button {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e0;
+      background: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all .2s;
+    }
+
+    button:hover {
+      background: #f7fafc;
+    }
+
+    button.primary {
+      background: #3182ce;
+      color: #fff;
+      border-color: #3182ce;
+      width: 100%;
+      font-weight: 600;
+    }
+
+    button.primary:hover {
+      background: #2c5282;
+    }
+
+    button.primary:disabled {
+      background: #a0aec0;
+      border-color: #a0aec0;
+      cursor: not-allowed;
+    }
+
+    button.secondary {
+      background: #48bb78;
+      color: #fff;
+      border-color: #48bb78;
+      width: 100%;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    button.secondary:hover {
+      background: #38a169;
+    }
+
+    button.secondary:disabled {
+      background: #a0aec0;
+      border-color: #a0aec0;
+      cursor: not-allowed;
+    }
+
+    #btnAddPerson {
+      background: #fff;
+      border: 2px dashed #a0aec0;
+      color: #4a5568;
+      padding: 14px;
+      width: 100%;
+      border-radius: 12px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    #btnAddPerson:hover {
+      border-color: #3182ce;
+      color: #3182ce;
+    }
+
+    /* ── Sidebar ── */
+    aside {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
+      position: sticky;
+      top: 20px;
+    }
+
+    aside h2 {
+      margin-top: 0;
+      color: #2d3748;
+      font-size: 1.2rem;
+    }
+
+    #summaryBox {
+      background: #f7fafc;
+      padding: 12px;
+      border-radius: 8px;
+      min-height: 60px;
+      font-size: .95rem;
+      line-height: 1.5;
+    }
+
+    #summaryBox .summary-line {
+      padding: 4px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    #summaryBox .summary-line:last-child {
+      border-bottom: none;
+    }
+
+    #totalBox {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-top: 14px;
+      padding: 12px;
+      background: #ebf8ff;
+      border-radius: 8px;
+      color: #2c5282;
+    }
+
+    .breakdown {
+      font-size: .9rem;
+      color: #4a5568;
+      margin-top: 8px;
+    }
+
+    .breakdown div {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    /* ── Status ── */
+    .status {
+      font-size: .9rem;
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+
+    .status:empty {
+      display: none;
+    }
+
+    .status.ok {
+      color: #276749;
+      background: #c6f6d5;
+    }
+
+    .status.error {
+      color: #c53030;
+      background: #fed7d7;
+    }
+
+    .status.loading {
+      color: #744210;
+      background: #fefcbf;
+    }
+
+    /* Spinner inline */
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(116, 66, 16, .3);
+      border-top-color: #744210;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    /* Indicatore warm-up GAS */
+    #warmupBadge {
+      font-size: .75rem;
+      text-align: center;
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      background: #fefcbf;
+      color: #744210;
+      display: none;
+    }
+
+    #warmupBadge.ready {
+      background: #c6f6d5;
+      color: #276749;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <h1>Calcolo saldo prenotazioni – Cammino 2026</h1>
+
+    <div class="layout">
+
+      <!-- COLONNA SINISTRA -->
+      <div>
+        <div id="personsContainer"></div>
+        <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
+      </div>
+
+      <!-- COLONNA DESTRA -->
+      <aside>
+        <div id="warmupBadge">⏳ Connessione al server…</div>
+        <h2>Riepilogo</h2>
+
+        <div id="summaryBox">Carica almeno una prenotazione per vedere il riepilogo.</div>
+
+        <div class="breakdown" id="breakdownBox" style="display:none;">
+          <div><span>Totale opzioni:</span><span id="totaleOpzioni">€ 0</span></div>
+          <div><span>Caparra versata:</span><span id="caparraVersata">€ 0</span></div>
+        </div>
+
+        <div id="totalBox">Saldo da versare: € —</div>
+
+        <div style="margin-top:18px;">
+          <label>Email per il riepilogo</label>
+          <input type="email" id="emailInput" placeholder="email@esempio.it">
+        </div>
+
+        <div style="margin-top:18px;">
+          <button class="primary" id="calcBtn" type="button">Calcola totale</button>
+          <button class="secondary" id="saveBtn" type="button" disabled>Salva e Invia email</button>
+        </div>
+
+        <div id="globalStatus" class="status"></div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Template card persona -->
+  <template id="personCardTemplate">
+    <div class="person-card" data-person-index="">
+      <div class="card-header">
+        <span class="card-title">Persona</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn-change" title="Cambia persona">✎ Cambia</button>
+          <button type="button" class="btn-remove" title="Rimuovi persona">✕</button>
+        </div>
+      </div>
+
+      <div class="input-row">
+        <div>
+          <label>Cognome</label>
+          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name">
+        </div>
+        <div>
+          <label>Nome</label>
+          <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+        </div>
+      </div>
+      <div class="status person-status"></div>
+
+      <div class="section-label">Dati prenotazione</div>
+      <label style="margin-bottom:4px;">Alloggio</label>
+      <div class="readonly-box alloggio-box">—</div>
+
+      <div class="options readonly">
+        <label><input type="checkbox" class="colazione" disabled> Colazione (€70)</label>
+        <label><input type="checkbox" class="assicurazione" disabled> Assicurazione annullamento (€20)</label>
+      </div>
+
+      <div class="section-label">Transfer opzionali</div>
+      <div class="options transfer-options">
+        <label><input type="checkbox" class="tr-rf"> Roma → Fiumicino (€10)</label>
+        <label><input type="checkbox" class="tr-pt"> Porto → Tui (€15)</label>
+        <label><input type="checkbox" class="tr-sc"> Santiago → A Coruña (€15)</label>
+        <label><input type="checkbox" class="tr-fr"> Fiumicino → Roma (€10)</label>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    /***************
+     * CONFIG
+     ***************/
+    const GAS_ENDPOINT =
+      'https://script.google.com/macros/s/AKfycbypOQa6JsgF6Ga1SMzZlTFWFoSBo9kUxHOK319CpzePwRQkrYKCcFi6KIpZVz93-7gD/exec';
+
+    const FETCH_TIMEOUT_MS = 10000; // 10 secondi
+
+    const COSTI = {
+      alloggio: { M: 250, S: 640, DM: 475, DS: 475, T: 460 },
+      colazione: 70,
+      assicurazione: 20,
+      transfer: { rf: 10, pt: 15, sc: 15, fr: 10 },
+      caparra: 150
+    };
+
+    /***************
+     * ALLOGGIO HELPERS
+     ***************/
+    function getSiglaAlloggio(text) {
+      if (!text || text === '—') return null;
+      const t = text.toLowerCase();
+      if (t.includes('multipla') || t.includes('ostello')) return 'M';
+      if (t.includes('singola')) return 'S';
+      const dm = t.match(/\(dm(\d*)\)/i);
+      if (dm) return 'DM' + dm[1];
+      if (t.includes('matrimoniale')) return 'DM';
+      if (t.includes('separati')) return 'DS';
+      if (t.includes('tripla')) return 'T';
+      let s = text.trim().toUpperCase();
+      if (/^DM\d*$/.test(s)) return s;
+      s = s.replace(/\d+$/, '');
+      return COSTI.alloggio[s] !== undefined ? s : null;
+    }
+
+    function getCostoAlloggio(text) {
+      const s = getSiglaAlloggio(text);
+      if (!s) return 0;
+      if (/^DM\d*$/.test(s)) return COSTI.alloggio['DM'] || 0;
+      return COSTI.alloggio[s] || 0;
+    }
+
+    /***************
+     * FETCH CON TIMEOUT
+     * Combina il timeout controller con il signal di cancellazione del caller.
+     * Senza questo fix, il signal del caller veniva sovrascritto e cancelLookup()
+     * non interrompeva mai il fetch in corso.
+     ***************/
+    async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) {
+      const timeoutAC = new AbortController();
+      let timedOut = false;
+      const timer = setTimeout(() => { timedOut = true; timeoutAC.abort(); }, timeoutMs);
+
+      // Propaga il signal del caller (es. da cancelLookup) al controller del timeout
+      const callerSignal = options.signal;
+      if (callerSignal) {
+        if (callerSignal.aborted) {
+          clearTimeout(timer);
+          timeoutAC.abort();
+        } else {
+          callerSignal.addEventListener('abort', () => timeoutAC.abort(), { once: true });
+        }
+      }
+
+      // Rimuovi il signal dalle options originali (verrà sostituito da timeoutAC.signal)
+      const { signal: _omit, ...rest } = options;
+      try {
+        return await fetch(url, { ...rest, signal: timeoutAC.signal });
+      } finally {
+        clearTimeout(timer);
+        // Espone se l'abort era dovuto al timeout (usato nel catch di lookupPersona)
+        timeoutAC.signal._timedOut = timedOut;
+      }
+    }
+
+    /***************
+     * WARM-UP GAS (ping preventivo al caricamento della pagina)
+     * Riduce il cold-start da ~4s a ~200ms per il primo lookup reale.
+     ***************/
+    (async () => {
+      const badge = document.getElementById('warmupBadge');
+      badge.style.display = 'block';
+      try {
+        await fetchWithTimeout(GAS_ENDPOINT, { method: 'GET', mode: 'no-cors' }, 8000);
+        badge.textContent = '✅ Server pronto';
+        badge.classList.add('ready');
+      } catch (_) {
+        badge.textContent = '⚠️ Server lento – la prima ricerca potrebbe richiedere qualche secondo';
+      }
+      setTimeout(() => { badge.style.display = 'none'; }, 3000);
+    })();
+
+    /***************
+     * STATE
+     ***************/
+    let persone = [];
+    let personCounter = 0;
+    let lastCalcResult = null;
+    const lookupTimers = {};
+    const lookupControllers = {};
+    const latestLookupToken = {};
+    const lookupCache = new Map();
+
+    function makeCacheKey(nome, cognome) {
+      return (nome || '').trim().toLowerCase() + '|' + (cognome || '').trim().toLowerCase();
+    }
+
+    /***************
+     * DOM REFS
+     ***************/
+    const container = document.getElementById('personsContainer');
+    const template = document.getElementById('personCardTemplate');
+    const btnAdd = document.getElementById('btnAddPerson');
+    const btnCalc = document.getElementById('calcBtn');
+    const btnSave = document.getElementById('saveBtn');
+    const summaryBox = document.getElementById('summaryBox');
+    const breakdownBox = document.getElementById('breakdownBox');
+    const totalBox = document.getElementById('totalBox');
+    const globalStatus = document.getElementById('globalStatus');
+    const emailInput = document.getElementById('emailInput');
+
+    /***************
+     * INIT
+     ***************/
+    addPersonCard();
+    btnAdd.addEventListener('click', addPersonCard);
+    btnCalc.addEventListener('click', calcolaTotale);
+    btnSave.addEventListener('click', salvaEInvia);
+
+    /***************
+     * GESTIONE CARD
+     ***************/
+    function addPersonCard() {
+      const clone = template.content.cloneNode(true);
+      const card = clone.querySelector('.person-card');
+      const index = personCounter++;
+
+      card.dataset.personIndex = index;
+      card.querySelector('.card-title').textContent = 'Persona ' + (persone.length + 1);
+      if (persone.length > 0) card.classList.add('removable');
+
+      const nomeInput = card.querySelector('.person-nome');
+      const cognomeInput = card.querySelector('.person-cognome');
+
+      // Trigger lookup: blur + Enter su entrambi i campi
+      const triggerLookup = () => debouncedLookup(card, index, 0);
+      const onKeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); triggerLookup(); } };
+      nomeInput.addEventListener('blur', triggerLookup);
+      cognomeInput.addEventListener('blur', triggerLookup);
+      nomeInput.addEventListener('keydown', onKeydown);
+      cognomeInput.addEventListener('keydown', onKeydown);
+
+      // Reset su modifica (solo se non locked)
+      const resetAndCancel = () => {
+        const p = persone.find(p => p.index === index);
+        if (p && p.loaded) return; // bloccata: ignora input (campo è readonly)
+        cancelLookup(index);
+        resetCard(card, index);
+      };
+      nomeInput.addEventListener('input', resetAndCancel);
+      cognomeInput.addEventListener('input', resetAndCancel);
+
+      // Transfer → invalida calcolo
+      card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
+        chk.addEventListener('change', resetCalcState);
+      });
+
+      // Bottone rimuovi
+      card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
+
+      // Bottone "Cambia persona" → sblocca la card per reinserire i dati
+      card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
+
+      container.appendChild(card);
+
+      persone.push({
+        index,
+        nome: '', cognome: '', row: null,
+        alloggio: '', colazione: false, assicurazione: false,
+        loaded: false,
+        cardEl: card
+      });
+
+      updateCardTitles();
+      resetCalcState();
+    }
+
+    function removeCard(index) {
+      const i = persone.findIndex(p => p.index === index);
+      if (i === -1) return;
+      cancelLookup(index);
+      persone[i].cardEl?.remove();
+      persone.splice(i, 1);
+      updateCardTitles();
+      resetCalcState();
+    }
+
+    function updateCardTitles() {
+      persone.forEach((p, i) => {
+        if (!p.cardEl) return;
+        p.cardEl.querySelector('.card-title').textContent =
+          p.loaded ? p.nome + ' ' + p.cognome : 'Persona ' + (i + 1);
+        // Prima card removibile solo se ci sono altre card
+        if (i === 0) {
+          p.cardEl.classList.toggle('removable', persone.length > 1);
+        } else {
+          p.cardEl.classList.add('removable');
+        }
+      });
+    }
+
+    function resetCard(card, index) {
+      const p = persone.find(p => p.index === index);
+      if (!p) return;
+
+      p.nome = ''; p.cognome = ''; p.row = null;
+      p.alloggio = ''; p.colazione = false; p.assicurazione = false;
+      p.loaded = false;
+
+      card.querySelector('.alloggio-box').textContent = '—';
+      card.querySelector('.colazione').checked = false;
+      card.querySelector('.assicurazione').checked = false;
+      card.querySelector('.person-nome').removeAttribute('readonly');
+      card.querySelector('.person-cognome').removeAttribute('readonly');
+      card.classList.remove('locked');
+
+      setCardStatus(card, '', '');
+      updateCardTitles();
+      resetCalcState();
+    }
+
+    // Sblocca una card già caricata per correggere nome/cognome
+    function unlockCard(card, index) {
+      const p = persone.find(p => p.index === index);
+      if (!p) return;
+
+      // Svuota i campi e azzera lo stato
+      card.querySelector('.person-nome').removeAttribute('readonly');
+      card.querySelector('.person-cognome').removeAttribute('readonly');
+      card.querySelector('.person-nome').value = '';
+      card.querySelector('.person-cognome').value = '';
+      card.querySelector('.alloggio-box').textContent = '—';
+      card.querySelector('.colazione').checked = false;
+      card.querySelector('.assicurazione').checked = false;
+      card.classList.remove('locked');
+
+      p.nome = ''; p.cognome = ''; p.row = null;
+      p.alloggio = ''; p.colazione = false; p.assicurazione = false;
+      p.loaded = false;
+
+      setCardStatus(card, '', '');
+      updateCardTitles();
+      resetCalcState();
+      card.querySelector('.person-cognome').focus();
+    }
+
+    function cancelLookup(index) {
+      if (lookupTimers[index]) { clearTimeout(lookupTimers[index]); delete lookupTimers[index]; }
+      if (lookupControllers[index]) { lookupControllers[index].abort(); delete lookupControllers[index]; }
+      delete latestLookupToken[index];
+    }
+
+    function setCardStatus(card, type, msg) {
+      const el = card.querySelector('.person-status');
+      el.innerHTML = msg;
+      el.className = 'status person-status' + (type ? ' ' + type : '');
+    }
+
+    function debouncedLookup(card, index, delay = 150) {
+      if (lookupTimers[index]) clearTimeout(lookupTimers[index]);
+      lookupTimers[index] = setTimeout(() => {
+        lookupPersona(card, index);
+        delete lookupTimers[index];
+      }, delay);
+    }
+
+    /***************
+     * CARICAMENTO PARTNER (camera DM numerata)
+     ***************/
+    function loadPartnerCard(partnerData) {
+      if (persone.some(p => p.row === partnerData.row)) return; // già presente
+
+      const clone = template.content.cloneNode(true);
+      const card = clone.querySelector('.person-card');
+      const index = personCounter++;
+
+      card.dataset.personIndex = index;
+      card.classList.add('removable', 'locked');
+
+      const nomeInput = card.querySelector('.person-nome');
+      const cognomeInput = card.querySelector('.person-cognome');
+      nomeInput.value = partnerData.nome;
+      cognomeInput.value = partnerData.cognome;
+      nomeInput.setAttribute('readonly', true);
+      cognomeInput.setAttribute('readonly', true);
+
+      const p = partnerData.persona;
+      card.querySelector('.alloggio-box').textContent = p.alloggio || '—';
+      card.querySelector('.colazione').checked = !!p.colazione;
+      card.querySelector('.assicurazione').checked = !!p.assicurazione;
+
+      card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
+        chk.addEventListener('change', resetCalcState);
+      });
+
+      card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
+      card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
+
+      container.appendChild(card);
+
+      persone.push({
+        index,
+        nome: partnerData.nome,
+        cognome: partnerData.cognome,
+        row: partnerData.row,
+        alloggio: p.alloggio || '',
+        colazione: !!p.colazione,
+        assicurazione: !!p.assicurazione,
+        loaded: true,
+        cardEl: card
+      });
+
+      setCardStatus(card, 'ok', 'Partner caricato automaticamente.');
+      updateCardTitles();
+      setGlobalStatus('ok', 'Camera doppia matrimoniale: caricati entrambi i coniugi.');
+    }
+
+    /***************
+     * LOOKUP
+     ***************/
+    async function lookupPersona(card, index) {
+      const p = persone.find(p => p.index === index);
+      if (!p || p.loaded) return;
+
+      const cognome = card.querySelector('.person-cognome').value.trim();
+      const nome = card.querySelector('.person-nome').value.trim();
+      if (!cognome) return;
+
+      const key = makeCacheKey(nome, cognome);
+      if (lookupCache.has(key)) {
+        applyResult(card, p, lookupCache.get(key), nome, cognome);
+        return;
+      }
+
+      cancelLookup(index);
+      const controller = new AbortController();
+      lookupControllers[index] = controller;
+      const token = Symbol();
+      latestLookupToken[index] = token;
+
+      setCardStatus(card, 'loading', '<span class="spinner"></span>Caricamento…');
+
+      try {
+        const payload = nome
+          ? { action: 'lookupPersona', nome, cognome }
+          : { action: 'lookupByCognome', cognome };
+
+        const res = await fetchWithTimeout(GAS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+
+        let data;
+        try { data = JSON.parse(await res.text()); }
+        catch { throw new Error('Risposta non valida dal server'); }
+
+        if (latestLookupToken[index] !== token) return; // risposta obsoleta
+
+        if (!data.success) {
+          const msg = data.error === 'duplicate'
+            ? 'Cognome presente più volte – specifica anche il nome o contatta la segreteria.'
+            : 'Prenotazione non trovata. Verifica nome e cognome.';
+          setCardStatus(card, 'error', msg);
+          return;
+        }
+
+        lookupCache.set(key, data);
+        applyResult(card, p, data, nome, cognome);
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          // Se lookupControllers[index] esiste ancora → non è stato cancellato dall'utente → timeout
+          // Se è stato cancellato dall'utente (cancelLookup lo elimina) → non mostrare niente
+          if (lookupControllers[index]) {
+            setCardStatus(card, 'error', 'Timeout – server lento. Riprova.');
+          }
+          // else: cancel utente → status già svuotato da resetCard/resetAndCancel
+          return;
+        }
+        console.error('Errore lookup:', err);
+        setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
+      } finally {
+        if (lookupControllers[index] === controller) delete lookupControllers[index];
+      }
+    }
+
+    function applyResult(card, person, data, nomeOrig, cognomeOrig) {
+      person.nome = data.persona?.nome || nomeOrig;
+      person.cognome = data.persona?.cognome || cognomeOrig;
+      person.row = data.row;
+      person.alloggio = data.persona?.alloggio || '—';
+      person.colazione = !!data.persona?.colazione;
+      person.assicurazione = !!data.persona?.assicurazione;
+      person.loaded = true;
+
+      card.querySelector('.alloggio-box').textContent = person.alloggio;
+      card.querySelector('.colazione').checked = person.colazione;
+      card.querySelector('.assicurazione').checked = person.assicurazione;
+      card.querySelector('.person-nome').setAttribute('readonly', true);
+      card.querySelector('.person-cognome').setAttribute('readonly', true);
+      card.classList.add('locked');
+
+      // Pre-compila email (solo se il campo è vuoto)
+      if (data.persona?.email && !emailInput.value.trim()) {
+        emailInput.value = data.persona.email;
+      }
+
+      setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
+      updateCardTitles();
+
+      if (data.partner?.persona) loadPartnerCard(data.partner);
+
+      resetCalcState();
+    }
+
+    /***************
+     * CALCOLO
+     ***************/
+    function calcolaSaldoPersona(person) {
+      if (!person.loaded) return 0;
+      const card = person.cardEl;
+      let tot = 0;
+      tot += getCostoAlloggio(person.alloggio);
+      if (person.colazione) tot += COSTI.colazione;
+      if (person.assicurazione) tot += COSTI.assicurazione;
+      if (card.querySelector('.tr-rf').checked) tot += COSTI.transfer.rf;
+      if (card.querySelector('.tr-pt').checked) tot += COSTI.transfer.pt;
+      if (card.querySelector('.tr-sc').checked) tot += COSTI.transfer.sc;
+      if (card.querySelector('.tr-fr').checked) tot += COSTI.transfer.fr;
+      return tot;
+    }
+
+    function getTransfer(card) {
+      return {
+        rf: card.querySelector('.tr-rf').checked,
+        pt: card.querySelector('.tr-pt').checked,
+        sc: card.querySelector('.tr-sc').checked,
+        fr: card.querySelector('.tr-fr').checked
+      };
+    }
+
+    function calcolaTotale() {
+      const loaded = persone.filter(p => p.loaded);
+      if (loaded.length === 0) {
+        setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
+        return;
+      }
+
+      let totOpzioni = 0;
+      const lines = [];
+
+      loaded.forEach(p => {
+        const s = calcolaSaldoPersona(p);
+        totOpzioni += s;
+        lines.push(p.nome + ' ' + p.cognome + ': €' + s);
+      });
+
+      const caparra = COSTI.caparra * loaded.length;
+      const saldo = totOpzioni - caparra;
+
+      summaryBox.innerHTML = lines
+        .map(l => '<div class="summary-line">' + l + '</div>')
+        .join('');
+
+      breakdownBox.style.display = 'block';
+      document.getElementById('totaleOpzioni').textContent = '€' + totOpzioni;
+      document.getElementById('caparraVersata').textContent = '€' + caparra;
+      totalBox.textContent = 'Saldo da versare: €' + saldo;
+
+      lastCalcResult = {
+        persone: loaded.map(p => ({
+          nome: p.nome, cognome: p.cognome, row: p.row,
+          transfer: getTransfer(p.cardEl)
+        })),
+        totaleOpzioni: totOpzioni,
+        caparra,
+        saldo
+      };
+
+      btnSave.disabled = false;
+      setGlobalStatus('ok', 'Totale calcolato. Puoi salvare e inviare.');
+    }
+
+    function resetCalcState() {
+      lastCalcResult = null;
+      btnSave.disabled = true;
+      summaryBox.textContent = 'Carica almeno una prenotazione per vedere il riepilogo.';
+      breakdownBox.style.display = 'none';
+      totalBox.textContent = 'Saldo da versare: € —';
+      setGlobalStatus('', '');
+    }
+
+    /***************
+     * SALVATAGGIO
+     ***************/
+    async function salvaEInvia() {
+      if (!lastCalcResult) { setGlobalStatus('error', 'Prima calcola il totale.'); return; }
+
+      const email = emailInput.value.trim();
+      if (!email || !email.includes('@')) {
+        setGlobalStatus('error', "Inserisci un'email valida."); return;
+      }
+
+      btnSave.disabled = true;
+      setGlobalStatus('loading', '<span class="spinner"></span>Salvataggio in corso…');
+
+      try {
+        const res = await fetchWithTimeout(GAS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'salvaTransfer',
+            email,
+            persone: lastCalcResult.persone,
+            totale: lastCalcResult.totaleOpzioni,
+            caparra: lastCalcResult.caparra,
+            saldo: lastCalcResult.saldo
+          })
+        });
+
+        let data;
+        try { data = JSON.parse(await res.text()); }
+        catch { throw new Error('Risposta non valida dal server'); }
+
+        if (!data.success) throw new Error(data.message || data.error || 'Errore sconosciuto');
+
+        setGlobalStatus('ok', '✅ Salvato! Email inviata a ' + email);
+        btnSave.textContent = 'Inviato ✓';
+
+      } catch (err) {
+        console.error('Errore salvataggio:', err);
+        setGlobalStatus('error', 'Errore: ' + err.message);
+        btnSave.disabled = false;
+      }
+    }
+
+    /***************
+     * STATUS HELPERS
+     ***************/
+    function setGlobalStatus(type, msg) {
+      globalStatus.innerHTML = msg;
+      globalStatus.className = 'status' + (type ? ' ' + type : '');
+    }
+  </script>
+</body>
+
+</html>
