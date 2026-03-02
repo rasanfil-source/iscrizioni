@@ -989,7 +989,7 @@ function calcolaTotale() {
 
   lastCalcResult = { totale, caparra: caparraTotale, saldo, personePayload: [] };
   hideRecalcBanner();
-  btnCalc.textContent = 'Ricalcola';
+  btnCalc.textContent = 'Calcola totale';
   updateStepper();
 
   document.getElementById('saveBtn').style.display = 'block';
