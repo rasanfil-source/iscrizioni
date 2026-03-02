@@ -614,7 +614,7 @@ function hideRecalcBanner() {
 function onOptionsChanged() {
   if (lastCalcResult) {
     showRecalcBanner();
-    setGlobal('', '');
+    setGlobalStatus('', '');
     document.getElementById('saldoDaVersare').textContent = '€ —';
     document.getElementById('breakdownBox').style.display = 'none';
     summaryBox.textContent = 'Opzioni modificate: premi il tasto blu “Ricalcola” per aggiornare il totale.';
@@ -729,7 +729,7 @@ function addPersonCard(prefill) {
     <div class="readonly-box alloggio-box">—</div>
 
     <div class="promemoria-bozza" style="margin-top:16px; background:#f9fafb; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
-      <label style="margin-top:0; color:#4a5568;"><span class="partner-badge" style="background:transparent; border:1px solid #cbd5e0; color:#4a5568; padding:2px 6px; font-size:0.75rem;">Solo promemoria</span></label>
+      <div style="font-weight:600; color:#4a5568; margin-top:0; border-bottom:1px solid #cbd5e0; padding-bottom:4px; margin-bottom:6px; font-size:0.85rem;">Solo promemoria</div>
       <div style="font-size:0.8rem; color:#718096; margin-bottom:10px;">Queste opzioni sono già registrate e non si possono modificare.</div>
       <div class="options readonly" style="margin-top:0;">
         <label style="cursor:default;"><input type="checkbox" class="colazione" disabled> 🔒 Colazione</label>
@@ -994,7 +994,7 @@ function calcCardCosts(cardEl) {
 function calcolaTotale() {
   const loaded = persone.filter(p => p.loaded);
   if (loaded.length === 0) {
-    setGlobal('error', 'Carica prima almeno una prenotazione.');
+    setGlobalStatus('error', 'Carica prima almeno una prenotazione.');
     return;
   }
 
@@ -1059,7 +1059,7 @@ function calcolaTotale() {
   document.getElementById('saveBtn').style.display = 'block';
   document.getElementById('orDivider').style.display = 'block';
   document.getElementById('payBtn').style.display = 'block';
-  setGlobal('ok', 'Totale calcolato per ' + loaded.length + ' persona/e.');
+  setGlobalStatus('ok', 'Totale calcolato per ' + loaded.length + ' persona/e.');
 
   // Scroll morbido verso il riepilogo
   setTimeout(() => {
@@ -1083,7 +1083,7 @@ function resetCalcState() {
   btnCalc.style.display = 'block';
   btnCalc.textContent = 'Calcola totale';
   hideRecalcBanner();
-  setGlobal('', '');
+  setGlobalStatus('', '');
   updateStepper();
 }
 
@@ -1117,13 +1117,13 @@ async function doSalvaTransfer(email, personePayload, totale, caparra, saldo) {
 async function salvaEInvia() {
   const email = document.getElementById('emailInput').value.trim();
   if (!email || !email.includes('@')) {
-    setGlobal('error', 'Inserisci un indirizzo email valido.');
+    setGlobalStatus('error', 'Inserisci un indirizzo email valido.');
     return;
   }
 
   const loaded = persone.filter(p => p.loaded);
   if (loaded.length === 0) {
-    setGlobal('error', 'Nessuna persona caricata.');
+    setGlobalStatus('error', 'Nessuna persona caricata.');
     return;
   }
 
@@ -1146,15 +1146,15 @@ async function salvaEInvia() {
   const caparraTotale = loaded.length * COSTI.caparra;
   const saldo = totale - caparraTotale;
 
-  setGlobal('', 'Salvataggio in corso... attendere prego.');
+  setGlobalStatus('', 'Salvataggio in corso... attendere prego.');
   document.getElementById('saveBtn').disabled = true;
 
   try {
     await doSalvaTransfer(email, personePayload, totale, caparraTotale, saldo);
-    setGlobal('ok', 'Salvato! Email di riepilogo inviata a ' + email);
+    setGlobalStatus('ok', 'Salvato! Email di riepilogo inviata a ' + email);
   } catch (err) {
     console.error(err);
-    setGlobal('error', 'Errore di connessione. Riprova.');
+    setGlobalStatus('error', 'Errore di connessione. Riprova.');
     document.getElementById('saveBtn').disabled = false;
   }
 }
@@ -1192,14 +1192,14 @@ async function openPayPopup() {
   const saldo = totale - caparraTotale;
 
   // Salva transfer nel foglio Google (dedup: se già salvato con stessi dati, skip)
-  setGlobal('', 'Salvataggio scelte in corso... attendere prego.');
+  setGlobalStatus('', 'Salvataggio scelte in corso... attendere prego.');
   document.getElementById('payBtn').disabled = true;
   try {
     await doSalvaTransfer(email, personePayload, totale, caparraTotale, saldo);
-    setGlobal('ok', 'Scelte salvate. Compila il pagamento su Tinaba.');
+    setGlobalStatus('ok', 'Scelte salvate. Compila il pagamento su Tinaba.');
   } catch (err) {
     console.error(err);
-    setGlobal('error', 'Errore salvataggio: ' + err.message);
+    setGlobalStatus('error', 'Errore salvataggio: ' + err.message);
     document.getElementById('payBtn').disabled = false;
     return;
   }
@@ -1234,7 +1234,7 @@ function openTinaba() {
   window.open(TINABA_URL, '_blank');
 }
 
-function setGlobal(type, msg) {
+function setGlobalStatus(type, msg) {
   const g = document.getElementById('globalStatus');
   g.textContent = msg;
   g.className = 'status ' + type;
