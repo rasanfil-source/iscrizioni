@@ -1020,7 +1020,7 @@ function calcolaTotale() {
     totAssicurazione += tmpAss;
     totTransfer += tmpTr;
 
-    righe.push(`${p.nome} ${p.cognome}: ${formatEuro(s)}`);
+    righe.push(`${p.nome} ${p.cognome}`);
   });
 
   const caparraTotale = loaded.length * COSTI.caparra;
