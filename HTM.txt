@@ -894,6 +894,14 @@ async function lookupPersona(cardEl, id) {
     cardEl.querySelector('.alloggio-box').textContent = data.persona.alloggio || '—';
     cardEl.querySelector('.colazione').checked     = !!data.persona.colazione;
     cardEl.querySelector('.assicurazione').checked = !!data.persona.assicurazione;
+    
+    if (data.persona.transfer) {
+      cardEl.querySelector('.tr-rf').checked = !!data.persona.transfer.rf;
+      cardEl.querySelector('.tr-pt').checked = !!data.persona.transfer.pt;
+      cardEl.querySelector('.tr-sc').checked = !!data.persona.transfer.sc;
+      cardEl.querySelector('.tr-fr').checked = !!data.persona.transfer.fr;
+    }
+
     setCardStatus(cardEl, 'ok', 'Prenotazione caricata.');
     updateTitles();
 

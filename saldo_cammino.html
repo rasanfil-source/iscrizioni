@@ -1388,6 +1388,14 @@
       card.querySelector('.alloggio-box').textContent = person.alloggio;
       card.querySelector('.colazione').checked = person.colazione;
       card.querySelector('.assicurazione').checked = person.assicurazione;
+
+      if (data.persona?.transfer) {
+        card.querySelector('.tr-rf').checked = !!data.persona.transfer.rf;
+        card.querySelector('.tr-pt').checked = !!data.persona.transfer.pt;
+        card.querySelector('.tr-sc').checked = !!data.persona.transfer.sc;
+        card.querySelector('.tr-fr').checked = !!data.persona.transfer.fr;
+      }
+
       card.querySelector('.person-nome').setAttribute('readonly', true);
       card.querySelector('.person-cognome').setAttribute('readonly', true);
       card.classList.add('locked');

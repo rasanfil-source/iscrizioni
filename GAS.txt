@@ -152,7 +152,13 @@ function parsePersona_(row) {
     assicurazione:!!row[COL_ASSIC          - 1],
     alloggio:     mapAlloggio(siglaAlloggio),
     siglaAlloggio: siglaAlloggio,
-    email:        String(row[COL_EMAIL     - 1] || '').trim()
+    email:        String(row[COL_EMAIL     - 1] || '').trim(),
+    transfer: {
+      rf: !!row[COL_TR_RF - 1],
+      pt: !!row[COL_TR_PT - 1],
+      sc: !!row[COL_TR_SC - 1],
+      fr: !!row[COL_TR_FR - 1]
+    }
   };
 }
 
