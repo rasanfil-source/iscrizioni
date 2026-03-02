@@ -358,12 +358,23 @@ aside {
 .recalc-banner.active {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
 }
 
+.recalc-banner button {
+  border: 1px solid #f6ad55;
+  background: #fff;
+  color: #7b341e;
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
 
-
-/* ─────────────────────────────────────────
+.recalc-banner button:hover {
+  background: #fff3d6;
+}/* ─────────────────────────────────────────
    ACCESSIBILITÀ
 ───────────────────────────────────────── */
 .sr-only {
@@ -386,6 +397,9 @@ aside {
 
 @media (max-width: 600px) {
   .stepper {
+    display: none;
+  }
+  .mobile-hide-icon {
     display: none;
   }
 }
@@ -458,9 +472,10 @@ aside {
         <button class="primary" id="calcBtn">Calcola totale</button>
         <button id="saveBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#38a169;color:#fff;border:1px solid #38a169;cursor:pointer;font-weight:600;">Invia riepilogo via email</button>
         <div id="orDivider" style="display:none; text-align:center; font-size:0.85rem; color:#666; margin-top:8px;">— oppure —</div>
-        <button id="payBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#e67e22;color:#fff;border:1px solid #e67e22;cursor:pointer;font-weight:600;">💳 Paga subito con carta</button>
+        <button id="payBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#e67e22;color:#fff;border:1px solid #e67e22;cursor:pointer;font-weight:600;"><span class="mobile-hide-icon">💳 </span>Paga subito con carta</button>
         <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
           <span>Hai modificato le opzioni: è necessario <b>ricalcolare</b> il totale.</span>
+          <button id="recalcNowBtn" type="button">Ricalcola</button>
         </div>
       </div>
 
@@ -573,6 +588,7 @@ function updateStepper() {
 
 // Banner ricalcolo necessario
 const recalcBanner = document.getElementById('recalcBanner');
+const recalcNowBtn = document.getElementById('recalcNowBtn');
 const btnCalc = document.getElementById('calcBtn');
 const btnSave = document.getElementById('saveBtn');
 const btnPay = document.getElementById('payBtn');
@@ -582,8 +598,6 @@ const totalBox = document.getElementById('totalBox');
 function showRecalcBanner() {
   recalcNeeded = true;
   recalcBanner?.classList.add('active');
-  btnCalc.style.display = 'block';
-  btnCalc.textContent = 'Ricalcola';
   btnSave.disabled = true;
   btnPay.disabled = true;
   document.getElementById('orDivider').style.color = '#a0aec0';
@@ -609,7 +623,8 @@ function onOptionsChanged() {
   }
 }
 
-
+// click sul banner → ricalcola
+recalcNowBtn?.addEventListener('click', calcolaTotale);
 
 /***************
  * MODAL accessibile (focus + ESC + trap)

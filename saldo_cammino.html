@@ -662,6 +662,10 @@
       .stepper {
         display: none;
       }
+
+      .mobile-hide-icon {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -746,9 +750,11 @@
           <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:10px 0;">— oppure —
           </div>
           <button class="secondary" id="payBtn" type="button" disabled
-            style="background:#e67e22;border-color:#e67e22;">💳 Paga subito con carta</button>
+            style="background:#e67e22;border-color:#e67e22;"><span class="mobile-hide-icon">💳 </span>Paga subito con
+            carta</button>
           <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
-            <span>⚠️ Hai modificato le opzioni. Prima di poter procedere devi aggiornare il totale.</span>
+            <span>Hai modificato le opzioni: è necessario <b>ricalcolare</b> il totale.</span>
+            <button id="recalcNowBtn" type="button">Ricalcola</button>
           </div>
         </div>
 
@@ -1043,6 +1049,8 @@
         resetCalcState();
       }
     }
+
+    recalcNowBtn?.addEventListener('click', calcolaTotale);
 
     /***************
      * MODAL accessibile (focus + ESC + trap)
