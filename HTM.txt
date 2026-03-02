@@ -290,6 +290,7 @@ aside {
       <div style="margin-top:16px;">
         <button class="primary" id="calcBtn">Calcola totale</button>
         <button id="saveBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#38a169;color:#fff;border:1px solid #38a169;cursor:pointer;font-weight:600;">Riepilogo via email</button>
+        <div id="orDivider" style="display:none; text-align:center; font-size:0.85rem; color:#666; margin-top:8px;">— oppure —</div>
         <button id="payBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#e67e22;color:#fff;border:1px solid #e67e22;cursor:pointer;font-weight:600;">💳 Paga subito con carta</button>
       </div>
 
@@ -659,6 +660,7 @@ function calcolaTotale() {
     'Totale da saldare: € ' + saldo;
 
   document.getElementById('saveBtn').style.display = 'block';
+  document.getElementById('orDivider').style.display = 'block';
   document.getElementById('payBtn').style.display = 'block';
   setGlobal('ok', 'Totale calcolato per ' + loaded.length + ' persona/e.');
 }

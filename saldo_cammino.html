@@ -558,6 +558,8 @@
         <div style="margin-top:18px;">
           <button class="primary" id="calcBtn" type="button">Calcola totale</button>
           <button class="secondary" id="saveBtn" type="button" disabled>Riepilogo via email</button>
+          <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:10px 0;">— oppure —
+          </div>
           <button class="secondary" id="payBtn" type="button" disabled
             style="background:#e67e22;border-color:#e67e22;">💳 Paga subito con carta</button>
         </div>
@@ -1172,6 +1174,7 @@
 
       btnSave.disabled = false;
       btnPay.disabled = false;
+      document.getElementById('orDivider').style.color = '#666';
       setGlobalStatus('ok', 'Totale calcolato. Puoi salvare e inviare.');
     }
 
@@ -1181,6 +1184,7 @@
       btnSave.disabled = true;
       btnPay.disabled = true;
       btnSave.textContent = 'Riepilogo via email';
+      document.getElementById('orDivider').style.color = '#a0aec0';
       summaryBox.textContent = 'Carica almeno una prenotazione per vedere il riepilogo.';
       breakdownBox.style.display = 'none';
       totalBox.textContent = 'Saldo da versare: € —';
