@@ -310,6 +310,11 @@ function doPost(e) {
       return jsonOut({ success: true, emailSent: !!(email && email.includes('@')), risultati });
     }
 
+    // ============ PING (warm-up affidabile) ============
+    if (action === '__ping__') {
+      return jsonOut({ success: true, pong: true });
+    }
+
     return jsonOut({ success: false, error: 'Azione non valida: ' + action });
 
   } catch (err) {

@@ -662,6 +662,38 @@ function calcolaTotale() {
   setGlobal('ok', 'Totale calcolato per ' + loaded.length + ' persona/e.');
 }
 
+/* ══════════════════════════════════════════
+   SALVA TRANSFER — funzione condivisa con hash dedup
+   ══════════════════════════════════════════ */
+let _lastSavedHash = null;
+
+function _calcResultHash(result, email) {
+  return JSON.stringify({ ...result, email });
+}
+
+async function doSalvaTransfer(email, personePayload, totale, caparra, saldo) {
+  const hash = _calcResultHash({ personePayload, totale, caparra, saldo }, email);
+  if (hash === _lastSavedHash) return { success: true, skipped: true };
+
+  const res = await fetchWithTimeout(GAS_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      action: 'salvaTransfer',
+      email,
+      persone: personePayload,
+      totale, caparra, saldo
+    })
+  });
+  let data;
+  try { data = JSON.parse(await res.text()); }
+  catch { throw new Error('Risposta non valida'); }
+  if (!data.success) throw new Error(data.message || data.error || 'Errore salvataggio');
+
+  _lastSavedHash = hash;
+  return data;
+}
+
 async function salvaEInvia() {
   const email = document.getElementById('emailInput').value.trim();
   if (!email || !email.includes('@')) {
@@ -681,9 +713,7 @@ async function salvaEInvia() {
     const costo = calcCardCosts(card);
     totale += costo;
     return {
-      nome: p.nome,
-      cognome: p.cognome,
-      row: p.row,
+      nome: p.nome, cognome: p.cognome, row: p.row,
       transfer: {
         rf: !!card.querySelector('.tr-rf')?.checked,
         pt: !!card.querySelector('.tr-pt')?.checked,
@@ -700,29 +730,8 @@ async function salvaEInvia() {
   document.getElementById('saveBtn').disabled = true;
 
   try {
-    const res = await fetchWithTimeout(GAS_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        action: 'salvaTransfer',
-        email,
-        persone: personePayload,
-        totale,
-        caparra: caparraTotale,
-        saldo
-      })
-    });
-
-    let data;
-    try { data = JSON.parse(await res.text()); }
-    catch { throw new Error('Risposta non valida'); }
-
-    if (data.success) {
-      setGlobal('ok', 'Salvato! Email di riepilogo inviata a ' + email);
-    } else {
-      setGlobal('error', data.message || data.error || 'Errore durante il salvataggio.');
-      document.getElementById('saveBtn').disabled = false;
-    }
+    await doSalvaTransfer(email, personePayload, totale, caparraTotale, saldo);
+    setGlobal('ok', 'Salvato! Email di riepilogo inviata a ' + email);
   } catch (err) {
     console.error(err);
     setGlobal('error', 'Errore di connessione. Riprova.');
@@ -762,30 +771,17 @@ async function openPayPopup() {
   const caparraTotale = loaded.length * COSTI.caparra;
   const saldo = totale - caparraTotale;
 
-  // Salva transfer nel foglio Google
+  // Salva transfer nel foglio Google (dedup: se già salvato con stessi dati, skip)
   setGlobal('', 'Salvataggio scelte in corso…');
   document.getElementById('payBtn').disabled = true;
   try {
-    const res = await fetchWithTimeout(GAS_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        action: 'salvaTransfer',
-        email,
-        persone: personePayload,
-        totale, caparra: caparraTotale, saldo
-      })
-    });
-    let data;
-    try { data = JSON.parse(await res.text()); }
-    catch { throw new Error('Risposta non valida'); }
-    if (!data.success) throw new Error(data.message || data.error || 'Errore salvataggio');
+    await doSalvaTransfer(email, personePayload, totale, caparraTotale, saldo);
     setGlobal('ok', 'Scelte salvate. Compila il pagamento su Tinaba.');
   } catch (err) {
     console.error(err);
     setGlobal('error', 'Errore salvataggio: ' + err.message);
     document.getElementById('payBtn').disabled = false;
-    return; // Non mostrare il popup se il salvataggio fallisce
+    return;
   }
   document.getElementById('payBtn').disabled = false;
 
