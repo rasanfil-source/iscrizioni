@@ -1019,6 +1019,7 @@
     function showRecalcBanner() {
       recalcNeeded = true;
       recalcBanner?.classList.add('active');
+      btnCalc.style.display = 'block';
       btnCalc.textContent = 'Ricalcola';
       btnSave.disabled = true;
       btnPay.disabled = true;
@@ -1547,8 +1548,13 @@
       setGlobalStatus('ok', 'Totale calcolato. Puoi salvare e inviare.');
 
       hideRecalcBanner();
-      btnCalc.textContent = 'Calcola totale';
+      btnCalc.style.display = 'none'; // Nasconde "Calcola totale"
       updateStepper();
+
+      // Scroll morbido verso la sezione riepilogo
+      setTimeout(() => {
+        document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
 
     function resetCalcState() {
@@ -1561,6 +1567,7 @@
       summaryBox.textContent = '—';
       breakdownBox.style.display = 'none';
       document.getElementById('saldoDaVersare').textContent = '€ —';
+      btnCalc.style.display = 'block';
       btnCalc.textContent = 'Calcola totale';
       hideRecalcBanner();
       setGlobalStatus('', '');

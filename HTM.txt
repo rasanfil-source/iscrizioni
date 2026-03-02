@@ -597,6 +597,7 @@ const totalBox = document.getElementById('totalBox');
 function showRecalcBanner() {
   recalcNeeded = true;
   recalcBanner?.classList.add('active');
+  btnCalc.style.display = 'block';
   btnCalc.textContent = 'Ricalcola';
   btnSave.disabled = true;
   btnPay.disabled = true;
@@ -1052,13 +1053,18 @@ function calcolaTotale() {
 
   lastCalcResult = { totale: totaleCorrente, caparra: caparraTotale, saldo, personePayload: [] };
   hideRecalcBanner();
-  btnCalc.textContent = 'Calcola totale';
+  btnCalc.style.display = 'none'; // Nasconde "Calcola totale"
   updateStepper();
 
   document.getElementById('saveBtn').style.display = 'block';
   document.getElementById('orDivider').style.display = 'block';
   document.getElementById('payBtn').style.display = 'block';
   setGlobal('ok', 'Totale calcolato per ' + loaded.length + ' persona/e.');
+
+  // Scroll morbido verso il riepilogo
+  setTimeout(() => {
+    document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
 }
 
 /* ══════════════════════════════════════════
@@ -1074,6 +1080,7 @@ function resetCalcState() {
   document.getElementById('summaryBox').textContent = '—';
   document.getElementById('breakdownBox').style.display = 'none';
   document.getElementById('saldoDaVersare').textContent = '€ —';
+  btnCalc.style.display = 'block';
   btnCalc.textContent = 'Calcola totale';
   hideRecalcBanner();
   setGlobal('', '');
