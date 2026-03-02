@@ -722,7 +722,7 @@ function addPersonCard(prefill) {
     <div class="readonly-box alloggio-box">—</div>
 
     <div class="promemoria-bozza" style="margin-top:16px; background:#f9fafb; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
-      <label style="margin-top:0; color:#4a5568;"><span class="partner-badge" style="background:transparent; border:1px solid #cbd5e0; color:#4a5568; padding:2px 6px; font-size:0.75rem;">🔒 Solo promemoria</span></label>
+      <label style="margin-top:0; color:#4a5568;"><span class="partner-badge" style="background:transparent; border:1px solid #cbd5e0; color:#4a5568; padding:2px 6px; font-size:0.75rem;">Solo promemoria</span></label>
       <div style="font-size:0.8rem; color:#718096; margin-bottom:10px;">Queste opzioni sono già registrate e non si possono modificare.</div>
       <div class="options readonly" style="margin-top:0;">
         <label style="cursor:default;"><input type="checkbox" class="colazione" disabled> 🔒 Colazione</label>
