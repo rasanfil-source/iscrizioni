@@ -1268,7 +1268,7 @@
       card.querySelector('.assicurazione').checked = false;
       card.classList.remove('locked');
       card.querySelector('.loaded-data-section').style.display = 'none';
-      card.querySelector('.name-box').style.display = 'none';
+      card.querySelector('.name-box').style.visibility = 'hidden';
       card.querySelector('.btn-search-person').style.display = 'inline-block';
 
       setCardStatus(card, '', '');
@@ -1299,7 +1299,7 @@
       card.querySelector('.assicurazione').checked = false;
       card.classList.remove('locked');
       card.querySelector('.loaded-data-section').style.display = 'none';
-      card.querySelector('.name-box').style.display = 'none';
+      card.querySelector('.name-box').style.visibility = 'hidden';
       card.querySelector('.btn-search-person').style.display = 'inline-block';
 
       p.nome = ''; p.cognome = ''; p.row = null;
@@ -1455,7 +1455,12 @@
         }
 
         lookupCache.set(key, data);
-        applyResult(card, p, data, nome, cognome);
+        try {
+          applyResult(card, p, data, nome, cognome);
+        } catch (e) {
+          console.error('Errore visualizzazione:', e);
+          setCardStatus(card, 'error', 'Errore caricamento dati locali.');
+        }
 
       } catch (err) {
         if (err.name === 'AbortError') {
