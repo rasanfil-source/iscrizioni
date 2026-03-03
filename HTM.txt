@@ -363,9 +363,8 @@
 
     /* Animazione Checkmark Prominente */
     .success-check {
-      display: block;
-      font-size: 2.5rem;
-      margin-bottom: 10px;
+      display: inline;
+      font-size: 1.2rem;
       animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
@@ -1755,8 +1754,7 @@
       };
 
       try {
-        const email = emailInput.value.trim();
-        await doSalvaTransfer(email);
+        await doSalvaTransfer();
 
         summaryBox.innerHTML = lines.map(l => `<div class="summary-line">${l}</div>`).join('');
         breakdownBox.style.display = 'block';
@@ -1775,12 +1773,7 @@
         actionSection.style.display = 'block';
         document.getElementById('orDivider').style.color = '#666';
         
-        // Feedback di successo avanzato
-        const successMsg = email 
-          ? `<div class="success-check">✅</div><strong>Prenotazione aggiornata</strong><br><small style="color:#4a5568;">Email inviata a ${email}</small>`
-          : `<div class="success-check">✅</div><strong>Prenotazione aggiornata</strong>`;
-        
-        setGlobalStatus('ok', successMsg);
+        setGlobalStatus('ok', '<span class="success-check">✅</span> Prenotazione aggiornata');
 
         hideRecalcBanner();
         btnCalc.style.display = 'none';
