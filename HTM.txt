@@ -816,7 +816,7 @@
         </div>
         <div>
           <label>Nome</label>
-          <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name" readonly>
+          <input type="text" class="person-nome" placeholder="" autocomplete="given-name" readonly>
         </div>
         <div>
           <label style="visibility:hidden;">Azioni</label>
