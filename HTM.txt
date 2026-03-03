@@ -11,7 +11,7 @@
     }
 
     .page {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 20px 14px 60px;
     }
@@ -173,7 +173,7 @@
       gap: 10px;
       font-weight: normal;
       cursor: pointer;
-      padding: 6px 0;
+      padding: 2px 0;
     }
 
     .options input[type="checkbox"] {
@@ -776,11 +776,10 @@
             <button type="button" class="primary btn-search-person" style="padding: 10px 14px; width: auto;">Carica</button>
           </div>
         </div>
-      </div>
-
-      <div class="name-box" style="display:none; margin-top:12px;">
-        <label>Nome</label>
-        <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+        <div class="name-box" style="visibility:hidden;">
+          <label>Nome</label>
+          <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+        </div>
       </div>
 
       <div class="status person-status"></div>
@@ -1361,6 +1360,7 @@
       card.querySelector('.assicurazione').checked = !!p.assicurazione;
       card.querySelector('.loaded-data-section').style.display = 'block';
       card.querySelector('.name-box').style.display = 'block';
+      card.querySelector('.name-box').style.visibility = 'visible';
       card.querySelector('.btn-search-person').style.display = 'none';
       card.querySelector('.assicurazione').checked = !!p.assicurazione;
 
@@ -1446,7 +1446,7 @@
           if (data.error === 'duplicate') {
             const msg = 'Cognome presente più volte – specifica anche il nome.';
             setCardStatus(card, 'error', msg);
-            card.querySelector('.name-box').style.display = 'block';
+            card.querySelector('.name-box').style.visibility = 'visible';
             card.querySelector('.person-nome').focus();
           } else {
             setCardStatus(card, 'error', 'Prenotazione non trovata. Verifica nome e cognome.');
@@ -1497,7 +1497,7 @@
       const nomeEl = card.querySelector('.person-nome');
       nomeEl.value = person.nome;
       nomeEl.setAttribute('readonly', true);
-      card.querySelector('.name-box').style.display = 'block';
+      card.querySelector('.name-box').style.visibility = 'visible';
 
       card.querySelector('.person-cognome').setAttribute('readonly', true);
       card.classList.add('locked');
@@ -1512,7 +1512,11 @@
       setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
       updateCardTitles();
 
-      if (data.partner?.persona) person.partnerIndex = loadPartnerCard(data.partner);
+      if (data.partner?.persona) {
+        try {
+          person.partnerIndex = loadPartnerCard(data.partner);
+        } catch (e) { console.error('Errore partner:', e); }
+      }
 
       resetCalcState();
     }
@@ -1628,7 +1632,7 @@
       breakdownBox.style.display = 'none';
       document.getElementById('saldoDaVersare').textContent = '€ —';
       btnCalc.style.display = 'block';
-      btnCalc.textContent = 'Calcola totale';
+      btnCalc.textContent = 'Calcola il totale';
       hideRecalcBanner();
       setGlobalStatus('', '');
       updateStepper();

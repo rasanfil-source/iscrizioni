@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="it">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calcolo Saldo – Cammino 2026</title>
-  <style>
+﻿<style>
     * {
       box-sizing: border-box;
     }
@@ -18,7 +11,7 @@
     }
 
     .page {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 20px 14px 60px;
     }
@@ -180,7 +173,7 @@
       gap: 10px;
       font-weight: normal;
       cursor: pointer;
-      padding: 6px 0;
+      padding: 2px 0;
     }
 
     .options input[type="checkbox"] {
@@ -668,9 +661,7 @@
       }
     }
   </style>
-</head>
 
-<body>
   <div class="page">
     <h1>Calcolo saldo prenotazioni – Cammino 2026</h1>
 
@@ -747,7 +738,7 @@
         </div>
 
         <div style="margin-top:18px;">
-          <button class="primary" id="calcBtn" type="button">Calcola totale</button>
+          <button class="primary" id="calcBtn" type="button">Calcola il totale</button>
           <button class="secondary" id="saveBtn" type="button" disabled>Invia riepilogo via email</button>
           <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:10px 0;">— oppure —
           </div>
@@ -782,31 +773,31 @@
           <label>Cognome</label>
           <div style="display:flex; gap: 8px;">
             <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name">
-            <button type="button" class="primary btn-search-person"
-              style="padding: 10px 14px; width: auto;">Carica</button>
+            <button type="button" class="primary btn-search-person" style="padding: 10px 14px; width: auto;">Carica</button>
           </div>
         </div>
-      </div>
-
-      <div class="name-box" style="display:none; margin-top:12px;">
-        <label>Nome</label>
-        <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+        <div class="name-box" style="visibility:hidden;">
+          <label>Nome</label>
+          <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+        </div>
       </div>
 
       <div class="status person-status"></div>
 
       <div class="loaded-data-section" style="display: none; margin-top: 16px;">
         <div class="section-label">Dati prenotazione</div>
-        <label style="margin-bottom:4px;">Alloggio</label>
-        <div class="readonly-box alloggio-box">—</div>
 
         <div class="promemoria-bozza"
-          style="margin-top:16px; background:#f9fafb; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+          style="margin-top:10px; background:#f9fafb; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
           <div
             style="font-weight:600; color:#4a5568; margin-top:0; border-bottom:1px solid #cbd5e0; padding-bottom:4px; margin-bottom:6px; font-size:0.85rem;">
             Solo promemoria</div>
-          <div style="font-size:0.8rem; color:#718096; margin-bottom:10px;">Queste opzioni sono già registrate e qui non
+          <div style="font-size:0.8rem; color:#718096; margin-bottom:12px;">Queste opzioni sono già registrate e qui non
             si possono modificare.</div>
+          
+          <label style="margin-bottom:4px; font-size:0.9rem;">Alloggio</label>
+          <div class="readonly-box alloggio-box" style="margin-bottom:12px;">—</div>
+
           <div class="options readonly" style="margin-top:0;">
             <label style="cursor:default;"><input type="checkbox" class="colazione" disabled> 🔒 Colazione <span
                 class="costo-label">(€70)</span></label>
@@ -815,7 +806,7 @@
           </div>
         </div>
 
-        <div class="section-label">🚌 Transfer opzionali</div>
+        <div class="section-label" style="margin-top:20px;font-size:1.05rem;font-weight:600;color:#2d3748;text-transform:none;">🚌 Indicaci i trasferimenti di cui hai bisogno</div>
         <div class="options transfer-options">
           <label><input type="checkbox" class="tr-rf"> Roma → Fiumicino (€10)</label>
           <label><input type="checkbox" class="tr-pt"> Porto → Tui (€15)</label>
@@ -1369,6 +1360,7 @@
       card.querySelector('.assicurazione').checked = !!p.assicurazione;
       card.querySelector('.loaded-data-section').style.display = 'block';
       card.querySelector('.name-box').style.display = 'block';
+      card.querySelector('.name-box').style.visibility = 'visible';
       card.querySelector('.btn-search-person').style.display = 'none';
       card.querySelector('.assicurazione').checked = !!p.assicurazione;
 
@@ -1454,7 +1446,7 @@
           if (data.error === 'duplicate') {
             const msg = 'Cognome presente più volte – specifica anche il nome.';
             setCardStatus(card, 'error', msg);
-            card.querySelector('.name-box').style.display = 'block';
+            card.querySelector('.name-box').style.visibility = 'visible';
             card.querySelector('.person-nome').focus();
           } else {
             setCardStatus(card, 'error', 'Prenotazione non trovata. Verifica nome e cognome.');
@@ -1505,7 +1497,7 @@
       const nomeEl = card.querySelector('.person-nome');
       nomeEl.value = person.nome;
       nomeEl.setAttribute('readonly', true);
-      card.querySelector('.name-box').style.display = 'block';
+      card.querySelector('.name-box').style.visibility = 'visible';
 
       card.querySelector('.person-cognome').setAttribute('readonly', true);
       card.classList.add('locked');
@@ -1520,7 +1512,11 @@
       setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
       updateCardTitles();
 
-      if (data.partner?.persona) person.partnerIndex = loadPartnerCard(data.partner);
+      if (data.partner?.persona) {
+        try {
+          person.partnerIndex = loadPartnerCard(data.partner);
+        } catch (e) { console.error('Errore partner:', e); }
+      }
 
       resetCalcState();
     }
@@ -1636,7 +1632,7 @@
       breakdownBox.style.display = 'none';
       document.getElementById('saldoDaVersare').textContent = '€ —';
       btnCalc.style.display = 'block';
-      btnCalc.textContent = 'Calcola totale';
+      btnCalc.textContent = 'Calcola il totale';
       hideRecalcBanner();
       setGlobalStatus('', '');
       updateStepper();
@@ -1759,6 +1755,3 @@
       globalStatus.className = 'status' + (type ? ' ' + type : '');
     }
   </script>
-</body>
-
-</html>
