@@ -781,7 +781,7 @@
         </div>
         <div>
           <label>Nome</label>
-          <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+          <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name" readonly>
         </div>
         <div>
           <label style="visibility:hidden;">Azioni</label>
@@ -1178,6 +1178,14 @@
       };
       nomeInput.addEventListener('input', resetAndCancel);
       cognomeInput.addEventListener('input', resetAndCancel);
+      
+      // Se il cognome viene modificato e non siamo locked, assicuriamoci che il nome torni readonly
+      cognomeInput.addEventListener('input', () => {
+        const p = persone.find(p => p.index === index);
+        if (p && !p.loaded) {
+          nomeInput.setAttribute('readonly', true);
+        }
+      });
 
       card.dataset.lookupBound = 'true';
     }
@@ -1287,7 +1295,7 @@
       }
 
       // Svuota i campi e azzera lo stato
-      card.querySelector('.person-nome').removeAttribute('readonly');
+      card.querySelector('.person-nome').setAttribute('readonly', true);
       card.querySelector('.person-cognome').removeAttribute('readonly');
       card.querySelector('.person-nome').value = '';
       card.querySelector('.person-cognome').value = '';
@@ -1439,7 +1447,9 @@
           if (data.error === 'duplicate') {
             const msg = 'Cognome presente più volte – specifica anche il nome.';
             setCardStatus(card, 'error', msg);
-            card.querySelector('.person-nome').focus();
+            const nomeInp = card.querySelector('.person-nome');
+            nomeInp.removeAttribute('readonly');
+            nomeInp.focus();
           } else {
             setCardStatus(card, 'error', 'Prenotazione non trovata. Verifica nome e cognome.');
           }
