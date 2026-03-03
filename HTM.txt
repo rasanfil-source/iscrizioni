@@ -11,7 +11,7 @@
     }
 
     .page {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 20px 14px 60px;
     }
@@ -776,7 +776,7 @@
             <button type="button" class="primary btn-search-person" style="padding: 10px 14px; width: auto;">Carica</button>
           </div>
         </div>
-        <div class="name-box" style="visibility:hidden;">
+        <div class="name-box" style="display:none;">
           <label>Nome</label>
           <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
         </div>
@@ -1268,7 +1268,7 @@
       card.querySelector('.assicurazione').checked = false;
       card.classList.remove('locked');
       card.querySelector('.loaded-data-section').style.display = 'none';
-      card.querySelector('.name-box').style.visibility = 'hidden';
+      card.querySelector('.name-box').style.display = 'none';
       card.querySelector('.btn-search-person').style.display = 'inline-block';
 
       setCardStatus(card, '', '');
@@ -1299,7 +1299,7 @@
       card.querySelector('.assicurazione').checked = false;
       card.classList.remove('locked');
       card.querySelector('.loaded-data-section').style.display = 'none';
-      card.querySelector('.name-box').style.visibility = 'hidden';
+      card.querySelector('.name-box').style.display = 'none';
       card.querySelector('.btn-search-person').style.display = 'inline-block';
 
       p.nome = ''; p.cognome = ''; p.row = null;
@@ -1446,7 +1446,7 @@
           if (data.error === 'duplicate') {
             const msg = 'Cognome presente più volte – specifica anche il nome.';
             setCardStatus(card, 'error', msg);
-            card.querySelector('.name-box').style.visibility = 'visible';
+            card.querySelector('.name-box').style.display = 'block';
             card.querySelector('.person-nome').focus();
           } else {
             setCardStatus(card, 'error', 'Prenotazione non trovata. Verifica nome e cognome.');
@@ -1473,7 +1473,10 @@
           return;
         }
         console.error('Errore lookup:', err);
-        setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
+        // Mostra errore solo se la card non è stata nel frattempo caricata con successo
+        if (!p.loaded) {
+          setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
+        }
       } finally {
         if (lookupControllers[index] === controller) delete lookupControllers[index];
       }
@@ -1502,12 +1505,11 @@
       const nomeEl = card.querySelector('.person-nome');
       nomeEl.value = person.nome;
       nomeEl.setAttribute('readonly', true);
-      card.querySelector('.name-box').style.visibility = 'visible';
-
+      card.querySelector('.btn-search-person').style.display = 'none';
+      card.querySelector('.name-box').style.display = 'block';
       card.querySelector('.person-cognome').setAttribute('readonly', true);
       card.classList.add('locked');
       card.querySelector('.loaded-data-section').style.display = 'block';
-      card.querySelector('.btn-search-person').style.display = 'none';
 
       // Pre-compila email (solo se il campo è vuoto)
       if (data.persona?.email && !emailInput.value.trim()) {
