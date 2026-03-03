@@ -780,17 +780,19 @@
       <div class="input-row">
         <div>
           <label>Cognome</label>
-          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name">
-        </div>
-        <div>
-          <label>Nome</label>
           <div style="display:flex; gap: 8px;">
-            <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+            <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name">
             <button type="button" class="primary btn-search-person"
-              style="padding: 10px 14px; width: auto;">Cerca</button>
+              style="padding: 10px 14px; width: auto;">Carica</button>
           </div>
         </div>
       </div>
+
+      <div class="name-box" style="display:none; margin-top:12px;">
+        <label>Nome</label>
+        <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+      </div>
+
       <div class="status person-status"></div>
 
       <div class="loaded-data-section" style="display: none; margin-top: 16px;">
@@ -1275,6 +1277,7 @@
       card.querySelector('.assicurazione').checked = false;
       card.classList.remove('locked');
       card.querySelector('.loaded-data-section').style.display = 'none';
+      card.querySelector('.name-box').style.display = 'none';
       card.querySelector('.btn-search-person').style.display = 'inline-block';
 
       setCardStatus(card, '', '');
@@ -1305,6 +1308,7 @@
       card.querySelector('.assicurazione').checked = false;
       card.classList.remove('locked');
       card.querySelector('.loaded-data-section').style.display = 'none';
+      card.querySelector('.name-box').style.display = 'none';
       card.querySelector('.btn-search-person').style.display = 'inline-block';
 
       p.nome = ''; p.cognome = ''; p.row = null;
@@ -1364,6 +1368,7 @@
       card.querySelector('.colazione').checked = !!p.colazione;
       card.querySelector('.assicurazione').checked = !!p.assicurazione;
       card.querySelector('.loaded-data-section').style.display = 'block';
+      card.querySelector('.name-box').style.display = 'block';
       card.querySelector('.btn-search-person').style.display = 'none';
       card.querySelector('.assicurazione').checked = !!p.assicurazione;
 
@@ -1446,10 +1451,14 @@
         if (latestLookupToken[index] !== token) return; // risposta obsoleta
 
         if (!data.success) {
-          const msg = data.error === 'duplicate'
-            ? 'Cognome presente più volte – specifica anche il nome o contatta la segreteria.'
-            : 'Prenotazione non trovata. Verifica nome e cognome.';
-          setCardStatus(card, 'error', msg);
+          if (data.error === 'duplicate') {
+            const msg = 'Cognome presente più volte – specifica anche il nome.';
+            setCardStatus(card, 'error', msg);
+            card.querySelector('.name-box').style.display = 'block';
+            card.querySelector('.person-nome').focus();
+          } else {
+            setCardStatus(card, 'error', 'Prenotazione non trovata. Verifica nome e cognome.');
+          }
           return;
         }
 
@@ -1493,7 +1502,11 @@
         card.querySelector('.tr-fr').checked = !!data.persona.transfer.fr;
       }
 
-      card.querySelector('.person-nome').setAttribute('readonly', true);
+      const nomeEl = card.querySelector('.person-nome');
+      nomeEl.value = person.nome;
+      nomeEl.setAttribute('readonly', true);
+      card.querySelector('.name-box').style.display = 'block';
+
       card.querySelector('.person-cognome').setAttribute('readonly', true);
       card.classList.add('locked');
       card.querySelector('.loaded-data-section').style.display = 'block';
@@ -1562,7 +1575,7 @@
         totAssicurazione += tmpAss;
         totTransfer += tmpTr;
 
-        lines.push(`${p.nome} ${p.cognome}`);
+        lines.push(`${p.cognome} ${p.nome}: ${formatEuro(s - COSTI.caparra)}`);
       });
 
       const caparra = COSTI.caparra * loaded.length;
