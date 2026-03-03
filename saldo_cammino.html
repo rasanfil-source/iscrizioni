@@ -1243,8 +1243,9 @@
     function updateCardTitles() {
       persone.forEach((p, i) => {
         if (!p.cardEl) return;
-        p.cardEl.querySelector('.card-title').innerHTML =
-          p.loaded ? `${p.cognome} ${p.nome}${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : ''}` : `${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione'}`;
+        const title = p.cardEl.querySelector('.card-title');
+        if (!title) return;
+        title.innerHTML = p.loaded ? `${p.cognome} ${p.nome}${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : ''}` : `${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione'}`;
 
         // Prima card removibile solo se ci sono altre card
         if (i === 0) {
@@ -1459,7 +1460,7 @@
           applyResult(card, p, data, nome, cognome);
         } catch (e) {
           console.error('Errore visualizzazione:', e);
-          setCardStatus(card, 'error', 'Errore caricamento dati locali.');
+          setCardStatus(card, 'error', 'Errore caricamento dati locali: ' + e.message);
         }
 
       } catch (err) {
@@ -1491,28 +1492,36 @@
       person.assicurazione = !!data.persona?.assicurazione;
       person.loaded = true;
 
-      card.querySelector('.alloggio-box').textContent = formatAlloggioText(person.alloggio);
-      card.querySelector('.colazione').checked = person.colazione;
-      card.querySelector('.assicurazione').checked = person.assicurazione;
+      const alloggioEl = card.querySelector('.alloggio-box');
+      if (alloggioEl) alloggioEl.textContent = formatAlloggioText(person.alloggio);
+      
+      const colEl = card.querySelector('.colazione');
+      if (colEl) colEl.checked = person.colazione;
+      
+      const assEl = card.querySelector('.assicurazione');
+      if (assEl) assEl.checked = person.assicurazione;
 
       if (data.persona?.transfer) {
-        card.querySelector('.tr-rf').checked = !!data.persona.transfer.rf;
-        card.querySelector('.tr-pt').checked = !!data.persona.transfer.pt;
-        card.querySelector('.tr-sc').checked = !!data.persona.transfer.sc;
-        card.querySelector('.tr-fr').checked = !!data.persona.transfer.fr;
+        const trRf = card.querySelector('.tr-rf'); if (trRf) trRf.checked = !!data.persona.transfer.rf;
+        const trPt = card.querySelector('.tr-pt'); if (trPt) trPt.checked = !!data.persona.transfer.pt;
+        const trSc = card.querySelector('.tr-sc'); if (trSc) trSc.checked = !!data.persona.transfer.sc;
+        const trFr = card.querySelector('.tr-fr'); if (trFr) trFr.checked = !!data.persona.transfer.fr;
       }
 
       const nomeEl = card.querySelector('.person-nome');
-      nomeEl.value = person.nome;
-      nomeEl.setAttribute('readonly', true);
-      card.querySelector('.btn-search-person').style.display = 'none';
-      card.querySelector('.name-box').style.display = 'block';
-      card.querySelector('.person-cognome').setAttribute('readonly', true);
+      if (nomeEl) {
+        nomeEl.value = person.nome;
+        nomeEl.setAttribute('readonly', true);
+      }
+      
+      card.querySelector('.btn-search-person')?.setAttribute('style', 'display:none');
+      card.querySelector('.name-box')?.setAttribute('style', 'display:block');
+      card.querySelector('.person-cognome')?.setAttribute('readonly', true);
       card.classList.add('locked');
-      card.querySelector('.loaded-data-section').style.display = 'block';
+      card.querySelector('.loaded-data-section')?.setAttribute('style', 'display:block');
 
       // Pre-compila email (solo se il campo è vuoto)
-      if (data.persona?.email && !emailInput.value.trim()) {
+      if (emailInput && data.persona?.email && !emailInput.value.trim()) {
         emailInput.value = data.persona.email;
       }
 
