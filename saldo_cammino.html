@@ -1911,7 +1911,8 @@
       if (loaded.length === 0) return;
 
       const primo = loaded[0];
-      const causale = 'Saldo Cammino 2026 ' + primo.cognome;
+      const tuttiCognomi = loaded.map(p => p.cognome).join(' - ');
+      const causale = 'Saldo Cammino 2026 ' + tuttiCognomi;
       const email = emailInput.value.trim();
 
       setGlobalStatus('', 'Salvataggio scelte in corso... attendere prego.');
