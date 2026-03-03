@@ -282,7 +282,7 @@ aside {
       </div>
 
       <div style="margin-top:16px;">
-        <button class="primary" id="calcBtn">Calcola totale</button>
+        <button class="primary" id="calcBtn">Calcola il totale</button>
         <button id="saveBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#38a169;color:#fff;border:1px solid #38a169;cursor:pointer;font-weight:600;">Salva e Invia email</button>
         <button id="payBtn" style="display:none;margin-top:8px;width:100%;padding:9px 16px;border-radius:6px;background:#e67e22;color:#fff;border:1px solid #e67e22;cursor:pointer;font-weight:600;">Paga subito con carta</button>
       </div>
@@ -633,12 +633,12 @@ function formatAlloggioText(text) {
   if (costo === 0) return text;
   
   const t = text.toLowerCase();
-  let tipoStr = text;
-  if (/^dm\d*$/.test(t)) tipoStr = 'Albergo – Doppia matrimoniale';
-  else if (t === 's') tipoStr = 'Albergo – Singola';
-  else if (t === 'ds') tipoStr = 'Albergo – Doppia (letti separati)';
-  else if (t === 'm') tipoStr = 'Ostello – Multipla';
-  else if (t === 't') tipoStr = 'Albergo – Tripla';
+  let tipoStr = 'Albergo – Doppia matrimoniale'; // Fallback prudenziale
+  if (/^dm\d*/.test(t) || t.includes('matrimoniale')) tipoStr = 'Albergo – Doppia matrimoniale';
+  else if (t === 's' || t.includes('singola')) tipoStr = 'Albergo – Singola';
+  else if (t === 'ds' || t.includes('separati')) tipoStr = 'Albergo – Doppia (letti separati)';
+  else if (t === 'm' || t.includes('multipla') || t.includes('ostello')) tipoStr = 'Ostello – Multipla';
+  else if (t === 't' || t.includes('tripla')) tipoStr = 'Albergo – Tripla';
 
   return `${tipoStr} (€${costo})`;
 }
