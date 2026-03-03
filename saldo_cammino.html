@@ -66,8 +66,11 @@
       height: 28px;
       cursor: pointer;
       font-size: 1rem;
-      line-height: 1;
       display: none;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+      padding: 0;
     }
 
     .btn-remove:hover {
@@ -102,7 +105,8 @@
 
     .input-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr auto;
+      align-items: end;
       gap: 12px;
       margin-bottom: 12px;
     }
@@ -771,14 +775,15 @@
       <div class="input-row">
         <div>
           <label>Cognome</label>
-          <div style="display:flex; gap: 8px;">
-            <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name">
-            <button type="button" class="primary btn-search-person" style="padding: 10px 14px; width: auto;">Carica</button>
-          </div>
+          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name">
         </div>
-        <div class="name-box" style="display:none;">
+        <div>
           <label>Nome</label>
           <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+        </div>
+        <div>
+          <label style="visibility:hidden;">Azioni</label>
+          <button type="button" class="primary btn-search-person" style="padding: 10px 14px; width: auto; white-space: nowrap;">Carica</button>
         </div>
       </div>
 
@@ -1267,11 +1272,7 @@
       card.querySelector('.alloggio-box').textContent = '—';
       card.querySelector('.colazione').checked = false;
       card.querySelector('.assicurazione').checked = false;
-      card.classList.remove('locked');
       card.querySelector('.loaded-data-section').style.display = 'none';
-      card.querySelector('.name-box').style.display = 'none';
-      card.querySelector('.btn-search-person').style.display = 'inline-block';
-
       setCardStatus(card, '', '');
       updateCardTitles();
       resetCalcState();
@@ -1298,11 +1299,7 @@
       card.querySelector('.alloggio-box').textContent = '—';
       card.querySelector('.colazione').checked = false;
       card.querySelector('.assicurazione').checked = false;
-      card.classList.remove('locked');
       card.querySelector('.loaded-data-section').style.display = 'none';
-      card.querySelector('.name-box').style.display = 'none';
-      card.querySelector('.btn-search-person').style.display = 'inline-block';
-
       p.nome = ''; p.cognome = ''; p.row = null;
       p.alloggio = ''; p.colazione = false; p.assicurazione = false;
       p.loaded = false;
@@ -1447,7 +1444,6 @@
           if (data.error === 'duplicate') {
             const msg = 'Cognome presente più volte – specifica anche il nome.';
             setCardStatus(card, 'error', msg);
-            card.querySelector('.name-box').style.display = 'block';
             card.querySelector('.person-nome').focus();
           } else {
             setCardStatus(card, 'error', 'Prenotazione non trovata. Verifica nome e cognome.');
@@ -1515,7 +1511,6 @@
       }
       
       card.querySelector('.btn-search-person')?.setAttribute('style', 'display:none');
-      card.querySelector('.name-box')?.setAttribute('style', 'display:block');
       card.querySelector('.person-cognome')?.setAttribute('readonly', true);
       card.classList.add('locked');
       card.querySelector('.loaded-data-section')?.setAttribute('style', 'display:block');
