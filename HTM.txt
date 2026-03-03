@@ -1346,7 +1346,7 @@
         if (!p.cardEl) return;
         const title = p.cardEl.querySelector('.card-title');
         if (!title) return;
-        title.innerHTML = p.loaded ? `${p.cognome} ${p.nome}${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : ''}` : `${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione'}`;
+        title.innerHTML = p.loaded ? `${p.cognome} ${p.nome}${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : ''}` : `${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione (basta il cognome)'}`;
 
         // Prima card removibile solo se ci sono altre card
         if (i === 0) {
