@@ -1001,15 +1001,7 @@
     const emailInput = document.getElementById('emailInput');
     const btnPay = document.getElementById('payBtn');
 
-    /***************
-     * INIT
-     ***************/
-    addPersonCard();
-    btnAdd.addEventListener('click', addPersonCard);
-    btnCalc.addEventListener('click', calcolaTotale);
-    btnSave.addEventListener('click', salvaEInvia);
-    btnPay.addEventListener('click', openPayPopup);
-    document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
+
 
     /***************
      * UX helpers
@@ -1765,4 +1757,14 @@
       globalStatus.innerHTML = msg;
       globalStatus.className = 'status' + (type ? ' ' + type : '');
     }
+
+    /***************
+     * INIT
+     ***************/
+    addPersonCard();
+    btnAdd.addEventListener('click', addPersonCard);
+    btnCalc.addEventListener('click', calcolaTotale);
+    btnSave.addEventListener('click', salvaEInvia);
+    btnPay.addEventListener('click', openPayPopup);
+    document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
   </script>
