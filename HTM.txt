@@ -109,6 +109,29 @@ input[type="text"][readonly] {
   margin-bottom: 10px;
 }
 
+.promemoria-bozza {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-top: 14px;
+}
+
+.promemoria-header {
+  font-weight: 600;
+  color: #4a5568;
+  border-bottom: 1px solid #cbd5e0;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.promemoria-desc {
+  font-size: 0.82rem;
+  color: #718096;
+  margin-bottom: 14px;
+}
+
 .options {
   display: grid;
   gap: 6px;
@@ -341,16 +364,22 @@ function addPersonCard(prefill) {
     <div class="status card-status"></div>
 
     <div class="loaded-data-section" style="${isPartner ? 'display:block;' : 'display:none;'} margin-top: 16px;">
-      <label style="margin-top:12px;">Alloggio</label>
-      <div class="readonly-box alloggio-box">—</div>
+      
+      <div class="promemoria-bozza">
+        <div class="promemoria-header">Solo promemoria</div>
+        <div class="promemoria-desc">Queste opzioni sono già registrate e qui non si possono modificare.</div>
+        
+        <label>Alloggio</label>
+        <div class="readonly-box alloggio-box">—</div>
 
-      <div class="options readonly">
-        <label><input type="checkbox" class="colazione" disabled> Colazione <span class="costo-label">(€70)</span></label>
-        <label><input type="checkbox" class="assicurazione" disabled> Assicurazione annullamento <span class="costo-label">(€20)</span></label>
+        <div class="options readonly" style="margin-top: 12px;">
+          <label><input type="checkbox" class="colazione" disabled> 🔒 Colazione <span class="costo-label">(€70)</span></label>
+          <label><input type="checkbox" class="assicurazione" disabled> 🔒 Assicurazione annullamento <span class="costo-label">(€20)</span></label>
+        </div>
       </div>
 
-      <label style="margin-top:12px;font-size:.9rem;">🚌 Transfer opzionali</label>
-      <div class="options transfer-options">
+      <label style="margin-top:20px;font-size:1.05rem;font-weight:600;color:#2d3748;">🚌 Indica i trasferimenti di cui hai bisogno</label>
+      <div class="options transfer-options" style="margin-top: 8px;">
         <label><input type="checkbox" class="tr-rf"> Roma→Fiumicino (€10)</label>
         <label><input type="checkbox" class="tr-pt"> Porto→Tui (€15)</label>
         <label><input type="checkbox" class="tr-sc"> Santiago→A Coruña (€15)</label>
@@ -439,7 +468,7 @@ function updateTitles() {
   persone.forEach(p => {
     const title = p.cardEl.querySelector('.card-title');
     if (p.loaded) {
-      title.innerHTML = `${p.nome} ${p.cognome}${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : ''}`;
+      title.innerHTML = `${p.cognome} ${p.nome}${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : ''}`;
     } else {
       title.innerHTML = `${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione'}`;
     }
