@@ -1397,6 +1397,11 @@
       card.querySelector('.colazione').checked = false;
       card.querySelector('.assicurazione').checked = false;
       card.querySelector('.loaded-data-section').style.display = 'none';
+
+      // Rimuovi badge "già selezionato" e resetta transfer
+      card.querySelectorAll('.badge-preselected').forEach(b => b.remove());
+      card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => chk.checked = false);
+
       p.nome = ''; p.cognome = ''; p.row = null;
       p.alloggio = ''; p.colazione = false; p.assicurazione = false;
       p.loaded = false;
