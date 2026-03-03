@@ -1250,8 +1250,8 @@
     function updateCardTitles() {
       persone.forEach((p, i) => {
         if (!p.cardEl) return;
-        p.cardEl.querySelector('.card-title').textContent =
-          p.loaded ? p.nome + ' ' + p.cognome : 'Carica la tua prenotazione';
+        p.cardEl.querySelector('.card-title').innerHTML =
+          p.loaded ? `${p.cognome} ${p.nome}${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : ''}` : `${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione'}`;
 
         // Prima card removibile solo se ci sono altre card
         if (i === 0) {
