@@ -809,6 +809,7 @@
         </div>
       </div>
 
+      <form onsubmit="return false;" autocomplete="off">
       <div class="input-row">
         <div>
           <label>Cognome</label>
@@ -823,6 +824,7 @@
           <button type="button" class="primary btn-search-person" style="padding: 10px 14px; width: auto; white-space: nowrap;">Carica</button>
         </div>
       </div>
+      </form>
 
       <div class="status person-status"></div>
 
