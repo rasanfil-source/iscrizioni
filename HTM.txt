@@ -1681,10 +1681,11 @@
       let serviziList = [];
       loaded.forEach(p => {
         const tr = getTransfer(p.cardEl);
-        if (tr.rf) serviziList.push(`${p.nome}: Roma-Fiumicino`);
-        if (tr.pt) serviziList.push(`${p.nome}: Porto-Tui`);
-        if (tr.sc) serviziList.push(`${p.nome}: Santiago-A Coruña`);
-        if (tr.fr) serviziList.push(`${p.nome}: Fiumicino-Roma`);
+        const prefix = loaded.length > 1 ? `${p.nome}: ` : '';
+        if (tr.rf) serviziList.push(`${prefix}Roma-Fiumicino`);
+        if (tr.pt) serviziList.push(`${prefix}Porto-Tui`);
+        if (tr.sc) serviziList.push(`${prefix}Santiago-A Coruña`);
+        if (tr.fr) serviziList.push(`${prefix}Fiumicino-Roma`);
       });
 
       let confirmBody = `<p>Confermi la prenotazione di <strong>${nomi}</strong>?</p>`;
