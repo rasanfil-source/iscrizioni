@@ -1456,25 +1456,49 @@
       nomeInput.setAttribute('readonly', true);
       cognomeInput.setAttribute('readonly', true);
 
+      // Accessibilità: ID univoci
+      cognomeInput.id = `p${index}_cognome`;
+      nomeInput.id = `p${index}_nome`;
+
+      const trRf = card.querySelector('.tr-rf');
+      const trPt = card.querySelector('.tr-pt');
+      const trSc = card.querySelector('.tr-sc');
+      const trFr = card.querySelector('.tr-fr');
+      trRf.id = `p${index}_tr_rf`; card.querySelector('.label-tr-rf').setAttribute('for', trRf.id);
+      trPt.id = `p${index}_tr_pt`; card.querySelector('.label-tr-pt').setAttribute('for', trPt.id);
+      trSc.id = `p${index}_tr_sc`; card.querySelector('.label-tr-sc').setAttribute('for', trSc.id);
+      trFr.id = `p${index}_tr_fr`; card.querySelector('.label-tr-fr').setAttribute('for', trFr.id);
+
       const p = partnerData.persona;
       card.querySelector('.alloggio-box').textContent = formatAlloggioText(p.alloggio) || '—';
       card.querySelector('.colazione').checked = !!p.colazione;
       card.querySelector('.assicurazione').checked = !!p.assicurazione;
       card.querySelector('.loaded-data-section').style.display = 'block';
-      card.querySelector('.name-box').style.display = 'block';
-      card.querySelector('.name-box').style.visibility = 'visible';
       card.querySelector('.btn-search-person').style.display = 'none';
-      card.querySelector('.assicurazione').checked = !!p.assicurazione;
 
       if (p.transfer) {
-        card.querySelector('.tr-rf').checked = !!p.transfer.rf;
-        card.querySelector('.tr-pt').checked = !!p.transfer.pt;
-        card.querySelector('.tr-sc').checked = !!p.transfer.sc;
-        card.querySelector('.tr-fr').checked = !!p.transfer.fr;
+        trRf.checked = !!p.transfer.rf;
+        trPt.checked = !!p.transfer.pt;
+        trSc.checked = !!p.transfer.sc;
+        trFr.checked = !!p.transfer.fr;
       }
 
+      // Badge "già selezionato" per transfer pre-compilati
+      ['rf', 'pt', 'sc', 'fr'].forEach(key => {
+        const chk = card.querySelector(`.tr-${key}`);
+        if (chk && chk.checked) {
+          const lbl = card.querySelector(`.label-tr-${key}`);
+          if (lbl && !lbl.querySelector('.badge-preselected')) {
+            const b = document.createElement('span');
+            b.className = 'badge-preselected';
+            b.textContent = 'già selezionato';
+            lbl.appendChild(b);
+          }
+        }
+      });
+
       card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
-        chk.addEventListener('change', resetCalcState);
+        chk.addEventListener('change', onOptionsChanged);
       });
 
       card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
@@ -1492,6 +1516,7 @@
         colazione: !!p.colazione,
         assicurazione: !!p.assicurazione,
         loaded: true,
+        isPartner: true,
         cardEl: card
       });
 
