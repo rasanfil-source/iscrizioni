@@ -365,8 +365,11 @@ function buildEmailPlain_(persone, totale, caparra, saldo) {
   const tot = Number(totale)  || 0;
   const cap = Number(caparra) || 0;
   const sal = Number(saldo)   || 0;
+  const oggi = Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy HH:mm");
   const righe = [
-    'Riepilogo prenotazione – Cammino 2026', '',
+    'Riepilogo prenotazione – Cammino 2026',
+    'Emesso in data: ' + oggi,
+    '',
     'Persone:'
   ];
   persone.forEach(p => righe.push('- ' + (p.nome || '') + ' ' + (p.cognome || '')));
@@ -396,6 +399,7 @@ function buildEmailHtml_(persone, totale, caparra, saldo) {
   <div style="background:linear-gradient(135deg,#1a365d,#2c5282);color:#fff;padding:30px;text-align:center;">
     <h1 style="margin:0;font-size:24px;">Cammino Portoghese 2026</h1>
     <p style="margin:10px 0 0;opacity:.9;">Riepilogo della tua prenotazione</p>
+    <p style="margin:5px 0 0;font-size:12px;opacity:.7;">Emesso il ${Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy HH:mm")}</p>
   </div>
   <div style="padding:30px;">
     <h2 style="color:#1a365d;font-size:18px;margin-bottom:15px;">Partecipanti</h2>
