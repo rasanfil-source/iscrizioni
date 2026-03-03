@@ -1051,6 +1051,8 @@
       btnCalc.style.display = 'block';
       btnCalc.textContent = 'Ricalcola';
       btnSave.disabled = true;
+      btnSave.textContent = 'Invia riepilogo via email';
+      _lastSavedHash = null;
       btnPay.disabled = true;
       document.getElementById('orDivider').style.color = '#a0aec0';
       updateStepper();
@@ -1623,6 +1625,7 @@
       };
 
       btnSave.disabled = false;
+      btnSave.textContent = 'Invia riepilogo via email';
       btnPay.disabled = false;
       actionSection.style.display = 'block';
       document.getElementById('orDivider').style.color = '#666';
