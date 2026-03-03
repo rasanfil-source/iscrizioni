@@ -770,7 +770,7 @@
   <template id="personCardTemplate">
     <div class="person-card" data-person-index="">
       <div class="card-header">
-        <span class="card-title">Persona</span>
+        <span class="card-title">Carica la tua prenotazione</span>
         <div style="display:flex;gap:8px;align-items:center;">
           <button type="button" class="btn-change" title="Cambia persona">✎ Cambia</button>
           <button type="button" class="btn-remove" title="Rimuovi persona">✕</button>
@@ -784,35 +784,42 @@
         </div>
         <div>
           <label>Nome</label>
-          <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+          <div style="display:flex; gap: 8px;">
+            <input type="text" class="person-nome" placeholder="Es. Marco" autocomplete="given-name">
+            <button type="button" class="primary btn-search-person"
+              style="padding: 10px 14px; width: auto;">Cerca</button>
+          </div>
         </div>
       </div>
       <div class="status person-status"></div>
 
-      <div class="section-label">Dati prenotazione</div>
-      <label style="margin-bottom:4px;">Alloggio</label>
-      <div class="readonly-box alloggio-box">—</div>
+      <div class="loaded-data-section" style="display: none; margin-top: 16px;">
+        <div class="section-label">Dati prenotazione</div>
+        <label style="margin-bottom:4px;">Alloggio</label>
+        <div class="readonly-box alloggio-box">—</div>
 
-      <div class="promemoria-bozza"
-        style="margin-top:16px; background:#f9fafb; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
-        <div
-          style="font-weight:600; color:#4a5568; margin-top:0; border-bottom:1px solid #cbd5e0; padding-bottom:4px; margin-bottom:6px; font-size:0.85rem;">
-          Solo promemoria</div>
-        <div style="font-size:0.8rem; color:#718096; margin-bottom:10px;">Queste opzioni sono già registrate e qui non
-          si possono modificare.</div>
-        <div class="options readonly" style="margin-top:0;">
-          <label style="cursor:default;"><input type="checkbox" class="colazione" disabled> 🔒 Colazione</label>
-          <label style="cursor:default;"><input type="checkbox" class="assicurazione" disabled> 🔒 Assicurazione
-            annullamento</label>
+        <div class="promemoria-bozza"
+          style="margin-top:16px; background:#f9fafb; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+          <div
+            style="font-weight:600; color:#4a5568; margin-top:0; border-bottom:1px solid #cbd5e0; padding-bottom:4px; margin-bottom:6px; font-size:0.85rem;">
+            Solo promemoria</div>
+          <div style="font-size:0.8rem; color:#718096; margin-bottom:10px;">Queste opzioni sono già registrate e qui non
+            si possono modificare.</div>
+          <div class="options readonly" style="margin-top:0;">
+            <label style="cursor:default;"><input type="checkbox" class="colazione" disabled> 🔒 Colazione <span
+                class="costo-label">(€70)</span></label>
+            <label style="cursor:default;"><input type="checkbox" class="assicurazione" disabled> 🔒 Assicurazione
+              annullamento <span class="costo-label">(€20)</span></label>
+          </div>
         </div>
-      </div>
 
-      <div class="section-label">🚌 Transfer opzionali</div>
-      <div class="options transfer-options">
-        <label><input type="checkbox" class="tr-rf"> Roma → Fiumicino (€10)</label>
-        <label><input type="checkbox" class="tr-pt"> Porto → Tui (€15)</label>
-        <label><input type="checkbox" class="tr-sc"> Santiago → A Coruña (€15)</label>
-        <label><input type="checkbox" class="tr-fr"> Fiumicino → Roma (€10)</label>
+        <div class="section-label">🚌 Transfer opzionali</div>
+        <div class="options transfer-options">
+          <label><input type="checkbox" class="tr-rf"> Roma → Fiumicino (€10)</label>
+          <label><input type="checkbox" class="tr-pt"> Porto → Tui (€15)</label>
+          <label><input type="checkbox" class="tr-sc"> Santiago → A Coruña (€15)</label>
+          <label><input type="checkbox" class="tr-fr"> Fiumicino → Roma (€10)</label>
+        </div>
       </div>
     </div>
   </template>
@@ -881,10 +888,32 @@
     }
 
     function getCostoAlloggio(text) {
+      if (!text || text === '—') return 0;
+      // Se il testo è stato già formattato (es. contiene '€'), estrai l'importo
+      const fixMatch = text.match(/€\s*(\d+)/);
+      if (fixMatch) return parseInt(fixMatch[1], 10);
+
       const s = getSiglaAlloggio(text);
       if (!s) return 0;
       if (/^DM\d*$/.test(s)) return COSTI.alloggio['DM'] || 0;
       return COSTI.alloggio[s] || 0;
+    }
+
+    function formatAlloggioText(text) {
+      const costo = getCostoAlloggio(text);
+      if (costo === 0) return text;
+
+      const s = getSiglaAlloggio(text);
+      let tipoStr = text;
+
+      // Rendi il nome della camera più "umano" nascondendo DMn
+      if (s && /^DM\d*$/.test(s)) tipoStr = 'Albergo – Doppia matrimoniale';
+      else if (s === 'S') tipoStr = 'Albergo – Singola';
+      else if (s === 'DS') tipoStr = 'Albergo – Doppia (letti separati)';
+      else if (s === 'M') tipoStr = 'Ostello – Multipla';
+      else if (s === 'T') tipoStr = 'Albergo – Tripla';
+
+      return `${tipoStr} (€${costo})`;
     }
 
     /***************
@@ -1140,8 +1169,10 @@
       // Trigger lookup: blur + Enter su entrambi i campi
       const triggerLookup = () => debouncedLookup(card, index, 0);
       const onKeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); triggerLookup(); } };
-      nomeInput.addEventListener('blur', triggerLookup);
-      cognomeInput.addEventListener('blur', triggerLookup);
+
+      const searchBtn = card.querySelector('.btn-search-person');
+      searchBtn.addEventListener('click', triggerLookup);
+
       nomeInput.addEventListener('keydown', onKeydown);
       cognomeInput.addEventListener('keydown', onKeydown);
 
@@ -1220,7 +1251,8 @@
       persone.forEach((p, i) => {
         if (!p.cardEl) return;
         p.cardEl.querySelector('.card-title').textContent =
-          p.loaded ? p.nome + ' ' + p.cognome : 'Persona ' + (i + 1);
+          p.loaded ? p.nome + ' ' + p.cognome : 'Carica la tua prenotazione';
+
         // Prima card removibile solo se ci sono altre card
         if (i === 0) {
           p.cardEl.classList.toggle('removable', persone.length > 1);
@@ -1241,9 +1273,9 @@
       card.querySelector('.alloggio-box').textContent = '—';
       card.querySelector('.colazione').checked = false;
       card.querySelector('.assicurazione').checked = false;
-      card.querySelector('.person-nome').removeAttribute('readonly');
-      card.querySelector('.person-cognome').removeAttribute('readonly');
       card.classList.remove('locked');
+      card.querySelector('.loaded-data-section').style.display = 'none';
+      card.querySelector('.btn-search-person').style.display = 'inline-block';
 
       setCardStatus(card, '', '');
       updateCardTitles();
@@ -1272,6 +1304,8 @@
       card.querySelector('.colazione').checked = false;
       card.querySelector('.assicurazione').checked = false;
       card.classList.remove('locked');
+      card.querySelector('.loaded-data-section').style.display = 'none';
+      card.querySelector('.btn-search-person').style.display = 'inline-block';
 
       p.nome = ''; p.cognome = ''; p.row = null;
       p.alloggio = ''; p.colazione = false; p.assicurazione = false;
@@ -1326,8 +1360,11 @@
       cognomeInput.setAttribute('readonly', true);
 
       const p = partnerData.persona;
-      card.querySelector('.alloggio-box').textContent = p.alloggio || '—';
+      card.querySelector('.alloggio-box').textContent = formatAlloggioText(p.alloggio) || '—';
       card.querySelector('.colazione').checked = !!p.colazione;
+      card.querySelector('.assicurazione').checked = !!p.assicurazione;
+      card.querySelector('.loaded-data-section').style.display = 'block';
+      card.querySelector('.btn-search-person').style.display = 'none';
       card.querySelector('.assicurazione').checked = !!p.assicurazione;
 
       if (p.transfer) {
@@ -1445,7 +1482,7 @@
       person.assicurazione = !!data.persona?.assicurazione;
       person.loaded = true;
 
-      card.querySelector('.alloggio-box').textContent = person.alloggio;
+      card.querySelector('.alloggio-box').textContent = formatAlloggioText(person.alloggio);
       card.querySelector('.colazione').checked = person.colazione;
       card.querySelector('.assicurazione').checked = person.assicurazione;
 
@@ -1459,6 +1496,8 @@
       card.querySelector('.person-nome').setAttribute('readonly', true);
       card.querySelector('.person-cognome').setAttribute('readonly', true);
       card.classList.add('locked');
+      card.querySelector('.loaded-data-section').style.display = 'block';
+      card.querySelector('.btn-search-person').style.display = 'none';
 
       // Pre-compila email (solo se il campo è vuoto)
       if (data.persona?.email && !emailInput.value.trim()) {
