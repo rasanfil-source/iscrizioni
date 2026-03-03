@@ -743,7 +743,7 @@
         <div id="warmupBadge">⏳ Un momento...</div>
         <h2>Riepilogo</h2>
 
-        <div id="summaryBox">Carica la tua prenotazione per vedere il riepilogo</div>
+        <div id="summaryBox">Carica la tua prenotazione</div>
 
         <div id="breakdownBox"
           style="display:none; margin-top:12px; font-size:0.9rem; border-top:1px solid #e2e8f0; padding-top:12px;">
@@ -1828,7 +1828,7 @@
       btnPay.disabled = true;
       btnSave.textContent = 'Ricevi email-riepilogo';
       document.getElementById('orDivider').style.color = '#a0aec0';
-      summaryBox.textContent = 'Carica la tua prenotazione per vedere il riepilogo';
+      summaryBox.textContent = 'Carica la tua prenotazione';
       breakdownBox.style.display = 'none';
       if (document.getElementById('totalBox')) document.getElementById('totalBox').style.display = 'none';
       document.getElementById('saldoDaVersare').textContent = '€ —';
