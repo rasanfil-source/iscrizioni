@@ -93,7 +93,24 @@ function refreshCache_() {
   // Legge solo le colonne necessarie (1 → COL_TR_FR)
   // Parte da DATA_START_ROW (riga 3) perché la riga 2 contiene i costi
   const data = sh.getRange(DATA_START_ROW, 1, lastRow - DATA_START_ROW + 1, COL_TR_FR).getValues();
-  const json = JSON.stringify(data);
+
+  // Riduciamo la dimensione della stringification scartando i dati superflui
+  const minimalData = data.map(row => {
+    const minRow = [];
+    minRow[COL_ALLOGGIO_SIGLA - 1] = String(row[COL_ALLOGGIO_SIGLA - 1] || '');
+    minRow[COL_COGNOME - 1] = String(row[COL_COGNOME - 1] || '');
+    minRow[COL_NOME - 1] = String(row[COL_NOME - 1] || '');
+    minRow[COL_EMAIL - 1] = String(row[COL_EMAIL - 1] || '');
+    minRow[COL_COLAZIONE - 1] = row[COL_COLAZIONE - 1] ? 1 : '';
+    minRow[COL_ASSIC - 1] = row[COL_ASSIC - 1] ? 1 : '';
+    minRow[COL_TR_RF - 1] = row[COL_TR_RF - 1] ? 1 : '';
+    minRow[COL_TR_PT - 1] = row[COL_TR_PT - 1] ? 1 : '';
+    minRow[COL_TR_SC - 1] = row[COL_TR_SC - 1] ? 1 : '';
+    minRow[COL_TR_FR - 1] = row[COL_TR_FR - 1] ? 1 : '';
+    return minRow;
+  });
+
+  const json = JSON.stringify(minimalData);
 
   // CacheService: max 100 KB per voce
   if (json.length < 90000) {
@@ -257,14 +274,22 @@ function doPost(e) {
 
     // ============ SALVA TRANSFER ============
     if (action === 'salvaTransfer') {
-      const email   = String(payload.email   || '').trim();
-      const persone = payload.persone || [];
-      const totale  = payload.totale;
-      const caparra = payload.caparra;
-      const saldo   = payload.saldo;
+      const lock = LockService.getScriptLock();
+      try {
+        lock.waitLock(15000);
+      } catch (e) {
+        return jsonOut({ success: false, message: 'Server occupato, riprova tra poco.' });
+      }
 
-      if (!Array.isArray(persone) || persone.length === 0)
-        return jsonOut({ success: false, message: 'Nessuna persona da salvare' });
+      try {
+        const email   = String(payload.email   || '').trim();
+        const persone = payload.persone || [];
+        const totale  = payload.totale;
+        const caparra = payload.caparra;
+        const saldo   = payload.saldo;
+
+        if (!Array.isArray(persone) || persone.length === 0)
+          return jsonOut({ success: false, message: 'Nessuna persona da salvare' });
 
       const rows = getSheetDataCached_();
       const risultati = [];
@@ -314,6 +339,9 @@ function doPost(e) {
       }
 
       return jsonOut({ success: true, emailSent: !!(email && email.includes('@')), risultati });
+      } finally {
+        lock.releaseLock();
+      }
     }
 
     // ============ PING (warm-up affidabile) ============

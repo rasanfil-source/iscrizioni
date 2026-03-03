@@ -718,6 +718,8 @@
         <div id="breakdownBox"
           style="display:none; margin-top:12px; font-size:0.9rem; border-top:1px solid #e2e8f0; padding-top:12px;">
           <div style="font-weight:600; margin-bottom:6px; color:#4a5568;">Dettaglio opzioni</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Alloggio</span><span
+              id="totAlloggio">€ 0,00</span></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Colazione</span><span
               id="totColazione">€ 0,00</span></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Assicurazione
@@ -926,17 +928,18 @@
       const badge = document.getElementById('warmupBadge');
       badge.style.display = 'block';
       try {
-        await fetchWithTimeout(GAS_ENDPOINT, {
+        // Ping senza timeout per attendere correttamente il cold start
+        await fetch(GAS_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action: '__ping__' })
-        }, 8000);
+        });
         badge.textContent = '✅ Server pronto';
         badge.classList.add('ready');
+        setTimeout(() => { badge.style.display = 'none'; }, 3000);
       } catch (_) {
-        badge.textContent = '⚠️ Server lento – la prima ricerca potrebbe richiedere qualche secondo';
+        badge.style.display = 'none';
       }
-      setTimeout(() => { badge.style.display = 'none'; }, 3000);
     })();
 
     /***************
@@ -1050,6 +1053,7 @@
       }
     }
 
+    const recalcNowBtn = document.getElementById('recalcNowBtn');
     recalcNowBtn?.addEventListener('click', calcolaTotale);
 
     /***************
@@ -1194,8 +1198,20 @@
       const i = persone.findIndex(p => p.index === index);
       if (i === -1) return;
       cancelLookup(index);
+
+      const partnerIdx = persone[i].partnerIndex;
+
       persone[i].cardEl?.remove();
       persone.splice(i, 1);
+
+      if (partnerIdx != null) {
+        const pi = persone.findIndex(p => p.index === partnerIdx);
+        if (pi !== -1) {
+          persone[pi].cardEl?.remove();
+          persone.splice(pi, 1);
+        }
+      }
+
       updateCardTitles();
       resetCalcState();
     }
@@ -1313,6 +1329,13 @@
       card.querySelector('.alloggio-box').textContent = p.alloggio || '—';
       card.querySelector('.colazione').checked = !!p.colazione;
       card.querySelector('.assicurazione').checked = !!p.assicurazione;
+
+      if (p.transfer) {
+        card.querySelector('.tr-rf').checked = !!p.transfer.rf;
+        card.querySelector('.tr-pt').checked = !!p.transfer.pt;
+        card.querySelector('.tr-sc').checked = !!p.transfer.sc;
+        card.querySelector('.tr-fr').checked = !!p.transfer.fr;
+      }
 
       card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
         chk.addEventListener('change', resetCalcState);
@@ -1453,20 +1476,6 @@
     /***************
      * CALCOLO
      ***************/
-    function calcolaSaldoPersona(person) {
-      if (!person.loaded) return 0;
-      const card = person.cardEl;
-      let tot = 0;
-      tot += getCostoAlloggio(person.alloggio);
-      if (person.colazione) tot += COSTI.colazione;
-      if (person.assicurazione) tot += COSTI.assicurazione;
-      if (card.querySelector('.tr-rf').checked) tot += COSTI.transfer.rf;
-      if (card.querySelector('.tr-pt').checked) tot += COSTI.transfer.pt;
-      if (card.querySelector('.tr-sc').checked) tot += COSTI.transfer.sc;
-      if (card.querySelector('.tr-fr').checked) tot += COSTI.transfer.fr;
-      return tot;
-    }
-
     function getTransfer(card) {
       return {
         rf: card.querySelector('.tr-rf').checked,
@@ -1484,6 +1493,7 @@
       }
 
       let totaleCorrente = 0;
+      let totAlloggio = 0;
       let totColazione = 0;
       let totAssicurazione = 0;
       let totTransfer = 0;
@@ -1508,6 +1518,7 @@
         s = alloggioCosto + tmpCol + tmpAss + tmpTr;
         totaleCorrente += s;
 
+        totAlloggio += alloggioCosto;
         totColazione += tmpCol;
         totAssicurazione += tmpAss;
         totTransfer += tmpTr;
@@ -1528,6 +1539,7 @@
       summaryBox.innerHTML = lines.map(l => `<div class="summary-line">${l}</div>`).join('');
 
       breakdownBox.style.display = 'block';
+      document.getElementById('totAlloggio').textContent = formatEuro(totAlloggio);
       document.getElementById('totColazione').textContent = formatEuro(totColazione);
       document.getElementById('totAssicurazione').textContent = formatEuro(totAssicurazione);
       document.getElementById('totTransfer').textContent = formatEuro(totTransfer);
