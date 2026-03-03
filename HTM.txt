@@ -802,7 +802,7 @@
   <template id="personCardTemplate">
     <div class="person-card" data-person-index="">
       <div class="card-header">
-        <span class="card-title">Carica la prenotazione (basta il cognome)</span>
+        <span class="card-title">Carica la tua prenotazione (basta il cognome)</span>
         <div style="display:flex;gap:8px;align-items:center;">
           <button type="button" class="btn-change" title="Cambia persona">✎ Cambia</button>
           <button type="button" class="btn-remove" title="Rimuovi persona">✕</button>
@@ -1272,7 +1272,7 @@
       const index = personCounter++;
 
       card.dataset.personIndex = index;
-      card.querySelector('.card-title').textContent = index === 0 ? 'Carica la prenotazione (basta il cognome)' : 'Persona ' + (persone.length + 1);
+      card.querySelector('.card-title').textContent = index === 0 ? 'Carica la tua prenotazione (basta il cognome)' : 'Persona ' + (persone.length + 1);
       if (persone.length > 0) card.classList.add('removable');
 
       // Accessibilità: ID univoci
