@@ -794,7 +794,7 @@
         <div id="warmupBadge">⏳ Un momento...</div>
 
         <div style="margin-bottom:18px;">
-          <button class="primary" id="calcBtn" type="button">Calcola il saldo</button>
+          <button class="primary" id="calcBtn" type="button" style="display:none;">Calcola il saldo</button>
           <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite" aria-atomic="true">
             <span class="recalc-icon" aria-hidden="true">⚠️</span>
             <span class="recalc-text">Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
@@ -2003,7 +2003,14 @@
       if (document.getElementById('totalBox')) document.getElementById('totalBox').style.display = 'none';
       document.getElementById('saldoDaVersare').textContent = '€ —';
       actionSection.style.display = 'none';
-      setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
+
+      const loadedCount = persone.filter(p => p.loaded).length;
+      if (loadedCount > 0) {
+        setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
+      } else {
+        setCalcButtons({ display: 'none', disabled: false });
+      }
+
       recalcBanner?.classList.remove('active');
       hideRecalcBanner();
       setGlobalStatus('', '');
