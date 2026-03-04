@@ -117,6 +117,36 @@
       margin-bottom: 12px;
     }
 
+    .input-row .field-col {
+      min-width: 0;
+    }
+
+    .input-row .field-hint {
+      font-size: 0.75rem;
+      color: #718096;
+      margin-top: 4px;
+      min-height: 1.1em;
+    }
+
+    .desktop-calc-shortcut {
+      display: none;
+      margin-bottom: 12px;
+      text-align: right;
+    }
+
+    .desktop-calc-shortcut .desktop-note {
+      font-size: 0.72rem;
+      color: #718096;
+      margin-top: 6px;
+      text-align: right;
+    }
+
+    .desktop-calc-shortcut .primary {
+      display: inline-block;
+      width: auto;
+      min-width: 240px;
+    }
+
     @media (max-width: 500px) {
       .input-row {
         grid-template-columns: 1fr;
@@ -294,12 +324,6 @@
     .calc-inline-wrap {
       margin-bottom: 14px;
       display: none;
-    }
-
-    .desktop-left-calc {
-      display: block;
-      margin-top: 8px;
-      margin-bottom: 14px;
     }
 
     /* Sidebar Progressiva */
@@ -855,6 +879,13 @@
       <aside>
         <div id="warmupBadge">⏳ Un momento...</div>
 
+        <div id="desktopCalcShortcut" class="desktop-calc-shortcut" style="display:none;">
+          <!-- Desktop-only shortcut: mantenere questo pulsante in alto a destra sopra “Saldo stimato”
+               per rendere immediatamente disponibile l'azione principale anche quando la lista persone è lunga. -->
+          <button class="primary" id="calcBtnDesktopTop" type="button">Registrazione e riepilogo</button>
+          <div class="desktop-note">Visibile solo su desktop</div>
+        </div>
+
 
         <div id="partialTotalBox" style="display:none;">
           <div class="ref-title">Saldo stimato</div>
@@ -927,14 +958,15 @@
 
       <form onsubmit="return false;" autocomplete="off">
       <div class="input-row">
-        <div>
+        <div class="field-col">
           <label class="person-cognome-label">Cognome</label>
           <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" inputmode="text" autocapitalize="words" autofocus>
-          <div style="font-size:0.75rem; color:#718096; margin-top:4px;">Poi premi Invio per cercare</div>
+          <div class="field-hint">Poi premi Invio per cercare</div>
         </div>
-        <div class="nome-field" style="display:none;">
+        <div class="nome-field field-col" style="display:none;">
           <label class="person-nome-label">Nome</label>
           <input type="text" class="person-nome" placeholder="" autocomplete="given-name" inputmode="text" autocapitalize="words" readonly>
+          <div class="field-hint" aria-hidden="true">&nbsp;</div>
         </div>
         <div>
           <label style="visibility:hidden;">Azioni</label>
@@ -1211,45 +1243,20 @@
     const template = document.getElementById('personCardTemplate');
     const btnAdd = document.getElementById('btnAddPerson');
     const btnCalc = document.getElementById('calcBtn');
-    const btnCalcDesktopLeft = document.getElementById('calcBtnDesktopLeft');
-    const calcButtons = [btnCalc, btnCalcDesktopLeft].filter(Boolean);
+    const btnCalcDesktopTop = document.getElementById('calcBtnDesktopTop');
+    const desktopCalcShortcut = document.getElementById('desktopCalcShortcut');
+    const calcButtons = [btnCalc, btnCalcDesktopTop].filter(Boolean);
     const btnSave = document.getElementById('saveBtn');
     const summaryBox = document.getElementById('summaryBox');
     const breakdownBox = document.getElementById('breakdownBox');
     const calcBtnContainer = document.getElementById('calcBtnContainer');
     const calcBtnPlaceholder = document.createComment('calc-btn-container-anchor');
 
-    if (calcBtnContainer?.parentNode) {
-      calcBtnContainer.parentNode.insertBefore(calcBtnPlaceholder, calcBtnContainer);
-    }
-
-    function mountMobileCalcBtnContainer() {
-      if (!calcBtnContainer || !calcBtnPlaceholder.parentNode) return;
-      const isMobile = window.matchMedia('(max-width: 900px)').matches;
-
-      if (isMobile) {
-        if (calcBtnContainer.parentNode !== document.body) document.body.appendChild(calcBtnContainer);
       } else {
         if (calcBtnContainer.parentNode !== calcBtnPlaceholder.parentNode) {
           calcBtnPlaceholder.parentNode.insertBefore(calcBtnContainer, calcBtnPlaceholder.nextSibling);
         }
         document.body.classList.remove('has-mobile-cta');
-      }
-    }
-
-    var requestedCalcDisplay = 'none';
-
-    function updateDesktopRightCalcVisibility() {
-      const isDesktop = window.matchMedia('(min-width: 901px)').matches;
-      const showRight = requestedCalcDisplay === 'block' && (!isDesktop || warmupBadgeHidden);
-
-      if (btnCalc) btnCalc.style.display = showRight ? 'block' : 'none';
-      if (calcBtnContainer && isDesktop) {
-        calcBtnContainer.style.display = showRight ? 'block' : 'none';
-      }
-
-      if (btnCalcDesktopLeft) {
-        btnCalcDesktopLeft.style.display = (requestedCalcDisplay === 'block' && isDesktop) ? 'block' : 'none';
       }
     }
 
@@ -1329,29 +1336,27 @@
     }
 
     function setCalcButtons({ text, display, disabled }) {
-      if (typeof text === 'string') {
-        calcButtons.forEach(btn => { btn.textContent = text; });
-      }
-
-      if (typeof display === 'string') {
-        requestedCalcDisplay = display;
-        const isMobile = window.matchMedia('(max-width: 900px)').matches;
-
-        if (calcBtnContainer) {
-          if (display === 'block' && isMobile) {
-            calcBtnContainer.classList.add('active');
-            document.body.classList.add('has-mobile-cta');
-          } else {
-            calcBtnContainer.classList.remove('active');
-            document.body.classList.remove('has-mobile-cta');
+      calcButtons.forEach(btn => {
+        if (typeof text === 'string') btn.textContent = text;
+        if (typeof display === 'string') {
+          btn.style.display = display;
+          
+          const isMobile = window.matchMedia('(max-width: 900px)').matches;
+          if (calcBtnContainer) {
+            if (display === 'block' && isMobile) {
+              calcBtnContainer.classList.add('active');
+              document.body.classList.add('has-mobile-cta');
+            } else {
+              calcBtnContainer.classList.remove('active');
+              document.body.classList.remove('has-mobile-cta');
+            }
           }
         }
+        if (typeof disabled === 'boolean') btn.disabled = disabled;
+      });
 
-        updateDesktopRightCalcVisibility();
-      }
-
-      if (typeof disabled === 'boolean') {
-        calcButtons.forEach(btn => { btn.disabled = disabled; });
+      if (desktopCalcShortcut && typeof display === 'string') {
+        desktopCalcShortcut.style.display = display;
       }
     }
 
@@ -2372,16 +2377,12 @@
      * INIT
      ***************/
     mountMobileCalcBtnContainer();
-    updateDesktopRightCalcVisibility();
-    window.addEventListener('resize', () => {
-      mountMobileCalcBtnContainer();
-      updateDesktopRightCalcVisibility();
-    });
+    window.addEventListener('resize', mountMobileCalcBtnContainer);
 
     addPersonCard();
     btnAdd.addEventListener('click', addPersonCard);
     btnCalc.addEventListener('click', calcolaTotale);
-    btnCalcDesktopLeft?.addEventListener('click', calcolaTotale);
+    btnCalcDesktopTop?.addEventListener('click', calcolaTotale);
     btnSave.addEventListener('click', salvaEInvia);
     btnPay.addEventListener('click', openPayPopup);
     document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);

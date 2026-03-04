@@ -849,6 +849,13 @@
     <aside>
       <div id="warmupBadge">⏳ Un momento...</div>
 
+      <div id="desktopCalcShortcut" class="desktop-calc-shortcut" style="display:none;">
+        <!-- Desktop-only shortcut: mantenere questo pulsante in alto a destra sopra “Saldo stimato”
+             per rendere immediatamente disponibile l'azione principale anche quando la lista persone è lunga. -->
+        <button class="primary" id="calcBtnDesktopTop" type="button">Registrazione e riepilogo</button>
+        <div class="desktop-note">Visibile solo su desktop</div>
+      </div>
+
 
       <div id="partialTotalBox" style="display:none;">
         <div class="ref-title">Saldo stimato</div>
@@ -924,16 +931,17 @@
 
     <form onsubmit="return false;" autocomplete="off">
       <div class="input-row">
-        <div>
+        <div class="field-col">
           <label class="person-cognome-label">Cognome</label>
           <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" inputmode="text"
             autocapitalize="words" autofocus>
-          <div style="font-size:0.75rem; color:#718096; margin-top:4px;">Poi premi Invio per cercare</div>
+          <div class="field-hint">Poi premi Invio per cercare</div>
         </div>
-        <div class="nome-field" style="display:none;">
+        <div class="nome-field field-col" style="display:none;">
           <label class="person-nome-label">Nome</label>
           <input type="text" class="person-nome" placeholder="" autocomplete="given-name" inputmode="text"
             autocapitalize="words" readonly>
+          <div class="field-hint" aria-hidden="true">&nbsp;</div>
         </div>
         <div>
           <label style="visibility:hidden;">Azioni</label>
@@ -1219,7 +1227,9 @@
   const template = document.getElementById('personCardTemplate');
   const btnAdd = document.getElementById('btnAddPerson');
   const btnCalc = document.getElementById('calcBtn');
-  const calcButtons = [btnCalc].filter(Boolean);
+  const btnCalcDesktopTop = document.getElementById('calcBtnDesktopTop');
+  const desktopCalcShortcut = document.getElementById('desktopCalcShortcut');
+  const calcButtons = [btnCalc, btnCalcDesktopTop].filter(Boolean);
   const btnSave = document.getElementById('saveBtn');
   const summaryBox = document.getElementById('summaryBox');
   const breakdownBox = document.getElementById('breakdownBox');
@@ -2345,6 +2355,7 @@
   addPersonCard();
   btnAdd.addEventListener('click', addPersonCard);
   btnCalc.addEventListener('click', calcolaTotale);
+  btnCalcDesktopTop?.addEventListener('click', calcolaTotale);
   btnSave.addEventListener('click', salvaEInvia);
   btnPay.addEventListener('click', openPayPopup);
   document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
