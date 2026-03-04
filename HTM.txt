@@ -3,6 +3,10 @@
       box-sizing: border-box;
     }
 
+    .success-check {
+      font-size: 0.75em;
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: #222;
@@ -702,14 +706,14 @@
   </style>
 
   <div class="page">
-    <h1>Calcolo saldo prenotazioni – Cammino 2026</h1>
+    <h1>Saldo prenotazioni</h1>
 
     <div id="stepper" class="stepper" aria-label="Stato procedura">
       <div class="step is-active" data-step="1">
         <div class="step-dot" aria-hidden="true">1</div>
         <div class="step-label">
           <div class="step-title">Carica prenotazione</div>
-          <div class="step-desc">Inserisci cognome e nome</div>
+          <div class="step-desc">Inserisci cognome</div>
         </div>
       </div>
       <div class="step-sep" aria-hidden="true"></div>
@@ -741,6 +745,14 @@
       <!-- COLONNA DESTRA -->
       <aside>
         <div id="warmupBadge">⏳ Un momento...</div>
+
+        <div style="margin-bottom:18px;">
+          <button class="primary" id="calcBtn" type="button">Registra e riepiloga</button>
+          <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
+            <span>Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
+          </div>
+        </div>
+
         <h2>Riepilogo</h2>
 
         <div id="summaryBox">Carica la tua prenotazione</div>
@@ -786,13 +798,6 @@
             carta</button>
         </div>
 
-        <div style="margin-top:18px;">
-          <button class="primary" id="calcBtn" type="button">Riepiloga e registra</button>
-          <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
-            <span>Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
-            <button id="recalcNowBtn" type="button">Ricalcola</button>
-          </div>
-        </div>
       </aside>
 
     </div>
@@ -815,7 +820,7 @@
           <label>Cognome</label>
           <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" inputmode="text" autocapitalize="words" autofocus>
         </div>
-        <div>
+        <div class="nome-field" style="display:none;">
           <label>Nome</label>
           <input type="text" class="person-nome" placeholder="" autocomplete="given-name" inputmode="text" autocapitalize="words" readonly>
         </div>
@@ -1008,7 +1013,7 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action: '__ping__' })
         });
-        badge.textContent = '✅ Server pronto';
+        badge.textContent = '✅ Siamo pronti!';
         badge.classList.add('ready');
         setTimeout(() => { badge.style.display = 'none'; }, 3000);
       } catch (_) {
@@ -1150,8 +1155,7 @@
       }
     }
 
-    const recalcNowBtn = document.getElementById('recalcNowBtn');
-    recalcNowBtn?.addEventListener('click', calcolaTotale);
+
 
     /***************
      * MODAL accessibile (focus + ESC + trap)
@@ -1252,7 +1256,11 @@
         resetCard(card, index);
       };
       nomeInput.addEventListener('input', () => {
-        resetAndCancel();
+        const p = persone.find(p => p.index === index);
+        if (p && p.loaded) return; 
+        cancelLookup(index);
+        p.loaded = false;
+        setCardStatus(card, '', '');
         nomeInput.classList.remove('has-error');
       });
       cognomeInput.addEventListener('input', resetAndCancel);
@@ -1283,7 +1291,8 @@
       cognomeInp.id = `p${index}_cognome`;
       nomeInp.id = `p${index}_nome`;
       card.querySelector('.input-row label:nth-of-type(1)').setAttribute('for', cognomeInp.id);
-      card.querySelector('.input-row div:nth-of-type(2) label').setAttribute('for', nomeInp.id);
+      const nomeLbl = card.querySelector('.nome-field label');
+      if (nomeLbl) nomeLbl.setAttribute('for', nomeInp.id);
 
       const trRf = card.querySelector('.tr-rf');
       const trPt = card.querySelector('.tr-pt');
@@ -1348,7 +1357,7 @@
         if (!p.cardEl) return;
         const title = p.cardEl.querySelector('.card-title');
         if (!title) return;
-        title.innerHTML = p.loaded ? `${p.cognome} ${p.nome}${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : ''}` : `${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione (basta il cognome)'}`;
+        title.innerHTML = p.loaded ? `${p.cognome} ${p.nome}${p.isPartner ? ' <span class="partner-badge">👥 Partner camera</span>' : ''}` : `${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione (basta il cognome)'}`;
 
         // Prima card removibile solo se ci sono altre card
         if (i === 0) {
@@ -1371,6 +1380,8 @@
       card.querySelector('.colazione').checked = false;
       card.querySelector('.assicurazione').checked = false;
       card.querySelector('.loaded-data-section').style.display = 'none';
+      const nfReset = card.querySelector('.nome-field');
+      if (nfReset) nfReset.style.display = 'none';
       setCardStatus(card, '', '');
       updateCardTitles();
       resetCalcState();
@@ -1394,6 +1405,9 @@
       card.querySelector('.person-nome').setAttribute('readonly', true);
       card.querySelector('.person-cognome').removeAttribute('readonly');
       card.querySelector('.person-nome').value = '';
+      card.querySelector('.person-nome').setAttribute('readonly', true);
+      const nomeField = card.querySelector('.nome-field');
+      if (nomeField) nomeField.style.display = 'none';
       card.querySelector('.person-cognome').value = '';
       card.querySelector('.alloggio-box').textContent = '—';
       card.querySelector('.colazione').checked = false;
@@ -1453,6 +1467,8 @@
 
       const nomeInput = card.querySelector('.person-nome');
       const cognomeInput = card.querySelector('.person-cognome');
+      const nomeField = card.querySelector('.nome-field');
+      if (nomeField) nomeField.style.display = '';
       nomeInput.value = partnerData.nome;
       cognomeInput.value = partnerData.cognome;
       nomeInput.setAttribute('readonly', true);
@@ -1575,6 +1591,8 @@
           if (data.error === 'duplicate') {
             const msg = 'Cognome presente più volte – specifica anche il nome.';
             setCardStatus(card, 'error', msg);
+            const nomeField = card.querySelector('.nome-field');
+            if (nomeField) nomeField.style.display = '';
             const nomeInp = card.querySelector('.person-nome');
             nomeInp.removeAttribute('readonly');
             nomeInp.classList.add('has-error');
@@ -1638,6 +1656,8 @@
         const trFr = card.querySelector('.tr-fr'); if (trFr) trFr.checked = !!data.persona.transfer.fr;
       }
 
+      const nomeField = card.querySelector('.nome-field');
+      if (nomeField) nomeField.style.display = '';
       const nomeEl = card.querySelector('.person-nome');
       if (nomeEl) {
         nomeEl.value = person.nome;
@@ -1732,7 +1752,7 @@
       const confirmed = await showConfirmModal('Riepilogo e registrazione', confirmBody);
       if (!confirmed) return;
 
-      setGlobalStatus('loading', '<span class="spinner"></span>Salvataggio in corso…');
+      setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
       btnCalc.disabled = true;
 
       let totaleCorrente = 0;
@@ -1835,12 +1855,12 @@
       if (document.getElementById('totalBox')) document.getElementById('totalBox').style.display = 'none';
       document.getElementById('saldoDaVersare').textContent = '€ —';
       actionSection.style.display = 'none';
-      btnCalc.textContent = 'Riepiloga e registra';
+      btnCalc.textContent = 'Registra e riepiloga';
       btnCalc.style.display = 'block';
       btnCalc.disabled = false;
       recalcBanner?.classList.remove('active');
       btnCalc.style.display = 'block';
-      btnCalc.textContent = 'Calcola il totale';
+      btnCalc.textContent = 'Registra e riepiloga';
       actionSection.style.display = 'none';
       hideRecalcBanner();
       setGlobalStatus('', '');
@@ -1890,11 +1910,11 @@
       }
 
       btnSave.disabled = true;
-      setGlobalStatus('loading', '<span class="spinner"></span>Salvataggio in corso... attendere prego.');
+      setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
 
       try {
         await doSalvaTransfer(email);
-        setGlobalStatus('ok', '✅ Salvato! Email inviata a ' + email);
+        setGlobalStatus('ok', '✅ Email inviata a ' + email);
         btnSave.textContent = 'Email inviata ✓';
       } catch (err) {
         console.error('Errore salvataggio:', err);

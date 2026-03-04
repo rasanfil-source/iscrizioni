@@ -1,1977 +1,2014 @@
 ﻿<style>
-    * {
-      box-sizing: border-box;
-    }
+  * {
+    box-sizing: border-box;
+  }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #222;
-      margin: 0;
-      background: #f0f2f5;
-    }
+  .success-check {
+    font-size: 0.75em;
+  }
 
-    .page {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px 14px 60px;
-    }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #222;
+    margin: 0;
+    background: #f0f2f5;
+  }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 28px;
-      font-size: 1.6rem;
-      color: #1a365d;
-    }
+  .page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 14px 60px;
+  }
 
+  h1 {
+    text-align: center;
+    margin-bottom: 28px;
+    font-size: 1.6rem;
+    color: #1a365d;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+  }
+
+  @media (max-width: 900px) {
     .layout {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 32px;
+      grid-template-columns: 1fr;
     }
+  }
 
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
+  /* ── Card persona ── */
+  .person-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+  }
 
-    /* ── Card persona ── */
-    .person-card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 14px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
-    }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
+  .card-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #2d3748;
+  }
 
-    .card-title {
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: #2d3748;
-    }
+  .btn-remove {
+    background: #e53e3e;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    padding: 0;
+  }
 
-    .btn-remove {
-      background: #e53e3e;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      cursor: pointer;
-      font-size: 1rem;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      line-height: 0;
-      padding: 0;
-    }
+  .btn-remove:hover {
+    background: #c53030;
+  }
 
-    .btn-remove:hover {
-      background: #c53030;
-    }
+  .person-card.removable .btn-remove {
+    display: block;
+  }
 
-    .person-card.removable .btn-remove {
-      display: block;
-    }
+  /* Bottone "Cambia persona" (visibile quando la card è bloccata) */
+  .btn-change {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e0;
+    background: #fff;
+    cursor: pointer;
+    color: #4a5568;
+    display: none;
+  }
 
-    /* Bottone "Cambia persona" (visibile quando la card è bloccata) */
-    .btn-change {
-      font-size: 0.8rem;
-      padding: 4px 10px;
-      border-radius: 6px;
-      border: 1px solid #cbd5e0;
-      background: #fff;
-      cursor: pointer;
-      color: #4a5568;
-      display: none;
-    }
+  .btn-change:hover {
+    background: #f7fafc;
+    color: #e53e3e;
+    border-color: #e53e3e;
+  }
 
-    .btn-change:hover {
-      background: #f7fafc;
-      color: #e53e3e;
-      border-color: #e53e3e;
-    }
+  .person-card.locked .btn-change {
+    display: inline-block;
+  }
 
-    .person-card.locked .btn-change {
-      display: inline-block;
-    }
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    align-items: end;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
 
+  @media (max-width: 500px) {
     .input-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      align-items: end;
-      gap: 12px;
-      margin-bottom: 12px;
+      grid-template-columns: 1fr;
+    }
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #4a5568;
+  }
+
+  input[type="text"],
+  input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color .2s;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, .15);
+  }
+
+  /* Stile Errore Duplicati */
+  input.has-error {
+    border-color: #e53e3e !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23e53e3e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='8' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'%3E%3C/line%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 36px !important;
+  }
+
+  input[type="text"][readonly] {
+    background: #e2e8f0;
+    color: #2d3748;
+    cursor: not-allowed;
+    border-color: #e2e8f0;
+  }
+
+  input[type="text"][readonly]:focus {
+    box-shadow: none;
+  }
+
+  .readonly-box {
+    background: #e2e8f0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    color: #2d3748;
+    font-weight: 500;
+  }
+
+  .options {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .options.readonly {
+    opacity: .7;
+  }
+
+  .options label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: normal;
+    cursor: pointer;
+    padding: 1px 0;
+  }
+
+  /* Badge "già selezionato" */
+  .badge-preselected {
+    font-size: 0.65rem;
+    background: #c6f6d5;
+    color: #22543d;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-left: 4px;
+  }
+
+  .options input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #3182ce;
+  }
+
+  .section-label {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+
+  /* ── Bottoni ── */
+  button {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    background: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all .2s;
+  }
+
+  button:hover {
+    background: #f7fafc;
+  }
+
+  button.primary {
+    background: #3182ce;
+    color: #fff;
+    border-color: #3182ce;
+    width: 100%;
+    font-weight: 600;
+  }
+
+  button.primary:hover {
+    background: #2c5282;
+  }
+
+  button.primary:disabled {
+    background: #a0aec0;
+    border-color: #a0aec0;
+    cursor: not-allowed;
+  }
+
+  button.secondary {
+    background: #48bb78;
+    color: #fff;
+    border-color: #48bb78;
+    width: 100%;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  button.secondary:hover {
+    background: #38a169;
+  }
+
+  button.secondary:disabled {
+    background: #a0aec0;
+    border-color: #a0aec0;
+    cursor: not-allowed;
+  }
+
+  #btnAddPerson {
+    background: #fff;
+    border: 2px dashed #a0aec0;
+    color: #4a5568;
+    padding: 14px;
+    width: 100%;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  #btnAddPerson:hover {
+    border-color: #3182ce;
+    color: #3182ce;
+  }
+
+  /* ── Sidebar ── */
+  aside {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
+    position: sticky;
+    top: 20px;
+  }
+
+  aside h2 {
+    margin-top: 0;
+    color: #2d3748;
+    font-size: 1.2rem;
+  }
+
+  #summaryBox {
+    background: #f7fafc;
+    padding: 12px;
+    border-radius: 8px;
+    min-height: 60px;
+    font-size: .85rem;
+    line-height: 1.5;
+    color: #718096;
+  }
+
+  #summaryBox .summary-line {
+    padding: 4px 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  #summaryBox .summary-line:last-child {
+    border-bottom: none;
+  }
+
+  #totalBox {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 14px;
+    padding: 12px;
+    background: #ebf8ff;
+    border-radius: 8px;
+    color: #2c5282;
+  }
+
+  .breakdown {
+    font-size: .9rem;
+    color: #4a5568;
+    margin-top: 8px;
+  }
+
+  .breakdown div {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+
+  /* ── Status ── */
+  .status {
+    font-size: .9rem;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .status:empty {
+    display: none;
+  }
+
+  .status.ok {
+    color: #276749;
+    background: #c6f6d5;
+  }
+
+  /* Animazione Checkmark Prominente */
+  .success-check {
+    display: inline;
+    font-size: 1.2rem;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    0% {
+      transform: scale(0);
+      opacity: 0;
     }
 
-    @media (max-width: 500px) {
-      .input-row {
-        grid-template-columns: 1fr;
-      }
+    100% {
+      transform: scale(1);
+      opacity: 1;
     }
+  }
 
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: #4a5568;
-    }
+  .status.error {
+    color: #c53030;
+    background: #fed7d7;
+  }
 
-    input[type="text"],
-    input[type="email"] {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #cbd5e0;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color .2s;
-    }
+  .status.loading {
+    color: #744210;
+    background: #fefcbf;
+  }
 
-    input[type="text"]:focus,
-    input[type="email"]:focus {
-      outline: none;
-      border-color: #3182ce;
-      box-shadow: 0 0 0 3px rgba(49, 130, 206, .15);
+  /* Spinner inline */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
     }
-    
-    /* Stile Errore Duplicati */
-    input.has-error {
-      border-color: #e53e3e !important;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23e53e3e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='8' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'%3E%3C/line%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      padding-right: 36px !important;
-    }
+  }
 
-    input[type="text"][readonly] {
-      background: #e2e8f0;
-      color: #2d3748;
-      cursor: not-allowed;
-      border-color: #e2e8f0;
-    }
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(116, 66, 16, .3);
+    border-top-color: #744210;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
 
-    input[type="text"][readonly]:focus {
-      box-shadow: none;
-    }
+  /* Indicatore warm-up GAS */
+  #warmupBadge {
+    font-size: .75rem;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    background: #fefcbf;
+    color: #744210;
+    display: none;
+  }
 
-    .readonly-box {
-      background: #e2e8f0;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      color: #2d3748;
-      font-weight: 500;
-    }
+  #warmupBadge.ready {
+    background: #c6f6d5;
+    color: #276749;
+  }
 
-    .options {
-      display: grid;
-      gap: 8px;
-      margin-top: 12px;
-    }
+  /* ── Popup pagamento ── */
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    z-index: 999999;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+  }
 
-    .options.readonly {
-      opacity: .7;
-    }
+  .popup-overlay.active {
+    display: flex;
+  }
 
-    .options label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: normal;
-      cursor: pointer;
-      padding: 1px 0;
-    }
+  .popup-box {
+    background: #fff;
+    border-radius: 14px;
+    padding: 26px 28px;
+    max-width: 440px;
+    width: 92%;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, .22);
+    margin-top: 140px;
+    /* Spazio per l'header del sito */
+    margin-bottom: 40px;
+    /* Spazio in basso quando si scorre */
+  }
 
-    /* Badge "già selezionato" */
-    .badge-preselected {
-      font-size: 0.65rem;
-      background: #c6f6d5;
-      color: #22543d;
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-left: 4px;
-    }
+  .popup-box h3 {
+    margin: 0 0 6px;
+    font-size: 1.15rem;
+    text-align: center;
+  }
 
-    .options input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: #3182ce;
-    }
+  .popup-box .popup-subtitle {
+    text-align: center;
+    color: #666;
+    font-size: .85rem;
+    margin-bottom: 16px;
+  }
 
-    .section-label {
-      font-size: .85rem;
-      font-weight: 600;
-      color: #718096;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      margin-top: 16px;
-      margin-bottom: 8px;
-    }
+  .popup-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
 
-    /* ── Bottoni ── */
-    button {
-      padding: 10px 18px;
-      border-radius: 8px;
-      border: 1px solid #cbd5e0;
-      background: #fff;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: all .2s;
-    }
+  .popup-field-label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: #4a5568;
+    min-width: 72px;
+    text-align: right;
+  }
 
-    button:hover {
-      background: #f7fafc;
-    }
+  .popup-field-value {
+    flex: 1;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: .95rem;
+    word-break: break-word;
+    color: #222;
+  }
 
-    button.primary {
-      background: #3182ce;
-      color: #fff;
-      border-color: #3182ce;
-      width: 100%;
-      font-weight: 600;
-    }
+  .popup-field-value.importo {
+    font-weight: 700;
+    color: #c53030;
+    font-size: 1.05rem;
+  }
 
-    button.primary:hover {
-      background: #2c5282;
-    }
+  .popup-btn-copy-sm {
+    background: none;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 6px 8px;
+    cursor: pointer;
+    font-size: .85rem;
+    white-space: nowrap;
+    transition: all .15s;
+  }
 
-    button.primary:disabled {
-      background: #a0aec0;
-      border-color: #a0aec0;
-      cursor: not-allowed;
-    }
+  .popup-btn-copy-sm:hover {
+    background: #ebf8ff;
+    border-color: #3182ce;
+  }
 
-    button.secondary {
-      background: #48bb78;
-      color: #fff;
-      border-color: #48bb78;
-      width: 100%;
-      font-weight: 600;
-      margin-top: 10px;
-    }
+  .popup-btn-copy-sm.copied {
+    background: #c6f6d5;
+    border-color: #38a169;
+  }
 
-    button.secondary:hover {
-      background: #38a169;
-    }
+  .popup-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+  }
 
-    button.secondary:disabled {
-      background: #a0aec0;
-      border-color: #a0aec0;
-      cursor: not-allowed;
-    }
+  .popup-btn-open {
+    flex: 1;
+    background: #e67e22;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
 
-    #btnAddPerson {
-      background: #fff;
-      border: 2px dashed #a0aec0;
-      color: #4a5568;
-      padding: 14px;
-      width: 100%;
-      border-radius: 12px;
-      font-weight: 600;
-      margin-bottom: 14px;
-    }
+  .popup-btn-open:hover {
+    background: #d35400;
+  }
 
-    #btnAddPerson:hover {
-      border-color: #3182ce;
-      color: #3182ce;
-    }
+  .popup-btn-close {
+    background: #fff;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: .95rem;
+    cursor: pointer;
+    color: #4a5568;
+  }
 
-    /* ── Sidebar ── */
-    aside {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
-      position: sticky;
-      top: 20px;
-    }
+  .popup-btn-close:hover {
+    background: #f7fafc;
+  }
 
-    aside h2 {
-      margin-top: 0;
-      color: #2d3748;
-      font-size: 1.2rem;
-    }
+  .popup-hint {
+    text-align: center;
+    font-size: .78rem;
+    color: #999;
+    margin-top: 12px;
+  }
 
-    #summaryBox {
-      background: #f7fafc;
-      padding: 12px;
-      border-radius: 8px;
-      min-height: 60px;
-      font-size: .85rem;
-      line-height: 1.5;
-      color: #718096;
-    }
-
-    #summaryBox .summary-line {
-      padding: 4px 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    #summaryBox .summary-line:last-child {
-      border-bottom: none;
-    }
-
-    #totalBox {
-      font-weight: 700;
-      font-size: 1.1rem;
-      margin-top: 14px;
-      padding: 12px;
-      background: #ebf8ff;
-      border-radius: 8px;
-      color: #2c5282;
-    }
-
-    .breakdown {
-      font-size: .9rem;
-      color: #4a5568;
-      margin-top: 8px;
-    }
-
-    .breakdown div {
-      display: flex;
-      justify-content: space-between;
-      padding: 4px 0;
-    }
-
-    /* ── Status ── */
-    .status {
-      font-size: .9rem;
-      margin-top: 8px;
-      padding: 6px 10px;
-      border-radius: 6px;
-      text-align: center;
-    }
-
-    .status:empty {
-      display: none;
-    }
-
-    .status.ok {
-      color: #276749;
-      background: #c6f6d5;
-    }
-
-    /* Animazione Checkmark Prominente */
-    .success-check {
-      display: inline;
-      font-size: 1.2rem;
-      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    @keyframes popIn {
-      0% { transform: scale(0); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .status.error {
-      color: #c53030;
-      background: #fed7d7;
-    }
-
-    .status.loading {
-      color: #744210;
-      background: #fefcbf;
-    }
-
-    /* Spinner inline */
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(116, 66, 16, .3);
-      border-top-color: #744210;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-
-    /* Indicatore warm-up GAS */
-    #warmupBadge {
-      font-size: .75rem;
-      text-align: center;
-      padding: 4px 8px;
-      border-radius: 6px;
-      margin-bottom: 12px;
-      background: #fefcbf;
-      color: #744210;
-      display: none;
-    }
-
-    #warmupBadge.ready {
-      background: #c6f6d5;
-      color: #276749;
-    }
-
-    /* ── Popup pagamento ── */
-    .popup-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .45);
-      z-index: 999999;
-      align-items: flex-start;
-      justify-content: center;
-      overflow-y: auto;
-    }
-
-    .popup-overlay.active {
-      display: flex;
-    }
-
-    .popup-box {
-      background: #fff;
-      border-radius: 14px;
-      padding: 26px 28px;
-      max-width: 440px;
-      width: 92%;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, .22);
-      margin-top: 140px;
-      /* Spazio per l'header del sito */
-      margin-bottom: 40px;
-      /* Spazio in basso quando si scorre */
-    }
-
-    .popup-box h3 {
-      margin: 0 0 6px;
-      font-size: 1.15rem;
-      text-align: center;
-    }
-
-    .popup-box .popup-subtitle {
-      text-align: center;
-      color: #666;
-      font-size: .85rem;
-      margin-bottom: 16px;
-    }
-
-    .popup-field {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .popup-field-label {
-      font-size: .8rem;
-      font-weight: 600;
-      color: #4a5568;
-      min-width: 72px;
-      text-align: right;
-    }
-
-    .popup-field-value {
-      flex: 1;
-      background: #f7f7f7;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: .95rem;
-      word-break: break-word;
-      color: #222;
-    }
-
-    .popup-field-value.importo {
-      font-weight: 700;
-      color: #c53030;
-      font-size: 1.05rem;
-    }
-
-    .popup-btn-copy-sm {
-      background: none;
-      border: 1px solid #cbd5e0;
-      border-radius: 6px;
-      padding: 6px 8px;
-      cursor: pointer;
-      font-size: .85rem;
-      white-space: nowrap;
-      transition: all .15s;
-    }
-
-    .popup-btn-copy-sm:hover {
-      background: #ebf8ff;
-      border-color: #3182ce;
-    }
-
-    .popup-btn-copy-sm.copied {
-      background: #c6f6d5;
-      border-color: #38a169;
-    }
-
-    .popup-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .popup-btn-open {
-      flex: 1;
-      background: #e67e22;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 11px 18px;
-      font-size: 1rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .popup-btn-open:hover {
-      background: #d35400;
-    }
-
-    .popup-btn-close {
-      background: #fff;
-      border: 1px solid #cbd5e0;
-      border-radius: 8px;
-      padding: 11px 18px;
-      font-size: .95rem;
-      cursor: pointer;
-      color: #4a5568;
-    }
-
-    .popup-btn-close:hover {
-      background: #f7fafc;
-    }
-
-    .popup-hint {
-      text-align: center;
-      font-size: .78rem;
-      color: #999;
-      margin-top: 12px;
-    }
-
-    /* ─────────────────────────────────────────
+  /* ─────────────────────────────────────────
        STEP INDICATOR (3 passi)
     ───────────────────────────────────────── */
-    .stepper {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin: 14px 0 18px;
-      padding: 10px 12px;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
-    }
+  .stepper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 14px 0 18px;
+    padding: 10px 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+  }
 
-    .step {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      min-width: 0;
-    }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
 
-    .step-dot {
-      width: 28px;
-      height: 28px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #cbd5e0;
-      color: #4a5568;
-      font-weight: 700;
-      font-size: .9rem;
-      flex: 0 0 auto;
-    }
+  .step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #cbd5e0;
+    color: #4a5568;
+    font-weight: 700;
+    font-size: .9rem;
+    flex: 0 0 auto;
+  }
 
-    .step-label {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
+  .step-label {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
 
-    .step-title {
-      font-weight: 700;
-      font-size: .92rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  .step-title {
+    font-weight: 700;
+    font-size: .92rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-    .step-desc {
-      font-size: .78rem;
-      color: #718096;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  .step-desc {
+    font-size: .78rem;
+    color: #718096;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-    .step.is-active .step-dot {
-      border-color: #3182ce;
-      color: #2b6cb0;
-    }
+  .step.is-active .step-dot {
+    border-color: #3182ce;
+    color: #2b6cb0;
+  }
 
-    .step.is-done .step-dot {
-      border-color: #38a169;
-      background: #c6f6d5;
-      color: #276749;
-    }
+  .step.is-done .step-dot {
+    border-color: #38a169;
+    background: #c6f6d5;
+    color: #276749;
+  }
 
-    .step-sep {
-      width: 22px;
-      height: 1px;
-      background: #e2e8f0;
-      flex: 0 0 auto;
-    }
+  .step-sep {
+    width: 22px;
+    height: 1px;
+    background: #e2e8f0;
+    flex: 0 0 auto;
+  }
 
-    /* ─────────────────────────────────────────
+  /* ─────────────────────────────────────────
        BANNER “RICALCOLO NECESSARIO”
     ───────────────────────────────────────── */
-    .recalc-banner {
-      display: none;
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: #fffaf0;
-      border: 1px solid #fbd38d;
-      color: #7b341e;
-      font-size: .88rem;
-    }
+  .recalc-banner {
+    display: none;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fffaf0;
+    border: 1px solid #fbd38d;
+    color: #7b341e;
+    font-size: .88rem;
+  }
 
-    .recalc-banner.active {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
+  .recalc-banner.active {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
 
-    .recalc-banner button {
-      border: 1px solid #f6ad55;
-      background: #fff;
-      color: #7b341e;
-      border-radius: 8px;
-      padding: 7px 10px;
-      cursor: pointer;
-      font-weight: 700;
-    }
+  .recalc-banner button {
+    border: 1px solid #f6ad55;
+    background: #fff;
+    color: #7b341e;
+    border-radius: 8px;
+    padding: 7px 10px;
+    cursor: pointer;
+    font-weight: 700;
+  }
 
-    .recalc-banner button:hover {
-      background: #fff3d6;
-    }
+  .recalc-banner button:hover {
+    background: #fff3d6;
+  }
 
-    /* ─────────────────────────────────────────
+  /* ─────────────────────────────────────────
        ACCESSIBILITÀ
     ───────────────────────────────────────── */
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* focus visibile (chiaro) */
+  :focus-visible {
+    outline: 3px solid rgba(49, 130, 206, .45);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 600px) {
+    .stepper {
+      display: none;
     }
 
-    /* focus visibile (chiaro) */
-    :focus-visible {
-      outline: 3px solid rgba(49, 130, 206, .45);
-      outline-offset: 2px;
+    .mobile-hide-icon {
+      display: none;
     }
+  }
+</style>
 
-    @media (max-width: 600px) {
-      .stepper {
-        display: none;
-      }
+<div class="page">
+  <h1>Saldo prenotazioni</h1>
 
-      .mobile-hide-icon {
-        display: none;
-      }
-    }
-  </style>
-
-  <div class="page">
-    <h1>Calcolo saldo prenotazioni – Cammino 2026</h1>
-
-    <div id="stepper" class="stepper" aria-label="Stato procedura">
-      <div class="step is-active" data-step="1">
-        <div class="step-dot" aria-hidden="true">1</div>
-        <div class="step-label">
-          <div class="step-title">Carica prenotazione</div>
-          <div class="step-desc">Inserisci cognome e nome</div>
-        </div>
-      </div>
-      <div class="step-sep" aria-hidden="true"></div>
-      <div class="step" data-step="2">
-        <div class="step-dot" aria-hidden="true">2</div>
-        <div class="step-label">
-          <div class="step-title">Scegli opzioni</div>
-          <div class="step-desc">Transfer e servizi</div>
-        </div>
-      </div>
-      <div class="step-sep" aria-hidden="true"></div>
-      <div class="step" data-step="3">
-        <div class="step-dot" aria-hidden="true">3</div>
-        <div class="step-label">
-          <div class="step-title">Calcola e invia/paga</div>
-          <div class="step-desc">Saldo e riepilogo</div>
-        </div>
+  <div id="stepper" class="stepper" aria-label="Stato procedura">
+    <div class="step is-active" data-step="1">
+      <div class="step-dot" aria-hidden="true">1</div>
+      <div class="step-label">
+        <div class="step-title">Carica prenotazione</div>
+        <div class="step-desc">Inserisci cognome</div>
       </div>
     </div>
-
-    <div class="layout">
-
-      <!-- COLONNA SINISTRA -->
-      <div>
-        <div id="personsContainer"></div>
-        <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
+    <div class="step-sep" aria-hidden="true"></div>
+    <div class="step" data-step="2">
+      <div class="step-dot" aria-hidden="true">2</div>
+      <div class="step-label">
+        <div class="step-title">Scegli opzioni</div>
+        <div class="step-desc">Transfer e servizi</div>
       </div>
-
-      <!-- COLONNA DESTRA -->
-      <aside>
-        <div id="warmupBadge">⏳ Un momento...</div>
-        <h2>Riepilogo</h2>
-
-        <div id="summaryBox">Carica la tua prenotazione</div>
-
-        <div id="breakdownBox"
-          style="display:none; margin-top:12px; font-size:0.9rem; border-top:1px solid #e2e8f0; padding-top:12px;">
-          <div style="font-weight:600; margin-bottom:6px; color:#4a5568;">Dettaglio opzioni</div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Alloggio</span><span
-              id="totAlloggio">€ 0,00</span></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Colazione</span><span
-              id="totColazione">€ 0,00</span></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Assicurazione
-              annullamento</span><span id="totAssicurazione">€ 0,00</span></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Transfer
-              opzionali</span><span id="totTransfer">€ 0,00</span></div>
-          <div
-            style="display:flex; justify-content:space-between; margin-top:8px; padding-top:8px; border-top:1px solid #e2e8f0; font-weight:600;">
-            <span>Totale opzioni</span><span id="totOpzioni">€ 0,00</span>
-          </div>
-
-          <div style="display:flex; justify-content:space-between; margin-top:16px; color:#718096;"><span>Caparra
-              versata</span><span id="caparraVersata">€ 0,00</span></div>
-        </div>
-
-        <div id="totalBox"
-          style="font-weight:700; font-size:1.1rem; color:#2d3748; margin-top:16px; padding-top:12px; border-top:2px solid #cbd5e0; display:flex; justify-content:space-between;">
-          <span>Saldo da versare</span>
-          <span id="saldoDaVersare">€ —</span>
-        </div>
-
-        <div id="globalStatus" class="status"></div>
-
-        <div id="actionSection" style="display:none; margin-top:10px;">
-          <div style="margin-bottom:18px;">
-            <label>Email per il riepilogo</label>
-            <input type="email" id="emailInput" placeholder="email@esempio.it">
-          </div>
-
-          <button class="secondary" id="saveBtn" type="button" disabled>Ricevi email-riepilogo</button>
-          <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
-          <button class="secondary" id="payBtn" type="button" disabled
-            style="background:#e67e22;border-color:#e67e22;margin-top:0;"><span class="mobile-hide-icon">💳 </span>Paga con
-            carta</button>
-        </div>
-
-        <div style="margin-top:18px;">
-          <button class="primary" id="calcBtn" type="button">Riepiloga e registra</button>
-          <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
-            <span>Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
-            <button id="recalcNowBtn" type="button">Ricalcola</button>
-          </div>
-        </div>
-      </aside>
-
+    </div>
+    <div class="step-sep" aria-hidden="true"></div>
+    <div class="step" data-step="3">
+      <div class="step-dot" aria-hidden="true">3</div>
+      <div class="step-label">
+        <div class="step-title">Calcola e invia/paga</div>
+        <div class="step-desc">Saldo e riepilogo</div>
+      </div>
     </div>
   </div>
 
-  <!-- Template card persona -->
-  <template id="personCardTemplate">
-    <div class="person-card" data-person-index="">
-      <div class="card-header">
-        <span class="card-title">Carica la tua prenotazione (basta il cognome)</span>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button type="button" class="btn-change" title="Cambia persona">✎ Cambia</button>
-          <button type="button" class="btn-remove" title="Rimuovi persona">✕</button>
+  <div class="layout">
+
+    <!-- COLONNA SINISTRA -->
+    <div>
+      <div id="personsContainer"></div>
+      <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
+    </div>
+
+    <!-- COLONNA DESTRA -->
+    <aside>
+      <div id="warmupBadge">⏳ Un momento...</div>
+
+      <div style="margin-bottom:18px;">
+        <button class="primary" id="calcBtn" type="button">Registra e riepiloga</button>
+        <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
+          <span>Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
         </div>
       </div>
 
-      <form onsubmit="return false;" autocomplete="off">
+      <h2>Riepilogo</h2>
+
+      <div id="summaryBox">Carica la tua prenotazione</div>
+
+      <div id="breakdownBox"
+        style="display:none; margin-top:12px; font-size:0.9rem; border-top:1px solid #e2e8f0; padding-top:12px;">
+        <div style="font-weight:600; margin-bottom:6px; color:#4a5568;">Dettaglio opzioni</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Alloggio</span><span
+            id="totAlloggio">€ 0,00</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Colazione</span><span
+            id="totColazione">€ 0,00</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Assicurazione
+            annullamento</span><span id="totAssicurazione">€ 0,00</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Transfer
+            opzionali</span><span id="totTransfer">€ 0,00</span></div>
+        <div
+          style="display:flex; justify-content:space-between; margin-top:8px; padding-top:8px; border-top:1px solid #e2e8f0; font-weight:600;">
+          <span>Totale opzioni</span><span id="totOpzioni">€ 0,00</span>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:16px; color:#718096;"><span>Caparra
+            versata</span><span id="caparraVersata">€ 0,00</span></div>
+      </div>
+
+      <div id="totalBox"
+        style="font-weight:700; font-size:1.1rem; color:#2d3748; margin-top:16px; padding-top:12px; border-top:2px solid #cbd5e0; display:flex; justify-content:space-between;">
+        <span>Saldo da versare</span>
+        <span id="saldoDaVersare">€ —</span>
+      </div>
+
+      <div id="globalStatus" class="status"></div>
+
+      <div id="actionSection" style="display:none; margin-top:10px;">
+        <div style="margin-bottom:18px;">
+          <label>Email per il riepilogo</label>
+          <input type="email" id="emailInput" placeholder="email@esempio.it">
+        </div>
+
+        <button class="secondary" id="saveBtn" type="button" disabled>Ricevi email-riepilogo</button>
+        <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
+        <button class="secondary" id="payBtn" type="button" disabled
+          style="background:#e67e22;border-color:#e67e22;margin-top:0;"><span class="mobile-hide-icon">💳 </span>Paga
+          con
+          carta</button>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+
+<!-- Template card persona -->
+<template id="personCardTemplate">
+  <div class="person-card" data-person-index="">
+    <div class="card-header">
+      <span class="card-title">Carica la tua prenotazione (basta il cognome)</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button type="button" class="btn-change" title="Cambia persona">✎ Cambia</button>
+        <button type="button" class="btn-remove" title="Rimuovi persona">✕</button>
+      </div>
+    </div>
+
+    <form onsubmit="return false;" autocomplete="off">
       <div class="input-row">
         <div>
           <label>Cognome</label>
-          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" inputmode="text" autocapitalize="words" autofocus>
+          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" inputmode="text"
+            autocapitalize="words" autofocus>
         </div>
-        <div>
+        <div class="nome-field" style="display:none;">
           <label>Nome</label>
-          <input type="text" class="person-nome" placeholder="" autocomplete="given-name" inputmode="text" autocapitalize="words" readonly>
+          <input type="text" class="person-nome" placeholder="" autocomplete="given-name" inputmode="text"
+            autocapitalize="words" readonly>
         </div>
         <div>
           <label style="visibility:hidden;">Azioni</label>
-          <button type="button" class="primary btn-search-person" style="padding: 10px 14px; width: auto; white-space: nowrap;">Carica</button>
+          <button type="button" class="primary btn-search-person"
+            style="padding: 10px 14px; width: auto; white-space: nowrap;">Carica</button>
         </div>
       </div>
-      </form>
+    </form>
 
-      <div class="status person-status"></div>
+    <div class="status person-status"></div>
 
-      <div class="loaded-data-section" style="display: none; margin-top: 16px;">
-        <div class="section-label">Dati prenotazione</div>
+    <div class="loaded-data-section" style="display: none; margin-top: 16px;">
+      <div class="section-label">Dati prenotazione</div>
 
-        <div class="promemoria-bozza"
-          style="margin-top:10px; background:#f9fafb; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
-          
-          <label style="margin-bottom:4px; font-size:0.9rem;" class="label-alloggio">Alloggio</label>
-          <div class="readonly-box alloggio-box" style="margin-bottom:12px;">—</div>
+      <div class="promemoria-bozza"
+        style="margin-top:10px; background:#f9fafb; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
 
-          <div class="options readonly" style="margin-top:0;">
-            <label style="cursor:default;" class="label-colazione"><input type="checkbox" class="colazione" disabled> 🔒 Colazione <span
-                class="costo-label">(€70)</span></label>
-            <label style="cursor:default;" class="label-assicurazione"><input type="checkbox" class="assicurazione" disabled> 🔒 Assicurazione
-              annullamento <span class="costo-label">(€20)</span></label>
-          </div>
-          <div style="font-size:0.8rem; color:#718096; margin-top:8px; border-top:1px solid #e2e8f0; padding-top:8px;">Opzioni non più modificabili</div>
+        <label style="margin-bottom:4px; font-size:0.9rem;" class="label-alloggio">Alloggio</label>
+        <div class="readonly-box alloggio-box" style="margin-bottom:12px;">—</div>
+
+        <div class="options readonly" style="margin-top:0;">
+          <label style="cursor:default;" class="label-colazione"><input type="checkbox" class="colazione" disabled> 🔒
+            Colazione <span class="costo-label">(€70)</span></label>
+          <label style="cursor:default;" class="label-assicurazione"><input type="checkbox" class="assicurazione"
+              disabled> 🔒 Assicurazione
+            annullamento <span class="costo-label">(€20)</span></label>
         </div>
-
-        <div class="section-label" style="margin-top:20px;font-size:1.05rem;font-weight:600;color:#2d3748;text-transform:none;">🚌 Indicaci i trasferimenti di cui hai bisogno</div>
-        <div class="options transfer-options">
-          <label class="label-tr-rf"><input type="checkbox" class="tr-rf"> Roma → Fiumicino (€10)</label>
-          <label class="label-tr-pt"><input type="checkbox" class="tr-pt"> Porto → Tui (€15)</label>
-          <label class="label-tr-sc"><input type="checkbox" class="tr-sc"> Santiago → A Coruña (€15)</label>
-          <label class="label-tr-fr"><input type="checkbox" class="tr-fr"> Fiumicino → Roma (€10)</label>
-        </div>
-      </div>
-    </div>
-  </template>
-
-  <!-- Popup dati per Tinaba -->
-  <div class="popup-overlay" id="payPopup" role="dialog" aria-modal="true" aria-labelledby="popupTitle" tabindex="-1">
-    <div class="popup-box" role="document">
-      <h3 id="popupTitle">Dati da inserire su Tinaba</h3>
-      <div class="popup-subtitle">Copia ogni campo e incollalo sulla pagina di pagamento</div>
-
-      <div class="popup-field">
-        <span class="popup-field-label">Importo</span>
-        <span class="popup-field-value importo" id="popupImporto"></span>
-        <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupImporto',this)">📋</button>
-      </div>
-      <div class="popup-field">
-        <span class="popup-field-label">Messaggio</span>
-        <span class="popup-field-value" id="popupCausale"></span>
-        <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupCausale',this)">📋</button>
+        <div style="font-size:0.8rem; color:#718096; margin-top:8px; border-top:1px solid #e2e8f0; padding-top:8px;">
+          Opzioni non più modificabili</div>
       </div>
 
-      <div class="popup-actions">
-        <button type="button" class="popup-btn-open" id="popupOpenBtn">Apri Tinaba →</button>
-        <button type="button" class="popup-btn-close" id="popupCloseBtn">Chiudi</button>
-      </div>
-      <div class="popup-hint">Il popup resta aperto — passa all’altro tab per incollare i dati.</div>
-    </div>
-  </div>
-
-  <!-- Popup di Conferma Custom (rimpiazza confirm) -->
-  <div class="popup-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" tabindex="-1">
-    <div class="popup-box" role="document" style="max-width:450px;">
-      <h3 id="confirmTitle" style="color:#2d3748; margin-top:0;">Conferma prenotazione</h3>
-      <div id="confirmBody" style="margin: 16px 0; color:#4a5568; line-height:1.5; text-align:left;"></div>
-      <div class="popup-actions" style="margin-top:24px;">
-        <button type="button" class="popup-btn-open" id="confirmOkBtn" style="flex:1;">Conferma e procedi</button>
-        <button type="button" class="popup-btn-close" id="confirmCancelBtn" style="border:1px solid #cbd5e0; background:#fff; color:#4a5568;">Annulla</button>
+      <div class="section-label"
+        style="margin-top:20px;font-size:1.05rem;font-weight:600;color:#2d3748;text-transform:none;">🚌 Indicaci i
+        trasferimenti di cui hai bisogno</div>
+      <div class="options transfer-options">
+        <label class="label-tr-rf"><input type="checkbox" class="tr-rf"> Roma → Fiumicino (€10)</label>
+        <label class="label-tr-pt"><input type="checkbox" class="tr-pt"> Porto → Tui (€15)</label>
+        <label class="label-tr-sc"><input type="checkbox" class="tr-sc"> Santiago → A Coruña (€15)</label>
+        <label class="label-tr-fr"><input type="checkbox" class="tr-fr"> Fiumicino → Roma (€10)</label>
       </div>
     </div>
   </div>
+</template>
 
-  <script>
-    /***************
-     * CONFIG
-     ***************/
-    const GAS_ENDPOINT =
-      'https://script.google.com/macros/s/AKfycbypOQa6JsgF6Ga1SMzZlTFWFoSBo9kUxHOK319CpzePwRQkrYKCcFi6KIpZVz93-7gD/exec';
+<!-- Popup dati per Tinaba -->
+<div class="popup-overlay" id="payPopup" role="dialog" aria-modal="true" aria-labelledby="popupTitle" tabindex="-1">
+  <div class="popup-box" role="document">
+    <h3 id="popupTitle">Dati da inserire su Tinaba</h3>
+    <div class="popup-subtitle">Copia ogni campo e incollalo sulla pagina di pagamento</div>
 
-    const FETCH_TIMEOUT_MS = 10000; // 10 secondi
+    <div class="popup-field">
+      <span class="popup-field-label">Importo</span>
+      <span class="popup-field-value importo" id="popupImporto"></span>
+      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupImporto',this)">📋</button>
+    </div>
+    <div class="popup-field">
+      <span class="popup-field-label">Messaggio</span>
+      <span class="popup-field-value" id="popupCausale"></span>
+      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupCausale',this)">📋</button>
+    </div>
 
-    const COSTI = {
-      alloggio: { M: 250, S: 640, DM: 475, DS: 475, T: 460 },
-      colazione: 70,
-      assicurazione: 20,
-      transfer: { rf: 10, pt: 15, sc: 15, fr: 10 },
-      caparra: 150
-    };
+    <div class="popup-actions">
+      <button type="button" class="popup-btn-open" id="popupOpenBtn">Apri Tinaba →</button>
+      <button type="button" class="popup-btn-close" id="popupCloseBtn">Chiudi</button>
+    </div>
+    <div class="popup-hint">Il popup resta aperto — passa all’altro tab per incollare i dati.</div>
+  </div>
+</div>
 
-    const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
+<!-- Popup di Conferma Custom (rimpiazza confirm) -->
+<div class="popup-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle"
+  tabindex="-1">
+  <div class="popup-box" role="document" style="max-width:450px;">
+    <h3 id="confirmTitle" style="color:#2d3748; margin-top:0;">Conferma prenotazione</h3>
+    <div id="confirmBody" style="margin: 16px 0; color:#4a5568; line-height:1.5; text-align:left;"></div>
+    <div class="popup-actions" style="margin-top:24px;">
+      <button type="button" class="popup-btn-open" id="confirmOkBtn" style="flex:1;">Conferma e procedi</button>
+      <button type="button" class="popup-btn-close" id="confirmCancelBtn"
+        style="border:1px solid #cbd5e0; background:#fff; color:#4a5568;">Annulla</button>
+    </div>
+  </div>
+</div>
 
-    /***************
-     * ALLOGGIO HELPERS
-     ***************/
-    function getSiglaAlloggio(text) {
-      if (!text || text === '—') return null;
-      const t = text.toLowerCase();
-      if (t.includes('multipla') || t.includes('ostello')) return 'M';
-      if (t.includes('singola')) return 'S';
-      const dm = t.match(/\(dm(\d*)\)/i);
-      if (dm) return 'DM' + dm[1];
-      if (t.includes('matrimoniale')) return 'DM';
-      if (t.includes('separati')) return 'DS';
-      if (t.includes('tripla')) return 'T';
-      let s = text.trim().toUpperCase();
-      if (/^DM\d*$/.test(s)) return s;
-      s = s.replace(/\d+$/, '');
-      return COSTI.alloggio[s] !== undefined ? s : null;
-    }
+<script>
+  /***************
+   * CONFIG
+   ***************/
+  const GAS_ENDPOINT =
+    'https://script.google.com/macros/s/AKfycbypOQa6JsgF6Ga1SMzZlTFWFoSBo9kUxHOK319CpzePwRQkrYKCcFi6KIpZVz93-7gD/exec';
 
-    function getCostoAlloggio(text) {
-      if (!text || text === '—') return 0;
-      // Se il testo è stato già formattato (es. contiene '€'), estrai l'importo
-      const fixMatch = text.match(/€\s*(\d+)/);
-      if (fixMatch) return parseInt(fixMatch[1], 10);
+  const FETCH_TIMEOUT_MS = 10000; // 10 secondi
 
-      const s = getSiglaAlloggio(text);
-      if (!s) return 0;
-      if (/^DM\d*$/.test(s)) return COSTI.alloggio['DM'] || 0;
-      return COSTI.alloggio[s] || 0;
-    }
+  const COSTI = {
+    alloggio: { M: 250, S: 640, DM: 475, DS: 475, T: 460 },
+    colazione: 70,
+    assicurazione: 20,
+    transfer: { rf: 10, pt: 15, sc: 15, fr: 10 },
+    caparra: 150
+  };
 
-    function formatAlloggioText(text) {
-      const costo = getCostoAlloggio(text);
-      if (costo === 0) return text;
+  const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
 
-      const s = getSiglaAlloggio(text);
-      let tipoStr = text;
+  /***************
+   * ALLOGGIO HELPERS
+   ***************/
+  function getSiglaAlloggio(text) {
+    if (!text || text === '—') return null;
+    const t = text.toLowerCase();
+    if (t.includes('multipla') || t.includes('ostello')) return 'M';
+    if (t.includes('singola')) return 'S';
+    const dm = t.match(/\(dm(\d*)\)/i);
+    if (dm) return 'DM' + dm[1];
+    if (t.includes('matrimoniale')) return 'DM';
+    if (t.includes('separati')) return 'DS';
+    if (t.includes('tripla')) return 'T';
+    let s = text.trim().toUpperCase();
+    if (/^DM\d*$/.test(s)) return s;
+    s = s.replace(/\d+$/, '');
+    return COSTI.alloggio[s] !== undefined ? s : null;
+  }
 
-      // Rendi il nome della camera più "umano" nascondendo DMn
-      if (s && /^DM\d*$/.test(s)) tipoStr = 'Albergo – Doppia matrimoniale';
-      else if (s === 'S') tipoStr = 'Albergo – Singola';
-      else if (s === 'DS') tipoStr = 'Albergo – Doppia (letti separati)';
-      else if (s === 'M') tipoStr = 'Ostello – Multipla';
-      else if (s === 'T') tipoStr = 'Albergo – Tripla';
+  function getCostoAlloggio(text) {
+    if (!text || text === '—') return 0;
+    // Se il testo è stato già formattato (es. contiene '€'), estrai l'importo
+    const fixMatch = text.match(/€\s*(\d+)/);
+    if (fixMatch) return parseInt(fixMatch[1], 10);
 
-      return `${tipoStr} (€${costo})`;
-    }
+    const s = getSiglaAlloggio(text);
+    if (!s) return 0;
+    if (/^DM\d*$/.test(s)) return COSTI.alloggio['DM'] || 0;
+    return COSTI.alloggio[s] || 0;
+  }
 
-    /***************
-     * FETCH CON TIMEOUT
-     * Combina il timeout controller con il signal di cancellazione del caller.
-     * Senza questo fix, il signal del caller veniva sovrascritto e cancelLookup()
-     * non interrompeva mai il fetch in corso.
-     ***************/
-    async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) {
-      const timeoutAC = new AbortController();
-      let timedOut = false;
-      const timer = setTimeout(() => { timedOut = true; timeoutAC.abort(); }, timeoutMs);
+  function formatAlloggioText(text) {
+    const costo = getCostoAlloggio(text);
+    if (costo === 0) return text;
 
-      // Propaga il signal del caller (es. da cancelLookup) al controller del timeout
-      const callerSignal = options.signal;
-      if (callerSignal) {
-        if (callerSignal.aborted) {
-          clearTimeout(timer);
-          timeoutAC.abort();
-        } else {
-          callerSignal.addEventListener('abort', () => timeoutAC.abort(), { once: true });
-        }
-      }
+    const s = getSiglaAlloggio(text);
+    let tipoStr = text;
 
-      // Rimuovi il signal dalle options originali (verrà sostituito da timeoutAC.signal)
-      const { signal: _omit, ...rest } = options;
-      try {
-        return await fetch(url, { ...rest, signal: timeoutAC.signal });
-      } finally {
+    // Rendi il nome della camera più "umano" nascondendo DMn
+    if (s && /^DM\d*$/.test(s)) tipoStr = 'Albergo – Doppia matrimoniale';
+    else if (s === 'S') tipoStr = 'Albergo – Singola';
+    else if (s === 'DS') tipoStr = 'Albergo – Doppia (letti separati)';
+    else if (s === 'M') tipoStr = 'Ostello – Multipla';
+    else if (s === 'T') tipoStr = 'Albergo – Tripla';
+
+    return `${tipoStr} (€${costo})`;
+  }
+
+  /***************
+   * FETCH CON TIMEOUT
+   * Combina il timeout controller con il signal di cancellazione del caller.
+   * Senza questo fix, il signal del caller veniva sovrascritto e cancelLookup()
+   * non interrompeva mai il fetch in corso.
+   ***************/
+  async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) {
+    const timeoutAC = new AbortController();
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; timeoutAC.abort(); }, timeoutMs);
+
+    // Propaga il signal del caller (es. da cancelLookup) al controller del timeout
+    const callerSignal = options.signal;
+    if (callerSignal) {
+      if (callerSignal.aborted) {
         clearTimeout(timer);
-        // Espone se l'abort era dovuto al timeout (usato nel catch di lookupPersona)
-        timeoutAC.signal._timedOut = timedOut;
-      }
-    }
-
-    /***************
-     * WARM-UP GAS (ping preventivo al caricamento della pagina)
-     * Riduce il cold-start da ~4s a ~200ms per il primo lookup reale.
-     ***************/
-    (async () => {
-      const badge = document.getElementById('warmupBadge');
-      badge.style.display = 'block';
-      try {
-        // Ping senza timeout per attendere correttamente il cold start
-        await fetch(GAS_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: '__ping__' })
-        });
-        badge.textContent = '✅ Server pronto';
-        badge.classList.add('ready');
-        setTimeout(() => { badge.style.display = 'none'; }, 3000);
-      } catch (_) {
-        badge.style.display = 'none';
-      }
-    })();
-
-    /***************
-     * STATE
-     ***************/
-    let persone = [];
-    let personCounter = 0;
-    let lastCalcResult = null;
-    let recalcNeeded = false;
-    let _lastSavedHash = null;
-    const lookupTimers = {};
-    const lookupControllers = {};
-    const latestLookupToken = {};
-    const lookupCache = new Map();
-
-    function makeCacheKey(nome, cognome) {
-      return (nome || '').trim().toLowerCase() + '|' + (cognome || '').trim().toLowerCase();
-    }
-
-    /***************
-     * DOM REFS
-     ***************/
-    const container = document.getElementById('personsContainer');
-    const template = document.getElementById('personCardTemplate');
-    const btnAdd = document.getElementById('btnAddPerson');
-    const btnCalc = document.getElementById('calcBtn');
-    const btnSave = document.getElementById('saveBtn');
-    const summaryBox = document.getElementById('summaryBox');
-    const breakdownBox = document.getElementById('breakdownBox');
-
-    /***************
-     * MODALE CUSTOM
-     ***************/
-    function showConfirmModal(title, bodyHtml) {
-      return new Promise((resolve) => {
-        const modal = document.getElementById('confirmModal');
-        const titleEl = document.getElementById('confirmTitle');
-        const bodyEl = document.getElementById('confirmBody');
-        const okBtn = document.getElementById('confirmOkBtn');
-        const cancelBtn = document.getElementById('confirmCancelBtn');
-
-        titleEl.textContent = title;
-        bodyEl.innerHTML = bodyHtml;
-        modal.classList.add('active');
-        okBtn.focus();
-
-        const cleanup = (val) => {
-          modal.classList.remove('active');
-          okBtn.onclick = null;
-          cancelBtn.onclick = null;
-          resolve(val);
-        };
-
-        okBtn.onclick = () => cleanup(true);
-        cancelBtn.onclick = () => cleanup(false);
-      });
-    }
-    const totalBox = document.getElementById('totalBox');
-    const globalStatus = document.getElementById('globalStatus');
-    const emailInput = document.getElementById('emailInput');
-    const btnPay = document.getElementById('payBtn');
-    const actionSection = document.getElementById('actionSection');
-
-
-
-    /***************
-     * UX helpers
-     ***************/
-
-    // valuta: € 1.234,00
-    const euroFmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
-    function formatEuro(value) {
-      const n = Number(value);
-      if (!Number.isFinite(n)) return '€ —';
-      return euroFmt.format(n);
-    }
-
-    // Stepper (3 passi)
-    function updateStepper() {
-      const stepEls = Array.from(document.querySelectorAll('#stepper .step'));
-      const loadedCount = persone.filter(p => p.loaded).length;
-
-      const step1Done = loadedCount > 0;
-      const step2Done = step1Done;
-      const step3Done = !!lastCalcResult && !recalcNeeded;
-
-      let active = 1;
-      if (step1Done && !step3Done) active = 2;
-      if (step3Done) active = 3;
-
-      stepEls.forEach(el => {
-        const n = Number(el.getAttribute('data-step'));
-        el.classList.remove('is-active', 'is-done');
-
-        if ((n === 1 && step1Done) || (n === 2 && step2Done) || (n === 3 && step3Done)) {
-          el.classList.add('is-done');
-        }
-        if (n === active) el.classList.add('is-active');
-      });
-    }
-
-    // Banner ricalcolo necessario
-    const recalcBanner = document.getElementById('recalcBanner');
-
-    function showRecalcBanner() {
-      recalcNeeded = true;
-      recalcBanner?.classList.add('active');
-      btnCalc.style.display = 'block';
-      btnCalc.textContent = 'Ricalcola';
-      btnSave.disabled = true;
-      btnSave.textContent = 'Invia riepilogo via email';
-      _lastSavedHash = null;
-      btnPay.disabled = true;
-      document.getElementById('orDivider').style.color = '#a0aec0';
-      updateStepper();
-    }
-
-    function hideRecalcBanner() {
-      recalcNeeded = false;
-      recalcBanner?.classList.remove('active');
-      updateStepper();
-    }
-
-    // quando cambiano transfer: se già calcolato → banner, altrimenti reset normale
-    function onOptionsChanged() {
-      if (lastCalcResult) {
-        showRecalcBanner();
-        setGlobalStatus('', '');
-        document.getElementById('saldoDaVersare').textContent = '€ —';
-        document.getElementById('breakdownBox').style.display = 'none';
-        summaryBox.textContent = 'Opzioni modificate: premi il tasto blu “Ricalcola” per aggiornare il totale.';
+        timeoutAC.abort();
       } else {
-        resetCalcState();
+        callerSignal.addEventListener('abort', () => timeoutAC.abort(), { once: true });
       }
     }
 
-    const recalcNowBtn = document.getElementById('recalcNowBtn');
-    recalcNowBtn?.addEventListener('click', calcolaTotale);
+    // Rimuovi il signal dalle options originali (verrà sostituito da timeoutAC.signal)
+    const { signal: _omit, ...rest } = options;
+    try {
+      return await fetch(url, { ...rest, signal: timeoutAC.signal });
+    } finally {
+      clearTimeout(timer);
+      // Espone se l'abort era dovuto al timeout (usato nel catch di lookupPersona)
+      timeoutAC.signal._timedOut = timedOut;
+    }
+  }
 
-    /***************
-     * MODAL accessibile (focus + ESC + trap)
-     ***************/
-    const payPopup = document.getElementById('payPopup');
-    const popupCloseBtn = document.getElementById('popupCloseBtn');
-    const popupOpenBtn = document.getElementById('popupOpenBtn');
+  /***************
+   * WARM-UP GAS (ping preventivo al caricamento della pagina)
+   * Riduce il cold-start da ~4s a ~200ms per il primo lookup reale.
+   ***************/
+  (async () => {
+    const badge = document.getElementById('warmupBadge');
+    badge.style.display = 'block';
+    try {
+      // Ping senza timeout per attendere correttamente il cold start
+      await fetch(GAS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: '__ping__' })
+      });
+      badge.textContent = '✅ Siamo pronti!';
+      badge.classList.add('ready');
+      setTimeout(() => { badge.style.display = 'none'; }, 3000);
+    } catch (_) {
+      badge.style.display = 'none';
+    }
+  })();
 
-    let _lastFocusBeforeModal = null;
+  /***************
+   * STATE
+   ***************/
+  let persone = [];
+  let personCounter = 0;
+  let lastCalcResult = null;
+  let recalcNeeded = false;
+  let _lastSavedHash = null;
+  const lookupTimers = {};
+  const lookupControllers = {};
+  const latestLookupToken = {};
+  const lookupCache = new Map();
 
-    function getFocusableInModal() {
-      if (!payPopup) return [];
-      return Array.from(payPopup.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
-        .filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
+  function makeCacheKey(nome, cognome) {
+    return (nome || '').trim().toLowerCase() + '|' + (cognome || '').trim().toLowerCase();
+  }
+
+  /***************
+   * DOM REFS
+   ***************/
+  const container = document.getElementById('personsContainer');
+  const template = document.getElementById('personCardTemplate');
+  const btnAdd = document.getElementById('btnAddPerson');
+  const btnCalc = document.getElementById('calcBtn');
+  const btnSave = document.getElementById('saveBtn');
+  const summaryBox = document.getElementById('summaryBox');
+  const breakdownBox = document.getElementById('breakdownBox');
+
+  /***************
+   * MODALE CUSTOM
+   ***************/
+  function showConfirmModal(title, bodyHtml) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById('confirmModal');
+      const titleEl = document.getElementById('confirmTitle');
+      const bodyEl = document.getElementById('confirmBody');
+      const okBtn = document.getElementById('confirmOkBtn');
+      const cancelBtn = document.getElementById('confirmCancelBtn');
+
+      titleEl.textContent = title;
+      bodyEl.innerHTML = bodyHtml;
+      modal.classList.add('active');
+      okBtn.focus();
+
+      const cleanup = (val) => {
+        modal.classList.remove('active');
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        resolve(val);
+      };
+
+      okBtn.onclick = () => cleanup(true);
+      cancelBtn.onclick = () => cleanup(false);
+    });
+  }
+  const totalBox = document.getElementById('totalBox');
+  const globalStatus = document.getElementById('globalStatus');
+  const emailInput = document.getElementById('emailInput');
+  const btnPay = document.getElementById('payBtn');
+  const actionSection = document.getElementById('actionSection');
+
+
+
+  /***************
+   * UX helpers
+   ***************/
+
+  // valuta: € 1.234,00
+  const euroFmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+  function formatEuro(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return '€ —';
+    return euroFmt.format(n);
+  }
+
+  // Stepper (3 passi)
+  function updateStepper() {
+    const stepEls = Array.from(document.querySelectorAll('#stepper .step'));
+    const loadedCount = persone.filter(p => p.loaded).length;
+
+    const step1Done = loadedCount > 0;
+    const step2Done = step1Done;
+    const step3Done = !!lastCalcResult && !recalcNeeded;
+
+    let active = 1;
+    if (step1Done && !step3Done) active = 2;
+    if (step3Done) active = 3;
+
+    stepEls.forEach(el => {
+      const n = Number(el.getAttribute('data-step'));
+      el.classList.remove('is-active', 'is-done');
+
+      if ((n === 1 && step1Done) || (n === 2 && step2Done) || (n === 3 && step3Done)) {
+        el.classList.add('is-done');
+      }
+      if (n === active) el.classList.add('is-active');
+    });
+  }
+
+  // Banner ricalcolo necessario
+  const recalcBanner = document.getElementById('recalcBanner');
+
+  function showRecalcBanner() {
+    recalcNeeded = true;
+    recalcBanner?.classList.add('active');
+    btnCalc.style.display = 'block';
+    btnCalc.textContent = 'Ricalcola';
+    btnSave.disabled = true;
+    btnSave.textContent = 'Invia riepilogo via email';
+    _lastSavedHash = null;
+    btnPay.disabled = true;
+    document.getElementById('orDivider').style.color = '#a0aec0';
+    updateStepper();
+  }
+
+  function hideRecalcBanner() {
+    recalcNeeded = false;
+    recalcBanner?.classList.remove('active');
+    updateStepper();
+  }
+
+  // quando cambiano transfer: se già calcolato → banner, altrimenti reset normale
+  function onOptionsChanged() {
+    if (lastCalcResult) {
+      showRecalcBanner();
+      setGlobalStatus('', '');
+      document.getElementById('saldoDaVersare').textContent = '€ —';
+      document.getElementById('breakdownBox').style.display = 'none';
+      summaryBox.textContent = 'Opzioni modificate: premi il tasto blu “Ricalcola” per aggiornare il totale.';
+    } else {
+      resetCalcState();
+    }
+  }
+
+
+
+  /***************
+   * MODAL accessibile (focus + ESC + trap)
+   ***************/
+  const payPopup = document.getElementById('payPopup');
+  const popupCloseBtn = document.getElementById('popupCloseBtn');
+  const popupOpenBtn = document.getElementById('popupOpenBtn');
+
+  let _lastFocusBeforeModal = null;
+
+  function getFocusableInModal() {
+    if (!payPopup) return [];
+    return Array.from(payPopup.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+      .filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
+  }
+
+  function openModal() {
+    if (!payPopup) return;
+    _lastFocusBeforeModal = document.activeElement;
+    payPopup.classList.add('active');
+    payPopup.setAttribute('aria-hidden', 'false');
+
+    const focusables = getFocusableInModal();
+    (focusables[0] || payPopup).focus();
+
+    document.addEventListener('keydown', onModalKeydown, true);
+  }
+
+  function closeModal() {
+    if (!payPopup) return;
+    payPopup.classList.remove('active');
+    payPopup.setAttribute('aria-hidden', 'true');
+    document.removeEventListener('keydown', onModalKeydown, true);
+
+    if (_lastFocusBeforeModal && typeof _lastFocusBeforeModal.focus === 'function') {
+      _lastFocusBeforeModal.focus();
+    }
+  }
+
+  function onModalKeydown(e) {
+    if (!payPopup.classList.contains('active')) return;
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeModal();
+      return;
     }
 
-    function openModal() {
-      if (!payPopup) return;
-      _lastFocusBeforeModal = document.activeElement;
-      payPopup.classList.add('active');
-      payPopup.setAttribute('aria-hidden', 'false');
-
+    if (e.key === 'Tab') {
       const focusables = getFocusableInModal();
-      (focusables[0] || payPopup).focus();
+      if (focusables.length === 0) return;
 
-      document.addEventListener('keydown', onModalKeydown, true);
-    }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
 
-    function closeModal() {
-      if (!payPopup) return;
-      payPopup.classList.remove('active');
-      payPopup.setAttribute('aria-hidden', 'true');
-      document.removeEventListener('keydown', onModalKeydown, true);
-
-      if (_lastFocusBeforeModal && typeof _lastFocusBeforeModal.focus === 'function') {
-        _lastFocusBeforeModal.focus();
-      }
-    }
-
-    function onModalKeydown(e) {
-      if (!payPopup.classList.contains('active')) return;
-
-      if (e.key === 'Escape') {
+      if (e.shiftKey && document.activeElement === first) {
         e.preventDefault();
-        closeModal();
-        return;
-      }
-
-      if (e.key === 'Tab') {
-        const focusables = getFocusableInModal();
-        if (focusables.length === 0) return;
-
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
     }
+  }
 
-    popupCloseBtn?.addEventListener('click', closeModal);
-    payPopup?.addEventListener('mousedown', (e) => {
-      if (e.target === payPopup) closeModal();
+  popupCloseBtn?.addEventListener('click', closeModal);
+  payPopup?.addEventListener('mousedown', (e) => {
+    if (e.target === payPopup) closeModal();
+  });
+
+  // Inizializza
+  updateStepper();
+
+  /***************
+   * GESTIONE CARD
+   ***************/
+  function bindLookupEvents(card, index) {
+    if (card.dataset.lookupBound === 'true') return;
+
+    const nomeInput = card.querySelector('.person-nome');
+    const cognomeInput = card.querySelector('.person-cognome');
+
+    // Trigger lookup: blur + Enter su entrambi i campi
+    const triggerLookup = () => debouncedLookup(card, index, 0);
+    const onKeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); triggerLookup(); } };
+
+    const searchBtn = card.querySelector('.btn-search-person');
+    searchBtn.addEventListener('click', triggerLookup);
+
+    nomeInput.addEventListener('keydown', onKeydown);
+    cognomeInput.addEventListener('keydown', onKeydown);
+
+    // Reset su modifica (solo se non locked)
+    const resetAndCancel = () => {
+      const p = persone.find(p => p.index === index);
+      if (p && p.loaded) return; // bloccata: ignora input (campo è readonly)
+      cancelLookup(index);
+      resetCard(card, index);
+    };
+    nomeInput.addEventListener('input', () => {
+      const p = persone.find(p => p.index === index);
+      if (p && p.loaded) return;
+      cancelLookup(index);
+      if (p) p.loaded = false;
+      setCardStatus(card, '', '');
+      nomeInput.classList.remove('has-error');
+    });
+    cognomeInput.addEventListener('input', resetAndCancel);
+
+    // Se il cognome viene modificato e non siamo locked, assicuriamoci che il nome torni readonly
+    cognomeInput.addEventListener('input', () => {
+      const p = persone.find(p => p.index === index);
+      if (p && !p.loaded) {
+        nomeInput.setAttribute('readonly', true);
+      }
     });
 
-    // Inizializza
-    updateStepper();
+    card.dataset.lookupBound = 'true';
+  }
 
-    /***************
-     * GESTIONE CARD
-     ***************/
-    function bindLookupEvents(card, index) {
-      if (card.dataset.lookupBound === 'true') return;
+  function addPersonCard() {
+    const clone = template.content.cloneNode(true);
+    const card = clone.querySelector('.person-card');
+    const index = personCounter++;
 
-      const nomeInput = card.querySelector('.person-nome');
-      const cognomeInput = card.querySelector('.person-cognome');
+    card.dataset.personIndex = index;
+    card.querySelector('.card-title').textContent = index === 0 ? 'Carica la tua prenotazione (basta il cognome)' : 'Persona ' + (persone.length + 1);
+    if (persone.length > 0) card.classList.add('removable');
 
-      // Trigger lookup: blur + Enter su entrambi i campi
-      const triggerLookup = () => debouncedLookup(card, index, 0);
-      const onKeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); triggerLookup(); } };
+    // Accessibilità: ID univoci
+    const cognomeInp = card.querySelector('.person-cognome');
+    const nomeInp = card.querySelector('.person-nome');
+    cognomeInp.id = `p${index}_cognome`;
+    nomeInp.id = `p${index}_nome`;
+    card.querySelector('.input-row label:nth-of-type(1)').setAttribute('for', cognomeInp.id);
+    const nomeLbl = card.querySelector('.nome-field label');
+    if (nomeLbl) nomeLbl.setAttribute('for', nomeInp.id);
 
-      const searchBtn = card.querySelector('.btn-search-person');
-      searchBtn.addEventListener('click', triggerLookup);
+    const trRf = card.querySelector('.tr-rf');
+    const trPt = card.querySelector('.tr-pt');
+    const trSc = card.querySelector('.tr-sc');
+    const trFr = card.querySelector('.tr-fr');
+    trRf.id = `p${index}_tr_rf`; card.querySelector('.label-tr-rf').setAttribute('for', trRf.id);
+    trPt.id = `p${index}_tr_pt`; card.querySelector('.label-tr-pt').setAttribute('for', trPt.id);
+    trSc.id = `p${index}_tr_sc`; card.querySelector('.label-tr-sc').setAttribute('for', trSc.id);
+    trFr.id = `p${index}_tr_fr`; card.querySelector('.label-tr-fr').setAttribute('for', trFr.id);
 
-      nomeInput.addEventListener('keydown', onKeydown);
-      cognomeInput.addEventListener('keydown', onKeydown);
+    bindLookupEvents(card, index);
 
-      // Reset su modifica (solo se non locked)
-      const resetAndCancel = () => {
-        const p = persone.find(p => p.index === index);
-        if (p && p.loaded) return; // bloccata: ignora input (campo è readonly)
-        cancelLookup(index);
-        resetCard(card, index);
-      };
-      nomeInput.addEventListener('input', () => {
-        resetAndCancel();
-        nomeInput.classList.remove('has-error');
-      });
-      cognomeInput.addEventListener('input', resetAndCancel);
-      
-      // Se il cognome viene modificato e non siamo locked, assicuriamoci che il nome torni readonly
-      cognomeInput.addEventListener('input', () => {
-        const p = persone.find(p => p.index === index);
-        if (p && !p.loaded) {
-          nomeInput.setAttribute('readonly', true);
-        }
-      });
+    // Transfer → infligge eventuale banner o reset
+    card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
+      chk.addEventListener('change', onOptionsChanged);
+    });
 
-      card.dataset.lookupBound = 'true';
+    // Bottone rimuovi
+    card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
+
+    // Bottone "Cambia persona" → sblocca la card per reinserire i dati
+    card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
+
+    container.appendChild(card);
+
+    persone.push({
+      index,
+      nome: '', cognome: '', row: null,
+      alloggio: '', colazione: false, assicurazione: false,
+      loaded: false,
+      cardEl: card
+    });
+
+    updateCardTitles();
+    resetCalcState();
+  }
+
+  function removeCard(index) {
+    const i = persone.findIndex(p => p.index === index);
+    if (i === -1) return;
+    cancelLookup(index);
+
+    const partnerIdx = persone[i].partnerIndex;
+
+    persone[i].cardEl?.remove();
+    persone.splice(i, 1);
+
+    if (partnerIdx != null) {
+      const pi = persone.findIndex(p => p.index === partnerIdx);
+      if (pi !== -1) {
+        persone[pi].cardEl?.remove();
+        persone.splice(pi, 1);
+      }
     }
 
-    function addPersonCard() {
-      const clone = template.content.cloneNode(true);
-      const card = clone.querySelector('.person-card');
-      const index = personCounter++;
+    updateCardTitles();
+    resetCalcState();
+  }
 
-      card.dataset.personIndex = index;
-      card.querySelector('.card-title').textContent = index === 0 ? 'Carica la tua prenotazione (basta il cognome)' : 'Persona ' + (persone.length + 1);
-      if (persone.length > 0) card.classList.add('removable');
+  function updateCardTitles() {
+    persone.forEach((p, i) => {
+      if (!p.cardEl) return;
+      const title = p.cardEl.querySelector('.card-title');
+      if (!title) return;
+      title.innerHTML = p.loaded ? `${p.cognome} ${p.nome}${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : ''}` : `${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione (basta il cognome)'}`;
 
-      // Accessibilità: ID univoci
-      const cognomeInp = card.querySelector('.person-cognome');
-      const nomeInp = card.querySelector('.person-nome');
-      cognomeInp.id = `p${index}_cognome`;
-      nomeInp.id = `p${index}_nome`;
-      card.querySelector('.input-row label:nth-of-type(1)').setAttribute('for', cognomeInp.id);
-      card.querySelector('.input-row div:nth-of-type(2) label').setAttribute('for', nomeInp.id);
+      // Prima card removibile solo se ci sono altre card
+      if (i === 0) {
+        p.cardEl.classList.toggle('removable', persone.length > 1);
+      } else {
+        p.cardEl.classList.add('removable');
+      }
+    });
+  }
 
-      const trRf = card.querySelector('.tr-rf');
-      const trPt = card.querySelector('.tr-pt');
-      const trSc = card.querySelector('.tr-sc');
-      const trFr = card.querySelector('.tr-fr');
-      trRf.id = `p${index}_tr_rf`; card.querySelector('.label-tr-rf').setAttribute('for', trRf.id);
-      trPt.id = `p${index}_tr_pt`; card.querySelector('.label-tr-pt').setAttribute('for', trPt.id);
-      trSc.id = `p${index}_tr_sc`; card.querySelector('.label-tr-sc').setAttribute('for', trSc.id);
-      trFr.id = `p${index}_tr_fr`; card.querySelector('.label-tr-fr').setAttribute('for', trFr.id);
+  function resetCard(card, index) {
+    const p = persone.find(p => p.index === index);
+    if (!p) return;
 
-      bindLookupEvents(card, index);
+    p.nome = ''; p.cognome = ''; p.row = null;
+    p.alloggio = ''; p.colazione = false; p.assicurazione = false;
+    p.loaded = false;
 
-      // Transfer → infligge eventuale banner o reset
-      card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
-        chk.addEventListener('change', onOptionsChanged);
-      });
+    card.querySelector('.alloggio-box').textContent = '—';
+    card.querySelector('.colazione').checked = false;
+    card.querySelector('.assicurazione').checked = false;
+    card.querySelector('.loaded-data-section').style.display = 'none';
+    const nfReset = card.querySelector('.nome-field');
+    if (nfReset) nfReset.style.display = 'none';
+    setCardStatus(card, '', '');
+    updateCardTitles();
+    resetCalcState();
+  }
 
-      // Bottone rimuovi
-      card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
+  // Sblocca una card già caricata per correggere nome/cognome
+  function unlockCard(card, index) {
+    const p = persone.find(p => p.index === index);
+    if (!p) return;
 
-      // Bottone "Cambia persona" → sblocca la card per reinserire i dati
-      card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
+    lookupCache.delete(makeCacheKey(p.nome, p.cognome));
 
-      container.appendChild(card);
-
-      persone.push({
-        index,
-        nome: '', cognome: '', row: null,
-        alloggio: '', colazione: false, assicurazione: false,
-        loaded: false,
-        cardEl: card
-      });
-
-      updateCardTitles();
-      resetCalcState();
+    // Rimuovi l'eventuale partner card generata automaticamente
+    if (p.partnerIndex != null) {
+      removeCard(p.partnerIndex);
+      p.partnerIndex = null;
     }
 
-    function removeCard(index) {
-      const i = persone.findIndex(p => p.index === index);
-      if (i === -1) return;
-      cancelLookup(index);
+    // Svuota i campi e azzera lo stato
+    if (emailInput) emailInput.value = '';
+    card.querySelector('.person-nome').setAttribute('readonly', true);
+    card.querySelector('.person-cognome').removeAttribute('readonly');
+    card.querySelector('.person-nome').value = '';
+    card.querySelector('.person-nome').setAttribute('readonly', true);
+    const nomeField = card.querySelector('.nome-field');
+    if (nomeField) nomeField.style.display = 'none';
+    card.querySelector('.person-cognome').value = '';
+    card.querySelector('.alloggio-box').textContent = '—';
+    card.querySelector('.colazione').checked = false;
+    card.querySelector('.assicurazione').checked = false;
+    card.querySelector('.loaded-data-section').style.display = 'none';
 
-      const partnerIdx = persone[i].partnerIndex;
+    // Rimuovi badge "già selezionato" e resetta transfer
+    card.querySelectorAll('.badge-preselected').forEach(b => b.remove());
+    card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => chk.checked = false);
 
-      persone[i].cardEl?.remove();
-      persone.splice(i, 1);
+    p.nome = ''; p.cognome = ''; p.row = null;
+    p.alloggio = ''; p.colazione = false; p.assicurazione = false;
+    p.loaded = false;
 
-      if (partnerIdx != null) {
-        const pi = persone.findIndex(p => p.index === partnerIdx);
-        if (pi !== -1) {
-          persone[pi].cardEl?.remove();
-          persone.splice(pi, 1);
+    card.querySelector('.btn-search-person').style.display = 'block';
+
+    bindLookupEvents(card, index);
+
+    setCardStatus(card, '', '');
+    updateCardTitles();
+    resetCalcState();
+    card.querySelector('.person-cognome').focus();
+  }
+
+  function cancelLookup(index) {
+    if (lookupTimers[index]) { clearTimeout(lookupTimers[index]); delete lookupTimers[index]; }
+    if (lookupControllers[index]) { lookupControllers[index].abort(); delete lookupControllers[index]; }
+    delete latestLookupToken[index];
+  }
+
+  function setCardStatus(card, type, msg) {
+    const el = card.querySelector('.person-status');
+    el.innerHTML = msg;
+    el.className = 'status person-status' + (type ? ' ' + type : '');
+  }
+
+  function debouncedLookup(card, index, delay = 150) {
+    if (lookupTimers[index]) clearTimeout(lookupTimers[index]);
+    lookupTimers[index] = setTimeout(() => {
+      lookupPersona(card, index);
+      delete lookupTimers[index];
+    }, delay);
+  }
+
+  /***************
+   * CARICAMENTO PARTNER (camera DM numerata)
+   ***************/
+  function loadPartnerCard(partnerData) {
+    if (persone.some(p => p.row === partnerData.row)) return; // già presente
+
+    const clone = template.content.cloneNode(true);
+    const card = clone.querySelector('.person-card');
+    const index = personCounter++;
+
+    card.dataset.personIndex = index;
+    card.classList.add('removable', 'locked');
+
+    const nomeInput = card.querySelector('.person-nome');
+    const cognomeInput = card.querySelector('.person-cognome');
+    const nomeFieldP = card.querySelector('.nome-field');
+    if (nomeFieldP) nomeFieldP.style.display = '';
+    nomeInput.value = partnerData.nome;
+    cognomeInput.value = partnerData.cognome;
+    nomeInput.setAttribute('readonly', true);
+    cognomeInput.setAttribute('readonly', true);
+
+    // Accessibilità: ID univoci
+    cognomeInput.id = `p${index}_cognome`;
+    nomeInput.id = `p${index}_nome`;
+
+    const trRf = card.querySelector('.tr-rf');
+    const trPt = card.querySelector('.tr-pt');
+    const trSc = card.querySelector('.tr-sc');
+    const trFr = card.querySelector('.tr-fr');
+    trRf.id = `p${index}_tr_rf`; card.querySelector('.label-tr-rf').setAttribute('for', trRf.id);
+    trPt.id = `p${index}_tr_pt`; card.querySelector('.label-tr-pt').setAttribute('for', trPt.id);
+    trSc.id = `p${index}_tr_sc`; card.querySelector('.label-tr-sc').setAttribute('for', trSc.id);
+    trFr.id = `p${index}_tr_fr`; card.querySelector('.label-tr-fr').setAttribute('for', trFr.id);
+
+    const p = partnerData.persona;
+    card.querySelector('.alloggio-box').textContent = formatAlloggioText(p.alloggio) || '—';
+    card.querySelector('.colazione').checked = !!p.colazione;
+    card.querySelector('.assicurazione').checked = !!p.assicurazione;
+    card.querySelector('.loaded-data-section').style.display = 'block';
+    card.querySelector('.btn-search-person').style.display = 'none';
+
+    if (p.transfer) {
+      trRf.checked = !!p.transfer.rf;
+      trPt.checked = !!p.transfer.pt;
+      trSc.checked = !!p.transfer.sc;
+      trFr.checked = !!p.transfer.fr;
+    }
+
+    // Badge "già selezionato" per transfer pre-compilati
+    ['rf', 'pt', 'sc', 'fr'].forEach(key => {
+      const chk = card.querySelector(`.tr-${key}`);
+      if (chk && chk.checked) {
+        const lbl = card.querySelector(`.label-tr-${key}`);
+        if (lbl && !lbl.querySelector('.badge-preselected')) {
+          const b = document.createElement('span');
+          b.className = 'badge-preselected';
+          b.textContent = 'già selezionato';
+          lbl.appendChild(b);
         }
       }
+    });
 
-      updateCardTitles();
-      resetCalcState();
+    card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
+      chk.addEventListener('change', onOptionsChanged);
+    });
+
+    card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
+    card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
+    bindLookupEvents(card, index);
+
+    container.appendChild(card);
+
+    persone.push({
+      index,
+      nome: partnerData.nome,
+      cognome: partnerData.cognome,
+      row: partnerData.row,
+      alloggio: p.alloggio || '',
+      colazione: !!p.colazione,
+      assicurazione: !!p.assicurazione,
+      loaded: true,
+      isPartner: true,
+      cardEl: card
+    });
+
+    setCardStatus(card, 'ok', 'Partner caricato automaticamente.');
+    updateCardTitles();
+    setGlobalStatus('ok', 'Camera doppia matrimoniale: caricati entrambi i coniugi.');
+    return index;
+  }
+
+  /***************
+   * LOOKUP
+   ***************/
+  async function lookupPersona(card, index) {
+    const p = persone.find(p => p.index === index);
+    if (!p || p.loaded) return;
+
+    const cognome = card.querySelector('.person-cognome').value.trim();
+    const nome = card.querySelector('.person-nome').value.trim();
+    if (!cognome) return;
+
+    const key = makeCacheKey(nome, cognome);
+    if (lookupCache.has(key)) {
+      applyResult(card, p, lookupCache.get(key), nome, cognome);
+      return;
     }
 
-    function updateCardTitles() {
-      persone.forEach((p, i) => {
-        if (!p.cardEl) return;
-        const title = p.cardEl.querySelector('.card-title');
-        if (!title) return;
-        title.innerHTML = p.loaded ? `${p.cognome} ${p.nome}${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : ''}` : `${p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione (basta il cognome)'}`;
+    cancelLookup(index);
+    const controller = new AbortController();
+    lookupControllers[index] = controller;
+    const token = Symbol();
+    latestLookupToken[index] = token;
 
-        // Prima card removibile solo se ci sono altre card
-        if (i === 0) {
-          p.cardEl.classList.toggle('removable', persone.length > 1);
+    setCardStatus(card, 'loading', '<span class="spinner"></span>Caricamento…');
+
+    try {
+      const payload = nome
+        ? { action: 'lookupPersona', nome, cognome }
+        : { action: 'lookupByCognome', cognome };
+
+      const res = await fetchWithTimeout(GAS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+
+      let data;
+      try { data = JSON.parse(await res.text()); }
+      catch { throw new Error('Risposta non valida dal server'); }
+
+      if (latestLookupToken[index] !== token) return; // risposta obsoleta
+
+      if (!data.success) {
+        if (data.error === 'duplicate') {
+          const msg = 'Cognome presente più volte – specifica anche il nome.';
+          setCardStatus(card, 'error', msg);
+          const nomeFieldD = card.querySelector('.nome-field');
+          if (nomeFieldD) nomeFieldD.style.display = '';
+          const nomeInp = card.querySelector('.person-nome');
+          nomeInp.removeAttribute('readonly');
+          nomeInp.classList.add('has-error');
+          nomeInp.focus();
         } else {
-          p.cardEl.classList.add('removable');
+          setCardStatus(card, 'error', 'Prenotazione non trovata. Verifica l\'ortografia o contatta la segreteria (info@parrocchiasanteugenio.it).');
         }
-      });
-    }
-
-    function resetCard(card, index) {
-      const p = persone.find(p => p.index === index);
-      if (!p) return;
-
-      p.nome = ''; p.cognome = ''; p.row = null;
-      p.alloggio = ''; p.colazione = false; p.assicurazione = false;
-      p.loaded = false;
-
-      card.querySelector('.alloggio-box').textContent = '—';
-      card.querySelector('.colazione').checked = false;
-      card.querySelector('.assicurazione').checked = false;
-      card.querySelector('.loaded-data-section').style.display = 'none';
-      setCardStatus(card, '', '');
-      updateCardTitles();
-      resetCalcState();
-    }
-
-    // Sblocca una card già caricata per correggere nome/cognome
-    function unlockCard(card, index) {
-      const p = persone.find(p => p.index === index);
-      if (!p) return;
-
-      lookupCache.delete(makeCacheKey(p.nome, p.cognome));
-
-      // Rimuovi l'eventuale partner card generata automaticamente
-      if (p.partnerIndex != null) {
-        removeCard(p.partnerIndex);
-        p.partnerIndex = null;
-      }
-
-      // Svuota i campi e azzera lo stato
-      if (emailInput) emailInput.value = '';
-      card.querySelector('.person-nome').setAttribute('readonly', true);
-      card.querySelector('.person-cognome').removeAttribute('readonly');
-      card.querySelector('.person-nome').value = '';
-      card.querySelector('.person-cognome').value = '';
-      card.querySelector('.alloggio-box').textContent = '—';
-      card.querySelector('.colazione').checked = false;
-      card.querySelector('.assicurazione').checked = false;
-      card.querySelector('.loaded-data-section').style.display = 'none';
-
-      // Rimuovi badge "già selezionato" e resetta transfer
-      card.querySelectorAll('.badge-preselected').forEach(b => b.remove());
-      card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => chk.checked = false);
-
-      p.nome = ''; p.cognome = ''; p.row = null;
-      p.alloggio = ''; p.colazione = false; p.assicurazione = false;
-      p.loaded = false;
-
-      card.querySelector('.btn-search-person').style.display = 'block';
-
-      bindLookupEvents(card, index);
-
-      setCardStatus(card, '', '');
-      updateCardTitles();
-      resetCalcState();
-      card.querySelector('.person-cognome').focus();
-    }
-
-    function cancelLookup(index) {
-      if (lookupTimers[index]) { clearTimeout(lookupTimers[index]); delete lookupTimers[index]; }
-      if (lookupControllers[index]) { lookupControllers[index].abort(); delete lookupControllers[index]; }
-      delete latestLookupToken[index];
-    }
-
-    function setCardStatus(card, type, msg) {
-      const el = card.querySelector('.person-status');
-      el.innerHTML = msg;
-      el.className = 'status person-status' + (type ? ' ' + type : '');
-    }
-
-    function debouncedLookup(card, index, delay = 150) {
-      if (lookupTimers[index]) clearTimeout(lookupTimers[index]);
-      lookupTimers[index] = setTimeout(() => {
-        lookupPersona(card, index);
-        delete lookupTimers[index];
-      }, delay);
-    }
-
-    /***************
-     * CARICAMENTO PARTNER (camera DM numerata)
-     ***************/
-    function loadPartnerCard(partnerData) {
-      if (persone.some(p => p.row === partnerData.row)) return; // già presente
-
-      const clone = template.content.cloneNode(true);
-      const card = clone.querySelector('.person-card');
-      const index = personCounter++;
-
-      card.dataset.personIndex = index;
-      card.classList.add('removable', 'locked');
-
-      const nomeInput = card.querySelector('.person-nome');
-      const cognomeInput = card.querySelector('.person-cognome');
-      nomeInput.value = partnerData.nome;
-      cognomeInput.value = partnerData.cognome;
-      nomeInput.setAttribute('readonly', true);
-      cognomeInput.setAttribute('readonly', true);
-
-      // Accessibilità: ID univoci
-      cognomeInput.id = `p${index}_cognome`;
-      nomeInput.id = `p${index}_nome`;
-
-      const trRf = card.querySelector('.tr-rf');
-      const trPt = card.querySelector('.tr-pt');
-      const trSc = card.querySelector('.tr-sc');
-      const trFr = card.querySelector('.tr-fr');
-      trRf.id = `p${index}_tr_rf`; card.querySelector('.label-tr-rf').setAttribute('for', trRf.id);
-      trPt.id = `p${index}_tr_pt`; card.querySelector('.label-tr-pt').setAttribute('for', trPt.id);
-      trSc.id = `p${index}_tr_sc`; card.querySelector('.label-tr-sc').setAttribute('for', trSc.id);
-      trFr.id = `p${index}_tr_fr`; card.querySelector('.label-tr-fr').setAttribute('for', trFr.id);
-
-      const p = partnerData.persona;
-      card.querySelector('.alloggio-box').textContent = formatAlloggioText(p.alloggio) || '—';
-      card.querySelector('.colazione').checked = !!p.colazione;
-      card.querySelector('.assicurazione').checked = !!p.assicurazione;
-      card.querySelector('.loaded-data-section').style.display = 'block';
-      card.querySelector('.btn-search-person').style.display = 'none';
-
-      if (p.transfer) {
-        trRf.checked = !!p.transfer.rf;
-        trPt.checked = !!p.transfer.pt;
-        trSc.checked = !!p.transfer.sc;
-        trFr.checked = !!p.transfer.fr;
-      }
-
-      // Badge "già selezionato" per transfer pre-compilati
-      ['rf', 'pt', 'sc', 'fr'].forEach(key => {
-        const chk = card.querySelector(`.tr-${key}`);
-        if (chk && chk.checked) {
-          const lbl = card.querySelector(`.label-tr-${key}`);
-          if (lbl && !lbl.querySelector('.badge-preselected')) {
-            const b = document.createElement('span');
-            b.className = 'badge-preselected';
-            b.textContent = 'già selezionato';
-            lbl.appendChild(b);
-          }
-        }
-      });
-
-      card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
-        chk.addEventListener('change', onOptionsChanged);
-      });
-
-      card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
-      card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
-      bindLookupEvents(card, index);
-
-      container.appendChild(card);
-
-      persone.push({
-        index,
-        nome: partnerData.nome,
-        cognome: partnerData.cognome,
-        row: partnerData.row,
-        alloggio: p.alloggio || '',
-        colazione: !!p.colazione,
-        assicurazione: !!p.assicurazione,
-        loaded: true,
-        isPartner: true,
-        cardEl: card
-      });
-
-      setCardStatus(card, 'ok', 'Partner caricato automaticamente.');
-      updateCardTitles();
-      setGlobalStatus('ok', 'Camera doppia matrimoniale: caricati entrambi i coniugi.');
-      return index;
-    }
-
-    /***************
-     * LOOKUP
-     ***************/
-    async function lookupPersona(card, index) {
-      const p = persone.find(p => p.index === index);
-      if (!p || p.loaded) return;
-
-      const cognome = card.querySelector('.person-cognome').value.trim();
-      const nome = card.querySelector('.person-nome').value.trim();
-      if (!cognome) return;
-
-      const key = makeCacheKey(nome, cognome);
-      if (lookupCache.has(key)) {
-        applyResult(card, p, lookupCache.get(key), nome, cognome);
         return;
       }
 
-      cancelLookup(index);
-      const controller = new AbortController();
-      lookupControllers[index] = controller;
-      const token = Symbol();
-      latestLookupToken[index] = token;
-
-      setCardStatus(card, 'loading', '<span class="spinner"></span>Caricamento…');
-
+      lookupCache.set(key, data);
       try {
-        const payload = nome
-          ? { action: 'lookupPersona', nome, cognome }
-          : { action: 'lookupByCognome', cognome };
+        applyResult(card, p, data, nome, cognome);
+      } catch (e) {
+        console.error('Errore visualizzazione:', e);
+        setCardStatus(card, 'error', 'Errore caricamento dati locali: ' + e.message);
+      }
 
-        const res = await fetchWithTimeout(GAS_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload),
-          signal: controller.signal
-        });
-
-        let data;
-        try { data = JSON.parse(await res.text()); }
-        catch { throw new Error('Risposta non valida dal server'); }
-
-        if (latestLookupToken[index] !== token) return; // risposta obsoleta
-
-        if (!data.success) {
-          if (data.error === 'duplicate') {
-            const msg = 'Cognome presente più volte – specifica anche il nome.';
-            setCardStatus(card, 'error', msg);
-            const nomeInp = card.querySelector('.person-nome');
-            nomeInp.removeAttribute('readonly');
-            nomeInp.classList.add('has-error');
-            nomeInp.focus();
-          } else {
-            setCardStatus(card, 'error', 'Prenotazione non trovata. Verifica l\'ortografia o contatta la segreteria (info@parrocchiasanteugenio.it).');
-          }
-          return;
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        // Se lookupControllers[index] esiste ancora → non è stato cancellato dall'utente → timeout
+        // Se è stato cancellato dall'utente (cancelLookup lo elimina) → non mostrare niente
+        if (lookupControllers[index]) {
+          setCardStatus(card, 'error', 'Timeout – server lento. Riprova.');
         }
-
-        lookupCache.set(key, data);
-        try {
-          applyResult(card, p, data, nome, cognome);
-        } catch (e) {
-          console.error('Errore visualizzazione:', e);
-          setCardStatus(card, 'error', 'Errore caricamento dati locali: ' + e.message);
-        }
-
-      } catch (err) {
-        if (err.name === 'AbortError') {
-          // Se lookupControllers[index] esiste ancora → non è stato cancellato dall'utente → timeout
-          // Se è stato cancellato dall'utente (cancelLookup lo elimina) → non mostrare niente
-          if (lookupControllers[index]) {
-            setCardStatus(card, 'error', 'Timeout – server lento. Riprova.');
-          }
-          // else: cancel utente → status già svuotato da resetCard/resetAndCancel
-          return;
-        }
-        console.error('Errore lookup:', err);
-        // Mostra errore solo se la card non è stata nel frattempo caricata con successo
-        if (!p.loaded) {
-          setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
-        }
-      } finally {
-        if (lookupControllers[index] === controller) delete lookupControllers[index];
-      }
-    }
-
-    function applyResult(card, person, data, nomeOrig, cognomeOrig) {
-      person.nome = data.persona?.nome || nomeOrig;
-      person.cognome = data.persona?.cognome || cognomeOrig;
-      person.row = data.row;
-      person.alloggio = data.persona?.alloggio || '—';
-      person.colazione = !!data.persona?.colazione;
-      person.assicurazione = !!data.persona?.assicurazione;
-      person.loaded = true;
-
-      const alloggioEl = card.querySelector('.alloggio-box');
-      if (alloggioEl) alloggioEl.textContent = formatAlloggioText(person.alloggio);
-      
-      const colEl = card.querySelector('.colazione');
-      if (colEl) colEl.checked = person.colazione;
-      
-      const assEl = card.querySelector('.assicurazione');
-      if (assEl) assEl.checked = person.assicurazione;
-
-      if (data.persona?.transfer) {
-        const trRf = card.querySelector('.tr-rf'); if (trRf) trRf.checked = !!data.persona.transfer.rf;
-        const trPt = card.querySelector('.tr-pt'); if (trPt) trPt.checked = !!data.persona.transfer.pt;
-        const trSc = card.querySelector('.tr-sc'); if (trSc) trSc.checked = !!data.persona.transfer.sc;
-        const trFr = card.querySelector('.tr-fr'); if (trFr) trFr.checked = !!data.persona.transfer.fr;
-      }
-
-      const nomeEl = card.querySelector('.person-nome');
-      if (nomeEl) {
-        nomeEl.value = person.nome;
-        nomeEl.setAttribute('readonly', true);
-        nomeEl.classList.remove('has-error');
-      }
-      
-      card.querySelector('.btn-search-person')?.setAttribute('style', 'display:none');
-      card.querySelector('.person-cognome')?.setAttribute('readonly', true);
-      card.classList.add('locked');
-      card.querySelector('.loaded-data-section')?.setAttribute('style', 'display:block');
-
-      // Focus al primo controllo utile (transfer) e badge "già selezionato"
-      const firstTransfer = card.querySelector('.tr-rf');
-      if (firstTransfer) {
-        setTimeout(() => firstTransfer.focus(), 100);
-      }
-
-      // Aggiungi badge se pre-selezionati
-      ['rf', 'pt', 'sc', 'fr'].forEach(key => {
-        const chk = card.querySelector(`.tr-${key}`);
-        if (chk && chk.checked) {
-          const lbl = card.querySelector(`.label-tr-${key}`);
-          if (lbl && !lbl.querySelector('.badge-preselected')) {
-            const b = document.createElement('span');
-            b.className = 'badge-preselected';
-            b.textContent = 'già selezionato';
-            lbl.appendChild(b);
-          }
-        }
-      });
-
-      // Pre-compila email (solo se il campo è vuoto)
-      if (emailInput && data.persona?.email && !emailInput.value.trim()) {
-        emailInput.value = data.persona.email;
-      }
-      
-      card.querySelector('.person-nome').classList.remove('has-error');
-
-      setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
-      updateCardTitles();
-
-      if (data.partner?.persona) {
-        try {
-          person.partnerIndex = loadPartnerCard(data.partner);
-        } catch (e) { console.error('Errore partner:', e); }
-      }
-
-      resetCalcState();
-    }
-
-    /***************
-     * CALCOLO
-     ***************/
-    function getTransfer(card) {
-      return {
-        rf: card.querySelector('.tr-rf').checked,
-        pt: card.querySelector('.tr-pt').checked,
-        sc: card.querySelector('.tr-sc').checked,
-        fr: card.querySelector('.tr-fr').checked
-      };
-    }
-
-    async function calcolaTotale() {
-      const loaded = persone.filter(p => p.loaded);
-      if (loaded.length === 0) {
-        setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
+        // else: cancel utente → status già svuotato da resetCard/resetAndCancel
         return;
       }
+      console.error('Errore lookup:', err);
+      // Mostra errore solo se la card non è stata nel frattempo caricata con successo
+      if (!p.loaded) {
+        setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
+      }
+    } finally {
+      if (lookupControllers[index] === controller) delete lookupControllers[index];
+    }
+  }
 
-      const nomi = loaded.map(p => `${p.cognome} ${p.nome}`).join(', ');
-      let serviziList = [];
-      loaded.forEach(p => {
-        const tr = getTransfer(p.cardEl);
-        const prefix = loaded.length > 1 ? `${p.nome}: ` : '';
-        if (tr.rf) serviziList.push(`${prefix}Roma-Fiumicino`);
-        if (tr.pt) serviziList.push(`${prefix}Porto-Tui`);
-        if (tr.sc) serviziList.push(`${prefix}Santiago-A Coruña`);
-        if (tr.fr) serviziList.push(`${prefix}Fiumicino-Roma`);
-      });
+  function applyResult(card, person, data, nomeOrig, cognomeOrig) {
+    person.nome = data.persona?.nome || nomeOrig;
+    person.cognome = data.persona?.cognome || cognomeOrig;
+    person.row = data.row;
+    person.alloggio = data.persona?.alloggio || '—';
+    person.colazione = !!data.persona?.colazione;
+    person.assicurazione = !!data.persona?.assicurazione;
+    person.loaded = true;
 
-      let confirmBody = `<p>Confermi la prenotazione di <strong>${nomi}</strong>?</p>`;
-      if (serviziList.length > 0) {
-        confirmBody += `<div style="background:#f7fafc; padding:12px; border-radius:8px; border-left:4px solid #3182ce; margin-top:10px;">
+    const alloggioEl = card.querySelector('.alloggio-box');
+    if (alloggioEl) alloggioEl.textContent = formatAlloggioText(person.alloggio);
+
+    const colEl = card.querySelector('.colazione');
+    if (colEl) colEl.checked = person.colazione;
+
+    const assEl = card.querySelector('.assicurazione');
+    if (assEl) assEl.checked = person.assicurazione;
+
+    if (data.persona?.transfer) {
+      const trRf = card.querySelector('.tr-rf'); if (trRf) trRf.checked = !!data.persona.transfer.rf;
+      const trPt = card.querySelector('.tr-pt'); if (trPt) trPt.checked = !!data.persona.transfer.pt;
+      const trSc = card.querySelector('.tr-sc'); if (trSc) trSc.checked = !!data.persona.transfer.sc;
+      const trFr = card.querySelector('.tr-fr'); if (trFr) trFr.checked = !!data.persona.transfer.fr;
+    }
+
+    const nomeFieldA = card.querySelector('.nome-field');
+    if (nomeFieldA) nomeFieldA.style.display = '';
+    const nomeEl = card.querySelector('.person-nome');
+    if (nomeEl) {
+      nomeEl.value = person.nome;
+      nomeEl.setAttribute('readonly', true);
+      nomeEl.classList.remove('has-error');
+    }
+
+    card.querySelector('.btn-search-person')?.setAttribute('style', 'display:none');
+    card.querySelector('.person-cognome')?.setAttribute('readonly', true);
+    card.classList.add('locked');
+    card.querySelector('.loaded-data-section')?.setAttribute('style', 'display:block');
+
+    // Focus al primo controllo utile (transfer) e badge "già selezionato"
+    const firstTransfer = card.querySelector('.tr-rf');
+    if (firstTransfer) {
+      setTimeout(() => firstTransfer.focus(), 100);
+    }
+
+    // Aggiungi badge se pre-selezionati
+    ['rf', 'pt', 'sc', 'fr'].forEach(key => {
+      const chk = card.querySelector(`.tr-${key}`);
+      if (chk && chk.checked) {
+        const lbl = card.querySelector(`.label-tr-${key}`);
+        if (lbl && !lbl.querySelector('.badge-preselected')) {
+          const b = document.createElement('span');
+          b.className = 'badge-preselected';
+          b.textContent = 'già selezionato';
+          lbl.appendChild(b);
+        }
+      }
+    });
+
+    // Pre-compila email (solo se il campo è vuoto)
+    if (emailInput && data.persona?.email && !emailInput.value.trim()) {
+      emailInput.value = data.persona.email;
+    }
+
+    card.querySelector('.person-nome').classList.remove('has-error');
+
+    setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
+    updateCardTitles();
+
+    if (data.partner?.persona) {
+      try {
+        person.partnerIndex = loadPartnerCard(data.partner);
+      } catch (e) { console.error('Errore partner:', e); }
+    }
+
+    resetCalcState();
+  }
+
+  /***************
+   * CALCOLO
+   ***************/
+  function getTransfer(card) {
+    return {
+      rf: card.querySelector('.tr-rf').checked,
+      pt: card.querySelector('.tr-pt').checked,
+      sc: card.querySelector('.tr-sc').checked,
+      fr: card.querySelector('.tr-fr').checked
+    };
+  }
+
+  async function calcolaTotale() {
+    const loaded = persone.filter(p => p.loaded);
+    if (loaded.length === 0) {
+      setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
+      return;
+    }
+
+    const nomi = loaded.map(p => `${p.cognome} ${p.nome}`).join(', ');
+    let serviziList = [];
+    loaded.forEach(p => {
+      const tr = getTransfer(p.cardEl);
+      const prefix = loaded.length > 1 ? `${p.nome}: ` : '';
+      if (tr.rf) serviziList.push(`${prefix}Roma-Fiumicino`);
+      if (tr.pt) serviziList.push(`${prefix}Porto-Tui`);
+      if (tr.sc) serviziList.push(`${prefix}Santiago-A Coruña`);
+      if (tr.fr) serviziList.push(`${prefix}Fiumicino-Roma`);
+    });
+
+    let confirmBody = `<p>Confermi la prenotazione di <strong>${nomi}</strong>?</p>`;
+    if (serviziList.length > 0) {
+      confirmBody += `<div style="background:#f7fafc; padding:12px; border-radius:8px; border-left:4px solid #3182ce; margin-top:10px;">
           <strong style="font-size:0.85rem; color:#2c5282; text-transform:uppercase; display:block; margin-bottom:6px;">Nuovi servizi prenotati</strong>
           <ul style="margin:0; padding-left:20px; font-size:0.9rem;">
             <li>${serviziList.join('</li><li>')}</li>
           </ul>
         </div>`;
-      }
-
-      const confirmed = await showConfirmModal('Riepilogo e registrazione', confirmBody);
-      if (!confirmed) return;
-
-      setGlobalStatus('loading', '<span class="spinner"></span>Salvataggio in corso…');
-      btnCalc.disabled = true;
-
-      let totaleCorrente = 0;
-      let totAlloggio = 0;
-      let totColazione = 0;
-      let totAssicurazione = 0;
-      let totTransfer = 0;
-      const lines = [];
-
-      loaded.forEach(p => {
-        const card = p.cardEl;
-        let s = 0;
-        let tmpCol = 0, tmpAss = 0, tmpTr = 0;
-
-        if (card.querySelector('.colazione')?.checked) { tmpCol += COSTI.colazione; }
-        if (card.querySelector('.assicurazione')?.checked) { tmpAss += COSTI.assicurazione; }
-        const tr = getTransfer(card);
-        if (tr.rf) tmpTr += COSTI.transfer.rf;
-        if (tr.pt) tmpTr += COSTI.transfer.pt;
-        if (tr.sc) tmpTr += COSTI.transfer.sc;
-        if (tr.fr) tmpTr += COSTI.transfer.fr;
-
-        const alloggioCosto = getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
-        s = alloggioCosto + tmpCol + tmpAss + tmpTr;
-        totaleCorrente += s;
-        totAlloggio += alloggioCosto;
-        totColazione += tmpCol;
-        totAssicurazione += tmpAss;
-        totTransfer += tmpTr;
-
-        lines.push(`${p.cognome} ${p.nome}: ${formatEuro(s - COSTI.caparra)}`);
-      });
-
-      const caparra = COSTI.caparra * loaded.length;
-      const saldo = totaleCorrente - caparra;
-
-      if (saldo < 0) {
-        setGlobalStatus('error', 'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
-        btnCalc.disabled = false;
-        return;
-      }
-
-      lastCalcResult = {
-        persone: loaded.map(p => ({
-          nome: p.nome, cognome: p.cognome, row: p.row,
-          transfer: getTransfer(p.cardEl)
-        })),
-        totaleOpzioni: totaleCorrente,
-        caparra,
-        saldo
-      };
-
-      try {
-        await doSalvaTransfer();
-
-        summaryBox.innerHTML = lines.map(l => `<div class="summary-line">${l}</div>`).join('');
-        breakdownBox.style.display = 'block';
-        document.getElementById('totAlloggio').textContent = formatEuro(totAlloggio);
-        document.getElementById('totColazione').textContent = formatEuro(totColazione);
-        document.getElementById('totAssicurazione').textContent = formatEuro(totAssicurazione);
-        document.getElementById('totTransfer').textContent = formatEuro(totTransfer);
-        document.getElementById('totOpzioni').textContent = formatEuro(totaleCorrente);
-        document.getElementById('caparraVersata').textContent = '-' + formatEuro(caparra);
-        document.getElementById('saldoDaVersare').textContent = formatEuro(saldo);
-        document.getElementById('totalBox').style.display = 'flex';
-
-        btnSave.disabled = false;
-        btnSave.textContent = 'Ricevi email-riepilogo';
-        btnPay.disabled = false;
-        actionSection.style.display = 'block';
-        document.getElementById('orDivider').style.color = '#666';
-        
-        setGlobalStatus('ok', '<span class="success-check">✅</span> Prenotazione aggiornata');
-
-        hideRecalcBanner();
-        btnCalc.style.display = 'none';
-        updateStepper();
-
-        setTimeout(() => {
-          document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-
-      } catch (err) {
-        console.error('Errore salvataggio:', err);
-        setGlobalStatus('error', 'Impossibile aggiornare la prenotazione: ' + err.message);
-      } finally {
-        btnCalc.disabled = false;
-      }
     }
 
-    function resetCalcState() {
-      lastCalcResult = null;
-      _lastSavedHash = null;
-      btnSave.disabled = true;
-      btnPay.disabled = true;
-      btnSave.textContent = 'Ricevi email-riepilogo';
-      document.getElementById('orDivider').style.color = '#a0aec0';
-      summaryBox.textContent = 'Carica la tua prenotazione';
-      breakdownBox.style.display = 'none';
-      if (document.getElementById('totalBox')) document.getElementById('totalBox').style.display = 'none';
-      document.getElementById('saldoDaVersare').textContent = '€ —';
-      actionSection.style.display = 'none';
-      btnCalc.textContent = 'Riepiloga e registra';
-      btnCalc.style.display = 'block';
+    const confirmed = await showConfirmModal('Riepilogo e registrazione', confirmBody);
+    if (!confirmed) return;
+
+    setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
+    btnCalc.disabled = true;
+
+    let totaleCorrente = 0;
+    let totAlloggio = 0;
+    let totColazione = 0;
+    let totAssicurazione = 0;
+    let totTransfer = 0;
+    const lines = [];
+
+    loaded.forEach(p => {
+      const card = p.cardEl;
+      let s = 0;
+      let tmpCol = 0, tmpAss = 0, tmpTr = 0;
+
+      if (card.querySelector('.colazione')?.checked) { tmpCol += COSTI.colazione; }
+      if (card.querySelector('.assicurazione')?.checked) { tmpAss += COSTI.assicurazione; }
+      const tr = getTransfer(card);
+      if (tr.rf) tmpTr += COSTI.transfer.rf;
+      if (tr.pt) tmpTr += COSTI.transfer.pt;
+      if (tr.sc) tmpTr += COSTI.transfer.sc;
+      if (tr.fr) tmpTr += COSTI.transfer.fr;
+
+      const alloggioCosto = getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
+      s = alloggioCosto + tmpCol + tmpAss + tmpTr;
+      totaleCorrente += s;
+      totAlloggio += alloggioCosto;
+      totColazione += tmpCol;
+      totAssicurazione += tmpAss;
+      totTransfer += tmpTr;
+
+      lines.push(`${p.cognome} ${p.nome}: ${formatEuro(s - COSTI.caparra)}`);
+    });
+
+    const caparra = COSTI.caparra * loaded.length;
+    const saldo = totaleCorrente - caparra;
+
+    if (saldo < 0) {
+      setGlobalStatus('error', 'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
       btnCalc.disabled = false;
-      recalcBanner?.classList.remove('active');
-      btnCalc.style.display = 'block';
-      btnCalc.textContent = 'Calcola il totale';
-      actionSection.style.display = 'none';
-      hideRecalcBanner();
-      setGlobalStatus('', '');
-      updateStepper();
+      return;
     }
 
-    /***************
-     * SALVA TRANSFER — funzione condivisa con hash dedup
-     ***************/
+    lastCalcResult = {
+      persone: loaded.map(p => ({
+        nome: p.nome, cognome: p.cognome, row: p.row,
+        transfer: getTransfer(p.cardEl)
+      })),
+      totaleOpzioni: totaleCorrente,
+      caparra,
+      saldo
+    };
 
-    function _calcResultHash(result, email) {
-      return JSON.stringify({ ...result, email });
-    }
+    try {
+      await doSalvaTransfer();
 
-    async function doSalvaTransfer(email) {
-      if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
-      const hash = _calcResultHash(lastCalcResult, email);
-      if (hash === _lastSavedHash) return { success: true, skipped: true };
+      summaryBox.innerHTML = lines.map(l => `<div class="summary-line">${l}</div>`).join('');
+      breakdownBox.style.display = 'block';
+      document.getElementById('totAlloggio').textContent = formatEuro(totAlloggio);
+      document.getElementById('totColazione').textContent = formatEuro(totColazione);
+      document.getElementById('totAssicurazione').textContent = formatEuro(totAssicurazione);
+      document.getElementById('totTransfer').textContent = formatEuro(totTransfer);
+      document.getElementById('totOpzioni').textContent = formatEuro(totaleCorrente);
+      document.getElementById('caparraVersata').textContent = '-' + formatEuro(caparra);
+      document.getElementById('saldoDaVersare').textContent = formatEuro(saldo);
+      document.getElementById('totalBox').style.display = 'flex';
 
-      const res = await fetchWithTimeout(GAS_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'salvaTransfer',
-          email,
-          persone: lastCalcResult.persone,
-          totale: lastCalcResult.totaleOpzioni,
-          caparra: lastCalcResult.caparra,
-          saldo: lastCalcResult.saldo
-        })
-      });
-      let data;
-      try { data = JSON.parse(await res.text()); }
-      catch { throw new Error('Risposta non valida dal server'); }
-      if (!data.success) throw new Error(data.message || data.error || 'Errore sconosciuto');
-
-      _lastSavedHash = hash;
-      return data;
-    }
-
-    async function salvaEInvia() {
-      if (!lastCalcResult) { setGlobalStatus('error', 'Prima calcola il totale.'); return; }
-
-      const email = emailInput.value.trim();
-      if (!email || !email.includes('@')) {
-        setGlobalStatus('error', "Inserisci un'email valida."); return;
-      }
-
-      btnSave.disabled = true;
-      setGlobalStatus('loading', '<span class="spinner"></span>Salvataggio in corso... attendere prego.');
-
-      try {
-        await doSalvaTransfer(email);
-        setGlobalStatus('ok', '✅ Salvato! Email inviata a ' + email);
-        btnSave.textContent = 'Email inviata ✓';
-      } catch (err) {
-        console.error('Errore salvataggio:', err);
-        setGlobalStatus('error', 'Errore: ' + err.message);
-        btnSave.disabled = false;
-      }
-    }
-
-    /***************
-     * PAGA CON CARTA (popup persistente + copia campi)
-     ***************/
-    async function openPayPopup() {
-      if (!lastCalcResult) return;
-
-      const loaded = persone.filter(p => p.loaded);
-      if (loaded.length === 0) return;
-
-      const primo = loaded[0];
-      const tuttiCognomi = loaded.map(p => p.cognome).join(' - ');
-      const causale = 'Saldo Cammino 2026 ' + tuttiCognomi;
-      const email = emailInput.value.trim();
-
-      setGlobalStatus('', 'Salvataggio scelte in corso... attendere prego.');
-      btnPay.disabled = true;
-      try {
-        await doSalvaTransfer(email);
-        setGlobalStatus('ok', 'Scelte salvate. Compila il pagamento su Tinaba.');
-      } catch (err) {
-        console.error(err);
-        setGlobalStatus('error', 'Errore salvataggio: ' + err.message);
-        btnPay.disabled = false;
-        return;
-      }
+      btnSave.disabled = false;
+      btnSave.textContent = 'Ricevi email-riepilogo';
       btnPay.disabled = false;
+      actionSection.style.display = 'block';
+      document.getElementById('orDivider').style.color = '#666';
 
-      document.getElementById('popupImporto').textContent = formatEuro(lastCalcResult.saldo);
-      document.getElementById('popupCausale').textContent = causale;
+      setGlobalStatus('ok', '<span class="success-check">✅</span> Prenotazione aggiornata');
 
-      document.querySelectorAll('.popup-btn-copy-sm').forEach(btn => {
-        btn.textContent = '📋';
-        btn.classList.remove('copied');
-      });
+      hideRecalcBanner();
+      btnCalc.style.display = 'none';
+      updateStepper();
 
-      openModal();
+      setTimeout(() => {
+        document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+
+    } catch (err) {
+      console.error('Errore salvataggio:', err);
+      setGlobalStatus('error', 'Impossibile aggiornare la prenotazione: ' + err.message);
+    } finally {
+      btnCalc.disabled = false;
+    }
+  }
+
+  function resetCalcState() {
+    lastCalcResult = null;
+    _lastSavedHash = null;
+    btnSave.disabled = true;
+    btnPay.disabled = true;
+    btnSave.textContent = 'Ricevi email-riepilogo';
+    document.getElementById('orDivider').style.color = '#a0aec0';
+    summaryBox.textContent = 'Carica la tua prenotazione';
+    breakdownBox.style.display = 'none';
+    if (document.getElementById('totalBox')) document.getElementById('totalBox').style.display = 'none';
+    document.getElementById('saldoDaVersare').textContent = '€ —';
+    actionSection.style.display = 'none';
+    btnCalc.textContent = 'Registra e riepiloga';
+    btnCalc.style.display = 'block';
+    btnCalc.disabled = false;
+    recalcBanner?.classList.remove('active');
+    btnCalc.style.display = 'block';
+    btnCalc.textContent = 'Registra e riepiloga';
+    actionSection.style.display = 'none';
+    hideRecalcBanner();
+    setGlobalStatus('', '');
+    updateStepper();
+  }
+
+  /***************
+   * SALVA TRANSFER — funzione condivisa con hash dedup
+   ***************/
+
+  function _calcResultHash(result, email) {
+    return JSON.stringify({ ...result, email });
+  }
+
+  async function doSalvaTransfer(email) {
+    if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
+    const hash = _calcResultHash(lastCalcResult, email);
+    if (hash === _lastSavedHash) return { success: true, skipped: true };
+
+    const res = await fetchWithTimeout(GAS_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'salvaTransfer',
+        email,
+        persone: lastCalcResult.persone,
+        totale: lastCalcResult.totaleOpzioni,
+        caparra: lastCalcResult.caparra,
+        saldo: lastCalcResult.saldo
+      })
+    });
+    let data;
+    try { data = JSON.parse(await res.text()); }
+    catch { throw new Error('Risposta non valida dal server'); }
+    if (!data.success) throw new Error(data.message || data.error || 'Errore sconosciuto');
+
+    _lastSavedHash = hash;
+    return data;
+  }
+
+  async function salvaEInvia() {
+    if (!lastCalcResult) { setGlobalStatus('error', 'Prima calcola il totale.'); return; }
+
+    const email = emailInput.value.trim();
+    if (!email || !email.includes('@')) {
+      setGlobalStatus('error', "Inserisci un'email valida."); return;
     }
 
-    async function copyPopupField(fieldId, btn) {
-      const value = document.getElementById(fieldId).textContent;
-      try {
-        await navigator.clipboard.writeText(value);
-        btn.textContent = '✅';
-        btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
-      } catch {
-        prompt('Copia manualmente:', value);
-      }
-    }
+    btnSave.disabled = true;
+    setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
 
-    function openTinaba() {
-      window.open(TINABA_URL, '_blank');
+    try {
+      await doSalvaTransfer(email);
+      setGlobalStatus('ok', '✅ Email inviata a ' + email);
+      btnSave.textContent = 'Email inviata ✓';
+    } catch (err) {
+      console.error('Errore salvataggio:', err);
+      setGlobalStatus('error', 'Errore: ' + err.message);
+      btnSave.disabled = false;
     }
+  }
 
-    /***************
-     * STATUS HELPERS
-     ***************/
-    function setGlobalStatus(type, msg) {
-      globalStatus.innerHTML = msg;
-      globalStatus.className = 'status' + (type ? ' ' + type : '');
+  /***************
+   * PAGA CON CARTA (popup persistente + copia campi)
+   ***************/
+  async function openPayPopup() {
+    if (!lastCalcResult) return;
+
+    const loaded = persone.filter(p => p.loaded);
+    if (loaded.length === 0) return;
+
+    const primo = loaded[0];
+    const tuttiCognomi = loaded.map(p => p.cognome).join(' - ');
+    const causale = 'Saldo Cammino 2026 ' + tuttiCognomi;
+    const email = emailInput.value.trim();
+
+    setGlobalStatus('', 'Salvataggio scelte in corso... attendere prego.');
+    btnPay.disabled = true;
+    try {
+      await doSalvaTransfer(email);
+      setGlobalStatus('ok', 'Scelte salvate. Compila il pagamento su Tinaba.');
+    } catch (err) {
+      console.error(err);
+      setGlobalStatus('error', 'Errore salvataggio: ' + err.message);
+      btnPay.disabled = false;
+      return;
     }
+    btnPay.disabled = false;
 
-    /***************
-     * INIT
-     ***************/
-    addPersonCard();
-    btnAdd.addEventListener('click', addPersonCard);
-    btnCalc.addEventListener('click', calcolaTotale);
-    btnSave.addEventListener('click', salvaEInvia);
-    btnPay.addEventListener('click', openPayPopup);
-    document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
-  </script>
+    document.getElementById('popupImporto').textContent = formatEuro(lastCalcResult.saldo);
+    document.getElementById('popupCausale').textContent = causale;
+
+    document.querySelectorAll('.popup-btn-copy-sm').forEach(btn => {
+      btn.textContent = '📋';
+      btn.classList.remove('copied');
+    });
+
+    openModal();
+  }
+
+  async function copyPopupField(fieldId, btn) {
+    const value = document.getElementById(fieldId).textContent;
+    try {
+      await navigator.clipboard.writeText(value);
+      btn.textContent = '✅';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
+    } catch {
+      prompt('Copia manualmente:', value);
+    }
+  }
+
+  function openTinaba() {
+    window.open(TINABA_URL, '_blank');
+  }
+
+  /***************
+   * STATUS HELPERS
+   ***************/
+  function setGlobalStatus(type, msg) {
+    globalStatus.innerHTML = msg;
+    globalStatus.className = 'status' + (type ? ' ' + type : '');
+  }
+
+  /***************
+   * INIT
+   ***************/
+  addPersonCard();
+  btnAdd.addEventListener('click', addPersonCard);
+  btnCalc.addEventListener('click', calcolaTotale);
+  btnSave.addEventListener('click', salvaEInvia);
+  btnPay.addEventListener('click', openPayPopup);
+  document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
+</script>
