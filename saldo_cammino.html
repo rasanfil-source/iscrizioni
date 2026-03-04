@@ -1198,6 +1198,26 @@
   const btnSave = document.getElementById('saveBtn');
   const summaryBox = document.getElementById('summaryBox');
   const breakdownBox = document.getElementById('breakdownBox');
+  const calcBtnContainer = document.getElementById('calcBtnContainer');
+  const calcBtnPlaceholder = document.createComment('calc-btn-container-anchor');
+
+  if (calcBtnContainer?.parentNode) {
+    calcBtnContainer.parentNode.insertBefore(calcBtnPlaceholder, calcBtnContainer);
+  }
+
+  function mountMobileCalcBtnContainer() {
+    if (!calcBtnContainer || !calcBtnPlaceholder.parentNode) return;
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+
+    if (isMobile) {
+      if (calcBtnContainer.parentNode !== document.body) document.body.appendChild(calcBtnContainer);
+    } else {
+      if (calcBtnContainer.parentNode !== calcBtnPlaceholder.parentNode) {
+        calcBtnPlaceholder.parentNode.insertBefore(calcBtnContainer, calcBtnPlaceholder.nextSibling);
+      }
+      document.body.classList.remove('has-mobile-cta');
+    }
+  }
 
   /***************
    * MODALE CUSTOM
@@ -1275,7 +1295,7 @@
       if (typeof display === 'string') {
         btn.style.display = display;
         // Mostra/nasconde il container sticky su mobile
-        const container = document.getElementById('calcBtnContainer');
+        const container = calcBtnContainer;
         if (container) {
           if (display === 'block') {
             container.classList.add('active');
@@ -2283,6 +2303,9 @@
   /***************
    * INIT
    ***************/
+  mountMobileCalcBtnContainer();
+  window.addEventListener('resize', mountMobileCalcBtnContainer);
+
   addPersonCard();
   btnAdd.addEventListener('click', addPersonCard);
   btnCalc.addEventListener('click', calcolaTotale);
