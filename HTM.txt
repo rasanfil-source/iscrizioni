@@ -151,6 +151,21 @@
     @media (max-width: 500px) {
       .input-row {
         grid-template-columns: 1fr;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .page {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      .person-card {
+        padding: 16px;
+      }
+
+      .input-row .field-hint {
+        display: none;
       }
     }
 
@@ -216,7 +231,7 @@
 
     .options {
       display: grid;
-      gap: 8px;
+      gap: 6px;
       margin-top: 12px;
     }
 
@@ -258,7 +273,7 @@
       text-transform: uppercase;
       letter-spacing: .5px;
       margin-top: 16px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     /* ── Bottoni ── */
@@ -342,7 +357,7 @@
       font-size: 0.85rem;
       margin-bottom: 16px;
     }
-    .ref-title { font-weight: 700; margin-bottom: 8px; color: #2d3748; }
+    .ref-title { font-weight: 700; margin-bottom: 6px; color: #2d3748; }
     .ref-row { display: flex; justify-content: space-between; margin-bottom: 4px; color: #4a5568; }
     .partial-label { font-weight: 600; color: #2d3748; }
     .partial-value { font-weight: 700; color: #3182ce; font-size: 1.1rem; }
@@ -575,7 +590,7 @@
     .popup-field {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 10px;
     }
 
@@ -819,16 +834,7 @@
 
     @media (max-width: 600px) {
       .stepper {
-        padding: 8px 10px;
-        gap: 6px;
-      }
-
-      .step-desc {
         display: none;
-      }
-
-      .step-title {
-        font-size: .78rem;
       }
 
       .mobile-hide-icon {
@@ -875,7 +881,7 @@
         <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
         
         <div id="calcBtnContainer">
-          <button class="primary" id="calcBtn" type="button" style="display:none;">Registrazione e riepilogo</button>
+          <button class="primary" id="calcBtn" type="button" style="display:none;">Calcola saldo</button>
           <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite" aria-atomic="true">
             <span class="recalc-icon" aria-hidden="true">⚠️</span>
             <span class="recalc-text">Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
@@ -890,7 +896,7 @@
         <div id="desktopCalcShortcut" class="desktop-calc-shortcut" style="display:none;">
           <!-- Desktop-only shortcut: mantenere questo pulsante in alto a destra sopra “Saldo stimato”
                per rendere immediatamente disponibile l'azione principale anche quando la lista persone è lunga. -->
-          <button class="primary" id="calcBtnDesktopTop" type="button">Registrazione e riepilogo</button>
+          <button class="primary" id="calcBtnDesktopTop" type="button">Calcola saldo</button>
 
         </div>
 
@@ -1106,7 +1112,7 @@
     const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
 
     const LABELS = {
-      calc: 'Registrazione e riepilogo',
+      calc: 'Calcola saldo',
       recalc: 'Ricalcola',
       save: 'Invia riepilogo via email',
       lookupHint: 'Inserisci cognome per iniziare'
@@ -1780,7 +1786,7 @@
       p.alloggio = ''; p.colazione = false; p.assicurazione = false;
       p.loaded = false;
 
-      card.querySelector('.btn-search-person').style.display = 'block';
+      setSearchButtonVisibility(card, true);
 
       // Mostra hint ricerca
       const cognomeHint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
@@ -1804,6 +1810,15 @@
       const el = card.querySelector('.person-status');
       el.innerHTML = msg;
       el.className = 'status person-status' + (type ? ' ' + type : '');
+    }
+
+    function setSearchButtonVisibility(card, isVisible) {
+      const searchBtn = card.querySelector('.btn-search-person');
+      if (!searchBtn) return;
+      searchBtn.style.display = isVisible ? 'block' : 'none';
+
+      const searchFieldCol = searchBtn.closest('.field-col');
+      if (searchFieldCol) searchFieldCol.style.display = isVisible ? '' : 'none';
     }
 
     function debouncedLookup(card, index, delay = 150) {
@@ -1885,7 +1900,7 @@
       }
 
       card.querySelector('.loaded-data-section').style.display = 'block';
-      card.querySelector('.btn-search-person').style.display = 'none';
+      setSearchButtonVisibility(card, false);
 
 
       if (p.transfer) {
@@ -2074,7 +2089,7 @@
         nomeEl.classList.remove('has-error');
       }
       
-      card.querySelector('.btn-search-person')?.setAttribute('style', 'display:none');
+      setSearchButtonVisibility(card, false);
       card.querySelector('.person-cognome')?.setAttribute('readonly', true);
       card.classList.add('locked');
       card.querySelector('.loaded-data-section')?.setAttribute('style', 'display:block');
