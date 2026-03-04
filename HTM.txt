@@ -1296,9 +1296,7 @@
       } else {
         partialBox.style.display = 'none';
         if (!hasLoaded && !lastCalcResult) {
-          if (summaryBox.textContent.trim() === '' || summaryBox.textContent.trim() === LABELS.lookupHint) {
-            summaryBox.textContent = LABELS.lookupHint;
-          }
+          summaryBox.textContent = LABELS.lookupHint;
         }
       }
     }
@@ -2107,7 +2105,6 @@
         setCalcButtons({ display: 'none' });
         updateStepper();
         document.getElementById('partialTotalBox').style.display = 'none';
-        document.getElementById('refCostsBox').style.display = 'none';
 
         setTimeout(() => {
           document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
