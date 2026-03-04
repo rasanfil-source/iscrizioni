@@ -1006,6 +1006,8 @@
     (async () => {
       const badge = document.getElementById('warmupBadge');
       badge.style.display = 'block';
+      const searchBtns = document.querySelectorAll('.btn-search-person');
+      searchBtns.forEach(b => b.disabled = true);
       try {
         // Ping senza timeout per attendere correttamente il cold start
         await fetch(GAS_ENDPOINT, {
@@ -1018,6 +1020,9 @@
         setTimeout(() => { badge.style.display = 'none'; }, 3000);
       } catch (_) {
         badge.style.display = 'none';
+      } finally {
+        const searchBtnsAfter = document.querySelectorAll('.btn-search-person');
+        searchBtnsAfter.forEach(b => b.disabled = false);
       }
     })();
 
