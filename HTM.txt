@@ -309,7 +309,6 @@
 
     /* Mobile Sticky CTA */
     #calcBtnContainer {
-      margin-top: 14px;
       margin-bottom: 18px;
     }
 
