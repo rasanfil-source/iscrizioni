@@ -968,9 +968,10 @@
           <input type="text" class="person-nome" placeholder="" autocomplete="given-name" inputmode="text" autocapitalize="words" readonly>
           <div class="field-hint" aria-hidden="true">&nbsp;</div>
         </div>
-        <div>
+        <div class="field-col">
           <label style="visibility:hidden;">Azioni</label>
           <button type="button" class="primary btn-search-person" style="padding: 10px 14px; width: auto; white-space: nowrap;">🔍 Carica</button>
+          <div class="field-hint" aria-hidden="true">&nbsp;</div>
         </div>
       </div>
       </form>
