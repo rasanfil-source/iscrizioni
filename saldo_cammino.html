@@ -880,8 +880,9 @@
 <!-- Popup dati per Tinaba -->
 <div class="popup-overlay" id="payPopup" role="dialog" aria-modal="true" aria-labelledby="popupTitle" tabindex="-1">
   <div class="popup-box" role="document">
-    <h3 id="popupTitle">Dati da inserire su Tinaba</h3>
-    <div class="popup-subtitle">Copia ogni campo e incollalo sulla pagina di pagamento</div>
+    <h3 id="popupTitle">Completa il pagamento con carta</h3>
+    <div class="popup-subtitle">Verrai reindirizzato alla pagina sicura di pagamento della Parrocchia S. Eugenio. Copia
+      ogni campo e incollalo.</div>
 
     <div class="popup-field">
       <span class="popup-field-label">Importo</span>
@@ -1881,9 +1882,6 @@
     btnCalc.style.display = 'block';
     btnCalc.disabled = false;
     recalcBanner?.classList.remove('active');
-    btnCalc.style.display = 'block';
-    btnCalc.textContent = 'Registra e riepiloga';
-    actionSection.style.display = 'none';
     hideRecalcBanner();
     setGlobalStatus('', '');
     updateStepper();
