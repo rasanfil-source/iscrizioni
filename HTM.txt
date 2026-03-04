@@ -2231,11 +2231,11 @@
       const causale = 'Saldo Cammino 2026 ' + tuttiCognomi;
       const email = emailInput.value.trim();
 
-      setGlobalStatus('', 'Salvataggio scelte in corso... attendere prego.');
+      setGlobalStatus('loading', '<span class="spinner"></span>Attendere, prego...');
       btnPay.disabled = true;
       try {
         await doSalvaTransfer(email);
-        setGlobalStatus('ok', 'Scelte salvate. Paga con Carta o Chiedi riepilogo via email');
+        setGlobalStatus('ok', 'Attendere, prego...');
       } catch (err) {
         console.error(err);
         setGlobalStatus('error', 'Errore salvataggio: ' + err.message);
