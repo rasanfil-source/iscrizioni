@@ -82,7 +82,7 @@
     }
 
     .person-card.removable .btn-remove {
-      display: block;
+      display: flex;
     }
 
     /* Bottone "Cambia persona" (visibile quando la card è bloccata) */
@@ -1598,7 +1598,7 @@
             nomeInp.classList.add('has-error');
             nomeInp.focus();
           } else {
-            setCardStatus(card, 'error', 'Prenotazione non trovata. Verifica l\'ortografia o contatta la segreteria (info@parrocchiasanteugenio.it).');
+            setCardStatus(card, 'error', 'Prenotazione non trovata. Controlla l\'ortografia o scrivi a <a href="mailto:info@parrocchiasanteugenio.it" style="color:#c53030;text-decoration:underline;">info@parrocchiasanteugenio.it</a>.');
           }
           return;
         }
@@ -1616,7 +1616,7 @@
           // Se lookupControllers[index] esiste ancora → non è stato cancellato dall'utente → timeout
           // Se è stato cancellato dall'utente (cancelLookup lo elimina) → non mostrare niente
           if (lookupControllers[index]) {
-            setCardStatus(card, 'error', 'Timeout – server lento. Riprova.');
+            setCardStatus(card, 'error', 'Il server sta impiegando troppo tempo. <a href="#" onclick="cancelLookup(' + index + '); lookupPersona(this.closest(\'.person-card\'), ' + index + '); return false;" style="color:#c53030;text-decoration:underline;">↻ Riprova</a>');
           }
           // else: cancel utente → status già svuotato da resetCard/resetAndCancel
           return;
