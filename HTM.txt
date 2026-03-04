@@ -131,7 +131,7 @@
     .desktop-calc-shortcut {
       display: none;
       margin-bottom: 12px;
-      text-align: right;
+      text-align: center;
     }
 
     .desktop-calc-shortcut .desktop-note {
