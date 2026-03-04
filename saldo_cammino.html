@@ -1303,8 +1303,14 @@
     if (hasLoaded && !lastCalcResult) {
       partialBox.style.display = 'block';
       partialValueEl.textContent = formatEuro(partial);
+      if (summaryBox.textContent === LABELS.lookupHint) {
+        summaryBox.textContent = '';
+      }
     } else {
       partialBox.style.display = 'none';
+      if (!hasLoaded && !lastCalcResult) {
+        summaryBox.textContent = LABELS.lookupHint;
+      }
     }
   }
 
