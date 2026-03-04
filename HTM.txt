@@ -12,6 +12,8 @@
       color: #222;
       margin: 0;
       background: #f0f2f5;
+      overflow-x: hidden;
+      width: 100%;
     }
 
     .page {
@@ -319,7 +321,6 @@
         bottom: 0;
         left: 0;
         right: 0;
-        width: 100%;
         background: #fff;
         box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
         padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
@@ -952,7 +953,7 @@
         <div class="section-label" style="margin-top:20px;font-size:1.05rem;font-weight:600;color:#2d3748;text-transform:none;">🚌 Indicaci i trasferimenti di cui hai bisogno</div>
         <div style="font-size:0.85rem; color:#718096; margin-bottom:16px;">Seleziona solo i transfer di cui hai bisogno. Il costo sarà aggiunto al tuo saldo.</div>
         
-        <div class="transfer-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+        <div class="transfer-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:16px;">
           <!-- ANDATA -->
           <div class="options transfer-options" style="margin-top:0;">
             <div style="font-weight:600; font-size:0.95rem; color:#2d3748; margin-bottom:10px; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">🛫 All'andata</div>
