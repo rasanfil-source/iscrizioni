@@ -1290,7 +1290,7 @@
       if (hasLoaded && !lastCalcResult) {
         partialBox.style.display = 'block';
         partialValueEl.textContent = formatEuro(partial);
-        if (summaryBox.textContent.trim() === LABELS.lookupHint) {
+        if (summaryBox.textContent.includes(LABELS.lookupHint)) {
           summaryBox.textContent = '';
         }
       } else {
@@ -2125,13 +2125,9 @@
       btnPay.disabled = true;
       btnSave.textContent = LABELS.save;
       document.getElementById('orDivider').style.color = '#a0aec0';
-      summaryBox.textContent = LABELS.lookupHint;
-      breakdownBox.style.display = 'none';
-      if (document.getElementById('totalBox')) document.getElementById('totalBox').style.display = 'none';
-      document.getElementById('saldoDaVersare').textContent = '€ —';
-      actionSection.style.display = 'none';
-
       const loadedCount = persone.filter(p => p.loaded).length;
+      summaryBox.textContent = loadedCount > 0 ? '' : LABELS.lookupHint;
+      breakdownBox.style.display = 'none';
       if (loadedCount > 0) {
         setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
       } else {
