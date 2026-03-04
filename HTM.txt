@@ -313,7 +313,7 @@
     }
 
     @media (max-width: 900px) {
-      body { padding-bottom: 80px; }
+      body { padding-bottom: 110px; }
       #calcBtnContainer {
         position: fixed;
         bottom: 0;
@@ -321,9 +321,10 @@
         width: 100%;
         background: #fff;
         box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
-        padding: 12px 20px;
+        padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
         margin-bottom: 0;
-        z-index: 2000;
+        z-index: 99999;
+        isolation: isolate;
         display: none; /* Gestito da JS */
       }
       #calcBtnContainer.active {
