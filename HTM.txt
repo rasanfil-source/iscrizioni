@@ -295,7 +295,7 @@
     }
 
     /* Sidebar Progressiva */
-    #refCostsBox, #partialTotalBox {
+    #partialTotalBox {
       background: #edf2f7;
       padding: 12px;
       border-radius: 8px;
@@ -830,21 +830,14 @@
         <div id="warmupBadge">⏳ Un momento...</div>
 
         <div id="calcBtnContainer">
-          <button class="primary" id="calcBtn" type="button" style="display:none;">Calcola il saldo</button>
+          <button class="primary" id="calcBtn" type="button" style="display:none;">Registrazione e riepilogo</button>
           <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite" aria-atomic="true">
             <span class="recalc-icon" aria-hidden="true">⚠️</span>
             <span class="recalc-text">Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
           </div>
         </div>
 
-        <div id="refCostsBox">
-          <div class="ref-title">Tariffe di riferimento</div>
-          <div class="ref-row"><span>Alloggio (Singola)</span><span>€480</span></div>
-          <div class="ref-row"><span>Alloggio (Doppia)</span><span>€540</span></div>
-          <div class="ref-row"><span>Colazione</span><span>€70</span></div>
-          <div class="ref-row"><span>Assicurazione</span><span>€20</span></div>
-          <div class="ref-row"><span>Transfer</span><span>€10 - €15</span></div>
-        </div>
+
 
         <div id="partialTotalBox" style="display:none;">
           <div class="ref-title">Saldo stimato</div>
@@ -1032,7 +1025,7 @@
     const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
 
     const LABELS = {
-      calc: 'Calcola il saldo',
+      calc: 'Registrazione e riepilogo',
       recalc: 'Ricalcola',
       save: 'Invia riepilogo via email',
       lookupHint: 'Inserisci cognome per iniziare'
@@ -1292,16 +1285,13 @@
       });
 
       const partialBox = document.getElementById('partialTotalBox');
-      const refBox = document.getElementById('refCostsBox');
       const partialValueEl = document.getElementById('partialTotalValue');
 
       if (hasLoaded && !lastCalcResult) {
         partialBox.style.display = 'block';
-        refBox.style.display = 'none';
         partialValueEl.textContent = formatEuro(partial);
       } else {
         partialBox.style.display = 'none';
-        refBox.style.display = 'block';
       }
     }
 
