@@ -296,6 +296,12 @@
       display: none;
     }
 
+    .desktop-left-calc {
+      display: block;
+      margin-top: 8px;
+      margin-bottom: 14px;
+    }
+
     /* Sidebar Progressiva */
     #partialTotalBox {
       background: #edf2f7;
@@ -1043,6 +1049,7 @@
     };
 
     let warmupReady = false;
+    let warmupBadgeHidden = false;
 
     /***************
      * ALLOGGIO HELPERS
@@ -1131,6 +1138,11 @@
      ***************/
     (async () => {
       const badge = document.getElementById('warmupBadge');
+      const hideWarmupBadge = () => {
+        badge.style.display = 'none';
+        warmupBadgeHidden = true;
+        updateDesktopRightCalcVisibility();
+      };
       badge.style.display = 'block';
       const searchBtns = document.querySelectorAll('.btn-search-person');
       searchBtns.forEach(b => b.disabled = true);
@@ -1143,9 +1155,9 @@
         });
         badge.textContent = '✅ Siamo pronti!';
         badge.classList.add('ready');
-        setTimeout(() => { badge.style.display = 'none'; }, 3000);
+        setTimeout(hideWarmupBadge, 3000);
       } catch (_) {
-        badge.style.display = 'none';
+        hideWarmupBadge();
       } finally {
         warmupReady = true;
         document.querySelectorAll('.btn-search-person').forEach(btn => btn.disabled = false);
@@ -1176,7 +1188,8 @@
     const template = document.getElementById('personCardTemplate');
     const btnAdd = document.getElementById('btnAddPerson');
     const btnCalc = document.getElementById('calcBtn');
-    const calcButtons = [btnCalc].filter(Boolean);
+    const btnCalcDesktopLeft = document.getElementById('calcBtnDesktopLeft');
+    const calcButtons = [btnCalc, btnCalcDesktopLeft].filter(Boolean);
     const btnSave = document.getElementById('saveBtn');
     const summaryBox = document.getElementById('summaryBox');
     const breakdownBox = document.getElementById('breakdownBox');
@@ -1198,6 +1211,22 @@
           calcBtnPlaceholder.parentNode.insertBefore(calcBtnContainer, calcBtnPlaceholder.nextSibling);
         }
         document.body.classList.remove('has-mobile-cta');
+      }
+    }
+
+    var requestedCalcDisplay = 'none';
+
+    function updateDesktopRightCalcVisibility() {
+      const isDesktop = window.matchMedia('(min-width: 901px)').matches;
+      const showRight = requestedCalcDisplay === 'block' && (!isDesktop || warmupBadgeHidden);
+
+      if (btnCalc) btnCalc.style.display = showRight ? 'block' : 'none';
+      if (calcBtnContainer && isDesktop) {
+        calcBtnContainer.style.display = showRight ? 'block' : 'none';
+      }
+
+      if (btnCalcDesktopLeft) {
+        btnCalcDesktopLeft.style.display = (requestedCalcDisplay === 'block' && isDesktop) ? 'block' : 'none';
       }
     }
 
@@ -1277,24 +1306,30 @@
     }
 
     function setCalcButtons({ text, display, disabled }) {
-      calcButtons.forEach(btn => {
-        if (typeof text === 'string') btn.textContent = text;
-        if (typeof display === 'string') {
-          btn.style.display = display;
-          // Mostra/nasconde il container sticky su mobile
-          const container = calcBtnContainer;
-          if (container) {
-            if (display === 'block') {
-              container.classList.add('active');
-              document.body.classList.add('has-mobile-cta');
-            } else {
-              container.classList.remove('active');
-              document.body.classList.remove('has-mobile-cta');
-            }
+      if (typeof text === 'string') {
+        calcButtons.forEach(btn => { btn.textContent = text; });
+      }
+
+      if (typeof display === 'string') {
+        requestedCalcDisplay = display;
+        const isMobile = window.matchMedia('(max-width: 900px)').matches;
+
+        if (calcBtnContainer) {
+          if (display === 'block' && isMobile) {
+            calcBtnContainer.classList.add('active');
+            document.body.classList.add('has-mobile-cta');
+          } else {
+            calcBtnContainer.classList.remove('active');
+            document.body.classList.remove('has-mobile-cta');
           }
         }
-        if (typeof disabled === 'boolean') btn.disabled = disabled;
-      });
+
+        updateDesktopRightCalcVisibility();
+      }
+
+      if (typeof disabled === 'boolean') {
+        calcButtons.forEach(btn => { btn.disabled = disabled; });
+      }
     }
 
     function updatePartialTotal() {
@@ -2311,11 +2346,16 @@
      * INIT
      ***************/
     mountMobileCalcBtnContainer();
-    window.addEventListener('resize', mountMobileCalcBtnContainer);
+    updateDesktopRightCalcVisibility();
+    window.addEventListener('resize', () => {
+      mountMobileCalcBtnContainer();
+      updateDesktopRightCalcVisibility();
+    });
 
     addPersonCard();
     btnAdd.addEventListener('click', addPersonCard);
     btnCalc.addEventListener('click', calcolaTotale);
+    btnCalcDesktopLeft?.addEventListener('click', calcolaTotale);
     btnSave.addEventListener('click', salvaEInvia);
     btnPay.addEventListener('click', openPayPopup);
     document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
