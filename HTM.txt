@@ -840,7 +840,7 @@
           <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
           <button class="secondary" id="saveBtn" type="button" disabled>Invia riepilogo via email</button>
           <div style="margin-top:18px;">
-            <label>Email per il riepilogo</label>
+            <label for="emailInput">Email per il riepilogo</label>
             <input type="email" id="emailInput" placeholder="email@esempio.it">
           </div>
         </div>
@@ -864,11 +864,11 @@
       <form onsubmit="return false;" autocomplete="off">
       <div class="input-row">
         <div>
-          <label>Cognome</label>
+          <label class="person-cognome-label">Cognome</label>
           <input type="text" class="person-cognome" placeholder="Es. Rossi — poi premi Invio" autocomplete="family-name" inputmode="text" autocapitalize="words" autofocus>
         </div>
         <div class="nome-field" style="display:none;">
-          <label>Nome</label>
+          <label class="person-nome-label">Nome</label>
           <input type="text" class="person-nome" placeholder="" autocomplete="given-name" inputmode="text" autocapitalize="words" readonly>
         </div>
         <div>
@@ -1388,11 +1388,19 @@
       // Accessibilità: ID univoci
       const cognomeInp = card.querySelector('.person-cognome');
       const nomeInp = card.querySelector('.person-nome');
-      cognomeInp.id = `p${index}_cognome`;
-      nomeInp.id = `p${index}_nome`;
-      card.querySelector('.input-row label:nth-of-type(1)').setAttribute('for', cognomeInp.id);
-      const nomeLbl = card.querySelector('.nome-field label');
+      const cognomeLbl = card.querySelector('.person-cognome-label');
+      const nomeLbl = card.querySelector('.person-nome-label');
+      const statusDiv = card.querySelector('.person-status');
+
+      cognomeInp.id = `cognome-${index}`;
+      nomeInp.id = `nome-${index}`;
+      statusDiv.id = `status-${index}`;
+
+      if (cognomeLbl) cognomeLbl.setAttribute('for', cognomeInp.id);
       if (nomeLbl) nomeLbl.setAttribute('for', nomeInp.id);
+
+      cognomeInp.setAttribute('aria-describedby', statusDiv.id);
+      nomeInp.setAttribute('aria-describedby', statusDiv.id);
 
       const trRf = card.querySelector('.tr-rf');
       const trPt = card.querySelector('.tr-pt');
@@ -1584,8 +1592,19 @@
       cognomeInput.setAttribute('readonly', true);
 
       // Accessibilità: ID univoci
-      cognomeInput.id = `p${index}_cognome`;
-      nomeInput.id = `p${index}_nome`;
+      const cognomeLbl = card.querySelector('.person-cognome-label');
+      const nomeLbl = card.querySelector('.person-nome-label');
+      const statusDiv = card.querySelector('.person-status');
+
+      cognomeInput.id = `cognome-${index}`;
+      nomeInput.id = `nome-${index}`;
+      statusDiv.id = `status-${index}`;
+
+      if (cognomeLbl) cognomeLbl.setAttribute('for', cognomeInput.id);
+      if (nomeLbl) nomeLbl.setAttribute('for', nomeInput.id);
+
+      cognomeInput.setAttribute('aria-describedby', statusDiv.id);
+      nomeInput.setAttribute('aria-describedby', statusDiv.id);
 
       const trRf = card.querySelector('.tr-rf');
       const trPt = card.querySelector('.tr-pt');
