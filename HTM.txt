@@ -838,7 +838,7 @@
             style="background:#e67e22;border-color:#e67e22;margin-bottom:0;"><span class="mobile-hide-icon">💳 </span>Paga con
             carta</button>
           <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
-          <button class="secondary" id="saveBtn" type="button" disabled>Invia riepilogo via email</button>
+          <button class="secondary" id="saveBtn" type="button" disabled style="margin-top:0;">Invia riepilogo via email</button>
           <div style="margin-top:18px;">
             <label for="emailInput">Email per il riepilogo</label>
             <input type="email" id="emailInput" placeholder="email@esempio.it">
