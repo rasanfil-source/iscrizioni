@@ -291,16 +291,7 @@
 
     .calc-inline-wrap {
       margin-bottom: 14px;
-    }
-
-    .btn-calc-inline {
       display: none;
-    }
-
-    @media (max-width: 900px) {
-      .btn-calc-inline {
-        display: block;
-      }
     }
 
     /* ── Sidebar ── */
@@ -783,9 +774,7 @@
       <!-- COLONNA SINISTRA -->
       <div>
         <div id="personsContainer"></div>
-        <div class="calc-inline-wrap">
-          <button class="primary btn-calc-inline" id="calcBtnInline" type="button">Calcola il saldo</button>
-        </div>
+
         <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
       </div>
 
@@ -1118,8 +1107,7 @@
     const template = document.getElementById('personCardTemplate');
     const btnAdd = document.getElementById('btnAddPerson');
     const btnCalc = document.getElementById('calcBtn');
-    const btnCalcInline = document.getElementById('calcBtnInline');
-    const calcButtons = [btnCalc, btnCalcInline].filter(Boolean);
+    const calcButtons = [btnCalc].filter(Boolean);
     const btnSave = document.getElementById('saveBtn');
     const summaryBox = document.getElementById('summaryBox');
     const breakdownBox = document.getElementById('breakdownBox');
@@ -2144,7 +2132,6 @@
     addPersonCard();
     btnAdd.addEventListener('click', addPersonCard);
     btnCalc.addEventListener('click', calcolaTotale);
-    btnCalcInline?.addEventListener('click', calcolaTotale);
     btnSave.addEventListener('click', salvaEInvia);
     btnPay.addEventListener('click', openPayPopup);
     document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
