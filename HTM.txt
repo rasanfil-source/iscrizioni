@@ -1023,6 +1023,28 @@
     </div>
   </div>
 
+  <!-- Popup conferma Email / IBAN -->
+  <div class="popup-overlay" id="ibanPopup" role="dialog" aria-modal="true" aria-labelledby="ibanTitle" tabindex="-1">
+    <div class="popup-box" role="document">
+      <h3 id="ibanTitle">Email inviata! ✅</h3>
+      <p style="margin-bottom:20px; color:#4a5568;">Se vuoi procedere subito con il bonifico, ecco le coordinate:</p>
+
+      <div class="popup-field">
+        <span class="popup-field-label">IBAN</span>
+        <span class="popup-field-value monospace" id="ibanValue" style="font-size:15px;">IT77U0306909606100000125525</span>
+        <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('ibanValue',this)">📋</button>
+      </div>
+      <div class="popup-field">
+        <span class="popup-field-label">Intestatario</span>
+        <span class="popup-field-value">PARROCCHIA S. EUGENIO</span>
+      </div>
+
+      <div class="popup-actions" style="margin-top:24px;">
+        <button type="button" class="popup-btn-close" onclick="document.getElementById('ibanPopup').classList.remove('active')">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     /***************
      * CONFIG
