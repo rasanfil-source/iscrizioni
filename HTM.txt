@@ -340,6 +340,11 @@
         max-width: 600px;
         margin: 0 auto;
       }
+
+      aside {
+        position: static;
+        top: auto;
+      }
     }
 
     /* ── Sidebar ── */
