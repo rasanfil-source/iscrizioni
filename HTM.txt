@@ -1290,13 +1290,15 @@
       if (hasLoaded && !lastCalcResult) {
         partialBox.style.display = 'block';
         partialValueEl.textContent = formatEuro(partial);
-        if (summaryBox.textContent === LABELS.lookupHint) {
+        if (summaryBox.textContent.trim() === LABELS.lookupHint) {
           summaryBox.textContent = '';
         }
       } else {
         partialBox.style.display = 'none';
         if (!hasLoaded && !lastCalcResult) {
-          summaryBox.textContent = LABELS.lookupHint;
+          if (summaryBox.textContent.trim() === '' || summaryBox.textContent.trim() === LABELS.lookupHint) {
+            summaryBox.textContent = LABELS.lookupHint;
+          }
         }
       }
     }
@@ -1754,7 +1756,7 @@
 
       card.querySelector('.loaded-data-section').style.display = 'block';
       card.querySelector('.btn-search-person').style.display = 'none';
-      updatePartialTotal();
+
 
       if (p.transfer) {
         trRf.checked = !!p.transfer.rf;
@@ -1802,6 +1804,7 @@
 
       setCardStatus(card, 'ok', 'Partner caricato automaticamente.');
       updateCardTitles();
+      updatePartialTotal();
       setGlobalStatus('ok', 'Camera doppia matrimoniale: caricati entrambi i coniugi.');
       return index;
     }
