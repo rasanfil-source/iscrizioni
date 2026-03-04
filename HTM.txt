@@ -1252,8 +1252,13 @@
           // Mostra/nasconde il container sticky su mobile
           const container = document.getElementById('calcBtnContainer');
           if (container) {
-            if (display === 'block') container.classList.add('active');
-            else container.classList.remove('active');
+            if (display === 'block') {
+              container.classList.add('active');
+              document.body.classList.add('has-mobile-cta');
+            } else {
+              container.classList.remove('active');
+              document.body.classList.remove('has-mobile-cta');
+            }
           }
         }
         if (typeof disabled === 'boolean') btn.disabled = disabled;
