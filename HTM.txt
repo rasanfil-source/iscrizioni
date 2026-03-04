@@ -1895,7 +1895,7 @@
         trFr.checked = !!p.transfer.fr;
       }
 
-      // Badge "già selezionato" per transfer pre-compilati
+      // Badge "già incluso" per transfer pre-compilati
       ['rf', 'pt', 'sc', 'fr'].forEach(key => {
         const chk = card.querySelector(`.tr-${key}`);
         if (chk && chk.checked) {
@@ -1903,7 +1903,7 @@
           if (lbl && !lbl.querySelector('.badge-preselected')) {
             const b = document.createElement('span');
             b.className = 'badge-preselected';
-            b.textContent = 'già selezionato';
+            b.textContent = 'già incluso';
             lbl.appendChild(b);
           }
         }
@@ -2080,7 +2080,7 @@
       card.querySelector('.loaded-data-section')?.setAttribute('style', 'display:block');
       updatePartialTotal();
 
-      // Focus al primo controllo utile (transfer) e badge "già selezionato"
+      // Focus al primo controllo utile (transfer) e badge "già incluso"
       const firstTransfer = card.querySelector('.tr-rf');
       if (firstTransfer) {
         setTimeout(() => firstTransfer.focus(), 100);
@@ -2094,7 +2094,7 @@
           if (lbl && !lbl.querySelector('.badge-preselected')) {
             const b = document.createElement('span');
             b.className = 'badge-preselected';
-            b.textContent = 'già selezionato';
+            b.textContent = 'già incluso';
             lbl.appendChild(b);
           }
         }
