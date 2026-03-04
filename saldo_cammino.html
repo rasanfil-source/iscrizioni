@@ -936,6 +936,15 @@
 
   const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
 
+  const LABELS = {
+    calc: 'Calcola il saldo',
+    recalc: 'Ricalcola',
+    save: 'Invia riepilogo via email',
+    lookupHint: 'Inserisci cognome per iniziare'
+  };
+
+  let warmupReady = false;
+
   /***************
    * ALLOGGIO HELPERS
    ***************/
@@ -1039,8 +1048,8 @@
     } catch (_) {
       badge.style.display = 'none';
     } finally {
-      const searchBtnsAfter = document.querySelectorAll('.btn-search-person');
-      searchBtnsAfter.forEach(b => b.disabled = false);
+      warmupReady = true;
+      document.querySelectorAll('.btn-search-person').forEach(btn => btn.disabled = false);
     }
   })();
 
@@ -1068,6 +1077,8 @@
   const template = document.getElementById('personCardTemplate');
   const btnAdd = document.getElementById('btnAddPerson');
   const btnCalc = document.getElementById('calcBtn');
+  const btnCalcInline = document.getElementById('calcBtnInline');
+  const calcButtons = [btnCalc, btnCalcInline].filter(Boolean);
   const btnSave = document.getElementById('saveBtn');
   const summaryBox = document.getElementById('summaryBox');
   const breakdownBox = document.getElementById('breakdownBox');
@@ -1088,10 +1099,33 @@
       modal.classList.add('active');
       okBtn.focus();
 
+      const onKeyDown = (e) => {
+        if (!modal.classList.contains('active')) return;
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          cleanup(false);
+          return;
+        }
+        if (e.key !== 'Tab') return;
+        const focusables = [cancelBtn, okBtn].filter(el => !el.disabled);
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      };
+      document.addEventListener('keydown', onKeyDown, true);
+
       const cleanup = (val) => {
         modal.classList.remove('active');
         okBtn.onclick = null;
         cancelBtn.onclick = null;
+        document.removeEventListener('keydown', onKeyDown, true);
         resolve(val);
       };
 
@@ -1119,6 +1153,14 @@
     return euroFmt.format(n);
   }
 
+  function setCalcButtons({ text, display, disabled }) {
+    calcButtons.forEach(btn => {
+      if (typeof text === 'string') btn.textContent = text;
+      if (typeof display === 'string') btn.style.display = display;
+      if (typeof disabled === 'boolean') btn.disabled = disabled;
+    });
+  }
+
   // Stepper (3 passi)
   function updateStepper() {
     const stepEls = Array.from(document.querySelectorAll('#stepper .step'));
@@ -1134,13 +1176,17 @@
 
     stepEls.forEach(el => {
       const n = Number(el.getAttribute('data-step'));
-      el.classList.remove('is-active', 'is-done');
+      el.classList.remove('is-active', 'is-done', 'is-stale');
 
       if ((n === 1 && step1Done) || (n === 2 && step2Done) || (n === 3 && step3Done)) {
         el.classList.add('is-done');
       }
       if (n === active) el.classList.add('is-active');
+      if (n === 3 && recalcNeeded) el.classList.add('is-stale');
     });
+
+    const dot3 = document.querySelector('#stepper .step[data-step="3"] .step-dot');
+    if (dot3) dot3.textContent = recalcNeeded ? '!' : (step3Done ? '✓' : '3');
   }
 
   // Banner ricalcolo necessario
@@ -1149,12 +1195,12 @@
   function showRecalcBanner() {
     recalcNeeded = true;
     recalcBanner?.classList.add('active');
-    btnCalc.style.display = 'block';
-    btnCalc.textContent = 'Ricalcola';
+    setCalcButtons({ display: 'block', text: LABELS.recalc });
     btnSave.disabled = true;
-    btnSave.textContent = 'Invia riepilogo via email';
+    btnSave.textContent = LABELS.save;
     _lastSavedHash = null;
     btnPay.disabled = true;
+    totalBox.classList.add('stale');
     document.getElementById('orDivider').style.color = '#a0aec0';
     updateStepper();
   }
@@ -1162,6 +1208,7 @@
   function hideRecalcBanner() {
     recalcNeeded = false;
     recalcBanner?.classList.remove('active');
+    totalBox.classList.remove('stale');
     updateStepper();
   }
 
@@ -1172,7 +1219,7 @@
       setGlobalStatus('', '');
       document.getElementById('saldoDaVersare').textContent = '€ —';
       document.getElementById('breakdownBox').style.display = 'none';
-      summaryBox.textContent = 'Opzioni modificate: premi il tasto blu “Ricalcola” per aggiornare il totale.';
+      summaryBox.innerHTML = '⚠️ Opzioni modificate: premi “Ricalcola” per aggiornare il totale.';
     } else {
       resetCalcState();
     }
@@ -1776,7 +1823,7 @@
     if (!confirmed) return;
 
     setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
-    btnCalc.disabled = true;
+    setCalcButtons({ disabled: true });
 
     let totaleCorrente = 0;
     let totAlloggio = 0;
@@ -1814,7 +1861,7 @@
 
     if (saldo < 0) {
       setGlobalStatus('error', 'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
-      btnCalc.disabled = false;
+      setCalcButtons({ disabled: false });
       return;
     }
 
@@ -1843,7 +1890,7 @@
       document.getElementById('totalBox').style.display = 'flex';
 
       btnSave.disabled = false;
-      btnSave.textContent = 'Ricevi email-riepilogo';
+      btnSave.textContent = LABELS.save;
       btnPay.disabled = false;
       actionSection.style.display = 'block';
       document.getElementById('orDivider').style.color = '#666';
@@ -1851,7 +1898,7 @@
       setGlobalStatus('ok', '<span class="success-check">✅</span> Prenotazione aggiornata');
 
       hideRecalcBanner();
-      btnCalc.style.display = 'none';
+      setCalcButtons({ display: 'none' });
       updateStepper();
 
       setTimeout(() => {
@@ -1862,7 +1909,7 @@
       console.error('Errore salvataggio:', err);
       setGlobalStatus('error', 'Impossibile aggiornare la prenotazione: ' + err.message);
     } finally {
-      btnCalc.disabled = false;
+      setCalcButtons({ disabled: false });
     }
   }
 
@@ -1871,16 +1918,14 @@
     _lastSavedHash = null;
     btnSave.disabled = true;
     btnPay.disabled = true;
-    btnSave.textContent = 'Ricevi email-riepilogo';
+    btnSave.textContent = LABELS.save;
     document.getElementById('orDivider').style.color = '#a0aec0';
-    summaryBox.textContent = 'Carica la tua prenotazione';
+    summaryBox.textContent = LABELS.lookupHint;
     breakdownBox.style.display = 'none';
     if (document.getElementById('totalBox')) document.getElementById('totalBox').style.display = 'none';
     document.getElementById('saldoDaVersare').textContent = '€ —';
     actionSection.style.display = 'none';
-    btnCalc.textContent = 'Registra e riepiloga';
-    btnCalc.style.display = 'block';
-    btnCalc.disabled = false;
+    setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
     recalcBanner?.classList.remove('active');
     hideRecalcBanner();
     setGlobalStatus('', '');
@@ -1898,7 +1943,10 @@
   async function doSalvaTransfer(email) {
     if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
     const hash = _calcResultHash(lastCalcResult, email);
-    if (hash === _lastSavedHash) return { success: true, skipped: true };
+    if (hash === _lastSavedHash) {
+      setGlobalStatus('ok', 'Hai già inviato questo riepilogo. Nessuna modifica rilevata.');
+      return { success: true, skipped: true };
+    }
 
     const res = await fetchWithTimeout(GAS_ENDPOINT, {
       method: 'POST',
@@ -1961,7 +2009,7 @@
     btnPay.disabled = true;
     try {
       await doSalvaTransfer(email);
-      setGlobalStatus('ok', 'Scelte salvate. Compila il pagamento su Tinaba.');
+      setGlobalStatus('ok', 'Scelte salvate. Completa ora il pagamento con carta.');
     } catch (err) {
       console.error(err);
       setGlobalStatus('error', 'Errore salvataggio: ' + err.message);

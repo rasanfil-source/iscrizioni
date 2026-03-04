@@ -289,6 +289,20 @@
       color: #3182ce;
     }
 
+    .calc-inline-wrap {
+      margin-bottom: 14px;
+    }
+
+    .btn-calc-inline {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .btn-calc-inline {
+        display: block;
+      }
+    }
+
     /* ── Sidebar ── */
     aside {
       background: #fff;
@@ -333,6 +347,11 @@
       background: #ebf8ff;
       border-radius: 8px;
       color: #2c5282;
+      transition: opacity .2s ease;
+    }
+
+    #totalBox.stale {
+      opacity: .4;
     }
 
     .breakdown {
@@ -631,6 +650,12 @@
       color: #276749;
     }
 
+    .step.is-stale .step-dot {
+      border-color: #dd6b20;
+      background: #fffaf0;
+      color: #9c4221;
+    }
+
     .step-sep {
       width: 22px;
       height: 1px;
@@ -657,6 +682,16 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+    }
+
+    .recalc-icon {
+      font-size: 1rem;
+      flex: 0 0 auto;
+    }
+
+    .recalc-text {
+      flex: 1;
+      font-weight: 600;
     }
 
     .recalc-banner button {
@@ -696,7 +731,16 @@
 
     @media (max-width: 600px) {
       .stepper {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+
+      .step-desc {
         display: none;
+      }
+
+      .step-title {
+        font-size: .78rem;
       }
 
       .mobile-hide-icon {
@@ -739,6 +783,9 @@
       <!-- COLONNA SINISTRA -->
       <div>
         <div id="personsContainer"></div>
+        <div class="calc-inline-wrap">
+          <button class="primary btn-calc-inline" id="calcBtnInline" type="button">Calcola il saldo</button>
+        </div>
         <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
       </div>
 
@@ -747,15 +794,16 @@
         <div id="warmupBadge">⏳ Un momento...</div>
 
         <div style="margin-bottom:18px;">
-          <button class="primary" id="calcBtn" type="button">Registra e riepiloga</button>
-          <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
-            <span>Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
+          <button class="primary" id="calcBtn" type="button">Calcola il saldo</button>
+          <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite" aria-atomic="true">
+            <span class="recalc-icon" aria-hidden="true">⚠️</span>
+            <span class="recalc-text">Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
           </div>
         </div>
 
         <h2>Riepilogo</h2>
 
-        <div id="summaryBox">Carica la tua prenotazione</div>
+        <div id="summaryBox">Inserisci cognome per iniziare</div>
 
         <div id="breakdownBox"
           style="display:none; margin-top:12px; font-size:0.9rem; border-top:1px solid #e2e8f0; padding-top:12px;">
@@ -783,7 +831,7 @@
           <span id="saldoDaVersare">€ —</span>
         </div>
 
-        <div id="globalStatus" class="status"></div>
+        <div id="globalStatus" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
 
         <div id="actionSection" style="display:none; margin-top:10px;">
           <div style="margin-bottom:18px;">
@@ -791,7 +839,7 @@
             <input type="email" id="emailInput" placeholder="email@esempio.it">
           </div>
 
-          <button class="secondary" id="saveBtn" type="button" disabled>Ricevi email-riepilogo</button>
+          <button class="secondary" id="saveBtn" type="button" disabled>Invia riepilogo via email</button>
           <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
           <button class="secondary" id="payBtn" type="button" disabled
             style="background:#e67e22;border-color:#e67e22;margin-top:0;"><span class="mobile-hide-icon">💳 </span>Paga con
@@ -818,7 +866,7 @@
       <div class="input-row">
         <div>
           <label>Cognome</label>
-          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" inputmode="text" autocapitalize="words" autofocus>
+          <input type="text" class="person-cognome" placeholder="Es. Rossi — poi premi Invio" autocomplete="family-name" inputmode="text" autocapitalize="words" autofocus>
         </div>
         <div class="nome-field" style="display:none;">
           <label>Nome</label>
@@ -826,7 +874,7 @@
         </div>
         <div>
           <label style="visibility:hidden;">Azioni</label>
-          <button type="button" class="primary btn-search-person" style="padding: 10px 14px; width: auto; white-space: nowrap;">Carica</button>
+          <button type="button" class="primary btn-search-person" style="padding: 10px 14px; width: auto; white-space: nowrap;">🔍 Carica</button>
         </div>
       </div>
       </form>
@@ -843,6 +891,7 @@
           <div class="readonly-box alloggio-box" style="margin-bottom:12px;">—</div>
 
           <div class="options readonly" style="margin-top:0;">
+            <div class="sr-only locked-options-help">Opzione confermata al momento dell'iscrizione, non modificabile.</div>
             <label style="cursor:default;" class="label-colazione"><input type="checkbox" class="colazione" disabled> 🔒 Colazione <span
                 class="costo-label">(€70)</span></label>
             <label style="cursor:default;" class="label-assicurazione"><input type="checkbox" class="assicurazione" disabled> 🔒 Assicurazione
@@ -866,7 +915,7 @@
   <div class="popup-overlay" id="payPopup" role="dialog" aria-modal="true" aria-labelledby="popupTitle" tabindex="-1">
     <div class="popup-box" role="document">
       <h3 id="popupTitle">Completa il pagamento con carta</h3>
-      <div class="popup-subtitle">Verrai reindirizzato alla pagina sicura di pagamento della Parrocchia S. Eugenio. Copia ogni campo e incollalo.</div>
+      <div class="popup-subtitle">Verrai reindirizzato alla pagina sicura di pagamento della Parrocchia S. Eugenio</div>
 
       <div class="popup-field">
         <span class="popup-field-label">Importo</span>
@@ -874,13 +923,13 @@
         <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupImporto',this)">📋</button>
       </div>
       <div class="popup-field">
-        <span class="popup-field-label">Messaggio</span>
+        <span class="popup-field-label">Riferimento</span>
         <span class="popup-field-value" id="popupCausale"></span>
         <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupCausale',this)">📋</button>
       </div>
 
       <div class="popup-actions">
-        <button type="button" class="popup-btn-open" id="popupOpenBtn">Apri Tinaba →</button>
+        <button type="button" class="popup-btn-open" id="popupOpenBtn">Apri pagina pagamento →</button>
         <button type="button" class="popup-btn-close" id="popupCloseBtn">Chiudi</button>
       </div>
       <div class="popup-hint">Il popup resta aperto — passa all’altro tab per incollare i dati.</div>
@@ -917,6 +966,15 @@
     };
 
     const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
+
+    const LABELS = {
+      calc: 'Calcola il saldo',
+      recalc: 'Ricalcola',
+      save: 'Invia riepilogo via email',
+      lookupHint: 'Inserisci cognome per iniziare'
+    };
+
+    let warmupReady = false;
 
     /***************
      * ALLOGGIO HELPERS
@@ -1021,8 +1079,8 @@
       } catch (_) {
         badge.style.display = 'none';
       } finally {
-        const searchBtnsAfter = document.querySelectorAll('.btn-search-person');
-        searchBtnsAfter.forEach(b => b.disabled = false);
+        warmupReady = true;
+        document.querySelectorAll('.btn-search-person').forEach(btn => btn.disabled = false);
       }
     })();
 
@@ -1050,6 +1108,8 @@
     const template = document.getElementById('personCardTemplate');
     const btnAdd = document.getElementById('btnAddPerson');
     const btnCalc = document.getElementById('calcBtn');
+    const btnCalcInline = document.getElementById('calcBtnInline');
+    const calcButtons = [btnCalc, btnCalcInline].filter(Boolean);
     const btnSave = document.getElementById('saveBtn');
     const summaryBox = document.getElementById('summaryBox');
     const breakdownBox = document.getElementById('breakdownBox');
@@ -1070,10 +1130,33 @@
         modal.classList.add('active');
         okBtn.focus();
 
+        const onKeyDown = (e) => {
+          if (!modal.classList.contains('active')) return;
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            cleanup(false);
+            return;
+          }
+          if (e.key !== 'Tab') return;
+          const focusables = [cancelBtn, okBtn].filter(el => !el.disabled);
+          if (!focusables.length) return;
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        };
+        document.addEventListener('keydown', onKeyDown, true);
+
         const cleanup = (val) => {
           modal.classList.remove('active');
           okBtn.onclick = null;
           cancelBtn.onclick = null;
+          document.removeEventListener('keydown', onKeyDown, true);
           resolve(val);
         };
 
@@ -1101,6 +1184,14 @@
       return euroFmt.format(n);
     }
 
+    function setCalcButtons({ text, display, disabled }) {
+      calcButtons.forEach(btn => {
+        if (typeof text === 'string') btn.textContent = text;
+        if (typeof display === 'string') btn.style.display = display;
+        if (typeof disabled === 'boolean') btn.disabled = disabled;
+      });
+    }
+
     // Stepper (3 passi)
     function updateStepper() {
       const stepEls = Array.from(document.querySelectorAll('#stepper .step'));
@@ -1116,13 +1207,17 @@
 
       stepEls.forEach(el => {
         const n = Number(el.getAttribute('data-step'));
-        el.classList.remove('is-active', 'is-done');
+        el.classList.remove('is-active', 'is-done', 'is-stale');
 
         if ((n === 1 && step1Done) || (n === 2 && step2Done) || (n === 3 && step3Done)) {
           el.classList.add('is-done');
         }
         if (n === active) el.classList.add('is-active');
+        if (n === 3 && recalcNeeded) el.classList.add('is-stale');
       });
+
+      const dot3 = document.querySelector('#stepper .step[data-step="3"] .step-dot');
+      if (dot3) dot3.textContent = recalcNeeded ? '!' : (step3Done ? '✓' : '3');
     }
 
     // Banner ricalcolo necessario
@@ -1131,12 +1226,12 @@
     function showRecalcBanner() {
       recalcNeeded = true;
       recalcBanner?.classList.add('active');
-      btnCalc.style.display = 'block';
-      btnCalc.textContent = 'Ricalcola';
+      setCalcButtons({ display: 'block', text: LABELS.recalc });
       btnSave.disabled = true;
-      btnSave.textContent = 'Invia riepilogo via email';
+      btnSave.textContent = LABELS.save;
       _lastSavedHash = null;
       btnPay.disabled = true;
+      totalBox.classList.add('stale');
       document.getElementById('orDivider').style.color = '#a0aec0';
       updateStepper();
     }
@@ -1144,6 +1239,7 @@
     function hideRecalcBanner() {
       recalcNeeded = false;
       recalcBanner?.classList.remove('active');
+      totalBox.classList.remove('stale');
       updateStepper();
     }
 
@@ -1154,7 +1250,7 @@
         setGlobalStatus('', '');
         document.getElementById('saldoDaVersare').textContent = '€ —';
         document.getElementById('breakdownBox').style.display = 'none';
-        summaryBox.textContent = 'Opzioni modificate: premi il tasto blu “Ricalcola” per aggiornare il totale.';
+        summaryBox.innerHTML = '⚠️ Opzioni modificate: premi “Ricalcola” per aggiornare il totale.';
       } else {
         resetCalcState();
       }
@@ -1307,6 +1403,15 @@
       trPt.id = `p${index}_tr_pt`; card.querySelector('.label-tr-pt').setAttribute('for', trPt.id);
       trSc.id = `p${index}_tr_sc`; card.querySelector('.label-tr-sc').setAttribute('for', trSc.id);
       trFr.id = `p${index}_tr_fr`; card.querySelector('.label-tr-fr').setAttribute('for', trFr.id);
+
+      const lockedHelp = card.querySelector('.locked-options-help');
+      const colLock = card.querySelector('.colazione');
+      const assLock = card.querySelector('.assicurazione');
+      if (lockedHelp) {
+        lockedHelp.id = `p${index}_locked_options_help`;
+        colLock?.setAttribute('aria-describedby', lockedHelp.id);
+        assLock?.setAttribute('aria-describedby', lockedHelp.id);
+      }
 
       bindLookupEvents(card, index);
 
@@ -1491,6 +1596,15 @@
       trPt.id = `p${index}_tr_pt`; card.querySelector('.label-tr-pt').setAttribute('for', trPt.id);
       trSc.id = `p${index}_tr_sc`; card.querySelector('.label-tr-sc').setAttribute('for', trSc.id);
       trFr.id = `p${index}_tr_fr`; card.querySelector('.label-tr-fr').setAttribute('for', trFr.id);
+
+      const lockedHelp = card.querySelector('.locked-options-help');
+      const colLock = card.querySelector('.colazione');
+      const assLock = card.querySelector('.assicurazione');
+      if (lockedHelp) {
+        lockedHelp.id = `p${index}_locked_options_help`;
+        colLock?.setAttribute('aria-describedby', lockedHelp.id);
+        assLock?.setAttribute('aria-describedby', lockedHelp.id);
+      }
 
       const p = partnerData.persona;
       card.querySelector('.alloggio-box').textContent = formatAlloggioText(p.alloggio) || '—';
@@ -1758,7 +1872,7 @@
       if (!confirmed) return;
 
       setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
-      btnCalc.disabled = true;
+      setCalcButtons({ disabled: true });
 
       let totaleCorrente = 0;
       let totAlloggio = 0;
@@ -1796,7 +1910,7 @@
 
       if (saldo < 0) {
         setGlobalStatus('error', 'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
-        btnCalc.disabled = false;
+        setCalcButtons({ disabled: false });
         return;
       }
 
@@ -1825,7 +1939,7 @@
         document.getElementById('totalBox').style.display = 'flex';
 
         btnSave.disabled = false;
-        btnSave.textContent = 'Ricevi email-riepilogo';
+        btnSave.textContent = LABELS.save;
         btnPay.disabled = false;
         actionSection.style.display = 'block';
         document.getElementById('orDivider').style.color = '#666';
@@ -1833,7 +1947,7 @@
         setGlobalStatus('ok', '<span class="success-check">✅</span> Prenotazione aggiornata');
 
         hideRecalcBanner();
-        btnCalc.style.display = 'none';
+        setCalcButtons({ display: 'none' });
         updateStepper();
 
         setTimeout(() => {
@@ -1844,7 +1958,7 @@
         console.error('Errore salvataggio:', err);
         setGlobalStatus('error', 'Impossibile aggiornare la prenotazione: ' + err.message);
       } finally {
-        btnCalc.disabled = false;
+        setCalcButtons({ disabled: false });
       }
     }
 
@@ -1853,16 +1967,14 @@
       _lastSavedHash = null;
       btnSave.disabled = true;
       btnPay.disabled = true;
-      btnSave.textContent = 'Ricevi email-riepilogo';
+      btnSave.textContent = LABELS.save;
       document.getElementById('orDivider').style.color = '#a0aec0';
-      summaryBox.textContent = 'Carica la tua prenotazione';
+      summaryBox.textContent = LABELS.lookupHint;
       breakdownBox.style.display = 'none';
       if (document.getElementById('totalBox')) document.getElementById('totalBox').style.display = 'none';
       document.getElementById('saldoDaVersare').textContent = '€ —';
       actionSection.style.display = 'none';
-      btnCalc.textContent = 'Registra e riepiloga';
-      btnCalc.style.display = 'block';
-      btnCalc.disabled = false;
+      setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
       recalcBanner?.classList.remove('active');
       hideRecalcBanner();
       setGlobalStatus('', '');
@@ -1880,7 +1992,10 @@
     async function doSalvaTransfer(email) {
       if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
       const hash = _calcResultHash(lastCalcResult, email);
-      if (hash === _lastSavedHash) return { success: true, skipped: true };
+      if (hash === _lastSavedHash) {
+        setGlobalStatus('ok', 'Hai già inviato questo riepilogo. Nessuna modifica rilevata.');
+        return { success: true, skipped: true };
+      }
 
       const res = await fetchWithTimeout(GAS_ENDPOINT, {
         method: 'POST',
@@ -1943,7 +2058,7 @@
       btnPay.disabled = true;
       try {
         await doSalvaTransfer(email);
-        setGlobalStatus('ok', 'Scelte salvate. Compila il pagamento su Tinaba.');
+        setGlobalStatus('ok', 'Scelte salvate. Completa ora il pagamento con carta.');
       } catch (err) {
         console.error(err);
         setGlobalStatus('error', 'Errore salvataggio: ' + err.message);
@@ -1993,7 +2108,9 @@
     addPersonCard();
     btnAdd.addEventListener('click', addPersonCard);
     btnCalc.addEventListener('click', calcolaTotale);
+    btnCalcInline?.addEventListener('click', calcolaTotale);
     btnSave.addEventListener('click', salvaEInvia);
     btnPay.addEventListener('click', openPayPopup);
     document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
   </script>
+</body>

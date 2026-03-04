@@ -1,0 +1,130 @@
+diff --git a/GAS.txt b/GAS.txt
+index 359ad0f..bdb5da8 100644
+--- a/GAS.txt
++++ b/GAS.txt
+@@ -339,26 +339,32 @@ function doPost(e) {
+       }
+ 
+       return jsonOut({ success: true, emailSent: !!(email && email.includes('@')), risultati });
+       } finally {
+         lock.releaseLock();
+       }
+     }
+ 
+     // ============ PING (warm-up affidabile) ============
+     if (action === '__ping__') {
+       return jsonOut({ success: true, pong: true });
+     }
+ 
+     return jsonOut({ success: false, error: 'Azione non valida: ' + action });
+ 
+   } catch (err) {
+     Logger.log('❌ ERRORE GENERALE: %s\\n%s', err, err.stack);
+     return jsonOut({ success: false, error: 'Errore server: ' + (err.message || String(err)) });
+   }
+ }
+ 
+ 
+ /***************
+  * EMAIL TEMPLATES
+  ***************/
++
++function formatEuroIt_(value) {
++  const n = Number(value) || 0;
++  return n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
++}
++
+ function buildEmailPlain_(persone, totale, caparra, saldo) {
+   const tot = Number(totale)  || 0;
+   const cap = Number(caparra) || 0;
+   const sal = Number(saldo)   || 0;
+   const oggi = Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy HH:mm");
+   const righe = [
+     'Riepilogo prenotazione – Cammino 2026',
+     'Emesso in data: ' + oggi,
+     '',
+     'Persone:'
+   ];
+   persone.forEach(p => {
+     let s = '- ' + (p.nome || '') + ' ' + (p.cognome || '');
+     const tr = [];
+     if (p.transfer?.rf) tr.push('Roma-Fiumicino');
+     if (p.transfer?.pt) tr.push('Porto-Tui');
+     if (p.transfer?.sc) tr.push('Santiago-A Coruña');
+     if (p.transfer?.fr) tr.push('Fiumicino-Roma');
+     if (tr.length > 0) s += ' (Transfer: ' + tr.join(', ') + ')';
+     righe.push(s);
+   });
+-  righe.push('', 'Totale complessivo: €' + tot,
+-    'Caparra già versata: €' + cap,
+-    'Saldo da versare: €' + sal, '',
++  righe.push('', 'Totale complessivo: €' + formatEuroIt_(tot),
++    'Caparra già versata: €' + formatEuroIt_(cap),
++    'Saldo da versare: €' + formatEuroIt_(sal), '',
+     'Scadenza: 15 maggio 2026', '',
+     'Pagamento:', 'PARROCCHIA S. EUGENIO',
+     'IBAN: IT77U0306909606100000125525',
+     'Causale: "Saldo Cammino 2026 ' + (persone[0]?.nome || '') + ' ' + (persone[0]?.cognome || '') + '"', '',
++    'Contatti: info@parrocchiasanteugenio.it',
+     'Grazie e buon cammino!');
+   return righe.join('\\n');
+ }
+ 
+ function buildEmailHtml_(persone, totale, caparra, saldo) {
+   const tot = Number(totale)  || 0;
+   const cap = Number(caparra) || 0;
+   const sal = Number(saldo)   || 0;
+   const personeHtml = persone.map(p => {
+     const tr = [];
+     if (p.transfer?.rf) tr.push('Roma-Fiumicino');
+     if (p.transfer?.pt) tr.push('Porto-Tui');
+     if (p.transfer?.sc) tr.push('Santiago-A Coruña');
+     if (p.transfer?.fr) tr.push('Fiumicino-Roma');
+     const trStr = tr.length > 0 ? '<br><small style="color:#718096;">Transfer: ' + tr.join(', ') + '</small>' : '';
+     return '<tr><td style="padding:12px;border-bottom:1px solid #eee;"><strong>' +
+            (p.nome || '') + ' ' + (p.cognome || '') + '</strong>' + trStr + '</td></tr>';
+   }).join('');
+ 
+   return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+ <body style="font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;margin:0;padding:20px;">
+ <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+   <div style="background:linear-gradient(135deg,#1a365d,#2c5282);color:#fff;padding:30px;text-align:center;">
+     <h1 style="margin:0;font-size:24px;">Cammino Portoghese 2026</h1>
+     <p style="margin:10px 0 0;opacity:.9;">Riepilogo della tua prenotazione</p>
+     <p style="margin:5px 0 0;font-size:12px;opacity:.7;">Emesso il \${Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy HH:mm")}</p>
+   </div>
+   <div style="padding:30px;">
+     <h2 style="color:#1a365d;font-size:18px;margin-bottom:15px;">Partecipanti</h2>
+     <table style="width:100%;border-collapse:collapse;margin-bottom:25px;">\${personeHtml}</table>
+     <div style="background:#f7fafc;border-radius:8px;padding:20px;margin-bottom:25px;">
+       <table style="width:100%;">
+-        <tr><td style="padding:8px 0;color:#4a5568;">Totale complessivo:</td><td style="padding:8px 0;text-align:right;font-weight:600;">€\${tot}</td></tr>
+-        <tr><td style="padding:8px 0;color:#4a5568;">Caparra già versata:</td><td style="padding:8px 0;text-align:right;color:#38a169;">− €\${cap}</td></tr>
++        <tr><td style="padding:8px 0;color:#4a5568;">Totale complessivo:</td><td style="padding:8px 0;text-align:right;font-weight:600;">€\${formatEuroIt_(tot)}</td></tr>
++        <tr><td style="padding:8px 0;color:#4a5568;">Caparra già versata:</td><td style="padding:8px 0;text-align:right;color:#38a169;">− €\${formatEuroIt_(cap)}</td></tr>
+         <tr style="border-top:2px solid #e2e8f0;">
+           <td style="padding:12px 0 0;font-size:18px;font-weight:700;color:#1a365d;">Saldo da versare:</td>
+-          <td style="padding:12px 0 0;text-align:right;font-size:18px;font-weight:700;color:#1a365d;">€\${sal}</td>
++          <td style="padding:12px 0 0;text-align:right;font-size:18px;font-weight:700;color:#1a365d;">€\${formatEuroIt_(sal)}</td>
+         </tr>
+       </table>
+     </div>
+     <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:15px;border-radius:0 8px 8px 0;margin-bottom:25px;">
+       <strong style="color:#92400e;">Scadenza pagamento:</strong> <span style="color:#92400e;">15 maggio 2026</span>
+     </div>
+     <h2 style="color:#1a365d;font-size:18px;margin-bottom:15px;">Coordinate per il bonifico</h2>
+     <div style="background:#ebf8ff;border-radius:8px;padding:20px;">
+       <p style="margin:0 0 10px;color:#2c5282;"><strong>Intestatario:</strong> PARROCCHIA S. EUGENIO</p>
+-      <p style="margin:0 0 10px;color:#2c5282;"><strong>IBAN:</strong> <code style="background:#fff;padding:4px 8px;border-radius:4px;font-family:monospace;">IT77U0306909606100000125525</code></p>
++      <p style="margin:0 0 10px;color:#2c5282;"><strong>IBAN:</strong> <code style="background:#fff;padding:4px 8px;border-radius:4px;font-family:monospace;font-size:16px;letter-spacing:.4px;">IT77U0306909606100000125525</code></p>
+       <p style="margin:0;color:#2c5282;"><strong>Causale:</strong> "Saldo Cammino 2026 \${(persone[0]?.nome || '')} \${(persone[0]?.cognome || '')}"</p>
+     </div>
+   </div>
+   <div style="background:#f7fafc;padding:20px;text-align:center;border-top:1px solid #e2e8f0;">
+     <p style="margin:0;color:#718096;font-size:14px;">Grazie e buon cammino!</p>
+     <p style="margin:10px 0 0;color:#a0aec0;font-size:12px;">Parrocchia S. Eugenio • Roma</p>
++    <p style="margin:8px 0 0;font-size:12px;"><a href="mailto:info@parrocchiasanteugenio.it" style="color:#4a5568;text-decoration:none;">info@parrocchiasanteugenio.it</a></p>
+   </div>
+ </div>
+ </body></html>\`;
+ }
