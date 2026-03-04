@@ -890,7 +890,7 @@
           <!-- Desktop-only shortcut: mantenere questo pulsante in alto a destra sopra “Saldo stimato”
                per rendere immediatamente disponibile l'azione principale anche quando la lista persone è lunga. -->
           <button class="primary" id="calcBtnDesktopTop" type="button">Registrazione e riepilogo</button>
-          <div class="desktop-note">Visibile solo su desktop</div>
+
         </div>
 
 
@@ -900,7 +900,7 @@
             <span class="partial-label">Totale parziale:</span>
             <span class="partial-value" id="partialTotalValue">€ 0,00</span>
           </div>
-          <div style="font-size:0.75rem; color:#718096; margin-top:6px;">Basato sulle opzioni selezionate (escl. caparra)</div>
+          <div style="font-size:0.75rem; color:#718096; margin-top:6px;">Basato sulle opzioni selezionate</div>
         </div>
 
         <h2>Riepilogo</h2>
