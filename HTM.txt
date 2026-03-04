@@ -1781,6 +1781,10 @@
 
       card.querySelector('.btn-search-person').style.display = 'block';
 
+      // Mostra hint ricerca
+      const cognomeHint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
+      if (cognomeHint) cognomeHint.style.visibility = 'visible';
+
       bindLookupEvents(card, index);
 
       setCardStatus(card, '', '');
@@ -2056,9 +2060,9 @@
         const trFr = card.querySelector('.tr-fr'); if (trFr) trFr.checked = !!data.persona.transfer.fr;
       }
 
-      // Mostra hint ricerca
+      // Nascondi hint ricerca (mantiene spazio per allineamento)
       const cognomeHint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
-      if (cognomeHint) cognomeHint.style.visibility = 'visible';
+      if (cognomeHint) cognomeHint.style.visibility = 'hidden';
       
       const nomeField = card.querySelector('.nome-field');
       if (nomeField) nomeField.style.display = '';
