@@ -1593,7 +1593,7 @@
     const index = personCounter++;
 
     card.dataset.personIndex = index;
-    card.querySelector('.card-title').textContent = index === 0 ? 'Carica la tua prenotazione (basta il cognome)' : 'Persona ' + (persone.length + 1);
+    card.querySelector('.card-title').textContent = index === 0 ? 'Cerca la tua prenotazione' : 'Persona ' + (persone.length + 1);
     if (persone.length > 0) card.classList.add('removable');
 
     // Accessibilità: ID univoci

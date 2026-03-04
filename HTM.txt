@@ -1249,6 +1249,9 @@
     const btnSave = document.getElementById('saveBtn');
     const summaryBox = document.getElementById('summaryBox');
     const breakdownBox = document.getElementById('breakdownBox');
+    const calcBtnContainer = document.getElementById('calcBtnContainer');
+    const calcBtnPlaceholder = document.createComment('calc-btn-container-anchor');
+
     if (calcBtnContainer?.parentNode) {
       calcBtnContainer.parentNode.insertBefore(calcBtnPlaceholder, calcBtnContainer);
     }
@@ -1606,7 +1609,7 @@
       const index = personCounter++;
 
       card.dataset.personIndex = index;
-      card.querySelector('.card-title').textContent = index === 0 ? 'Carica la tua prenotazione (basta il cognome)' : 'Persona ' + (persone.length + 1);
+      card.querySelector('.card-title').textContent = index === 0 ? 'Cerca la tua prenotazione' : 'Persona ' + (persone.length + 1);
       if (persone.length > 0) card.classList.add('removable');
 
       // Accessibilità: ID univoci
