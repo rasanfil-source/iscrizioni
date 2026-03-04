@@ -799,6 +799,12 @@
       display: none;
     }
   }
+
+  input[readonly] {
+    background-color: #fff !important;
+    color: #2d3748;
+    cursor: default;
+  }
 </style>
 
 <div class="page">
@@ -1840,6 +1846,7 @@
 
     card.querySelector('.loaded-data-section').style.display = 'block';
     card.querySelector('.btn-search-person').style.display = 'none';
+    card.querySelector('.btn-change').style.display = ''; // Aggiunto
     updatePartialTotal();
 
 
@@ -2016,6 +2023,9 @@
       const trFr = card.querySelector('.tr-fr'); if (trFr) trFr.checked = !!data.persona.transfer.fr;
     }
 
+    // Nascondi hint ricerca
+    const cognomeHint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
+    if (cognomeHint) cognomeHint.style.display = 'none';
     const nomeFieldA = card.querySelector('.nome-field');
     if (nomeFieldA) nomeFieldA.style.display = '';
     const nomeEl = card.querySelector('.person-nome');
