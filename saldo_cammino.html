@@ -915,7 +915,7 @@
 <template id="personCardTemplate">
   <div class="person-card" data-person-index="">
     <div class="card-header">
-      <span class="card-title">Carica la tua prenotazione (basta il cognome)</span>
+      <span class="card-title">Cerca la tua prenotazione</span>
       <div style="display:flex;gap:8px;align-items:center;">
         <button type="button" class="btn-change" title="Cambia persona">✎ Cambia</button>
         <button type="button" class="btn-remove" title="Rimuovi persona">✕</button>
@@ -928,6 +928,7 @@
           <label class="person-cognome-label">Cognome</label>
           <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" inputmode="text"
             autocapitalize="words" autofocus>
+          <div style="font-size:0.75rem; color:#718096; margin-top:4px;">Poi premi Invio per cercare</div>
         </div>
         <div class="nome-field" style="display:none;">
           <label class="person-nome-label">Nome</label>
