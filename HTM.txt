@@ -178,9 +178,10 @@
     }
 
     input[readonly] {
-      background-color: #fff !important;
+      background-color: #ebf8ff !important; /* Azzurrino coerenza */
       color: #2d3748;
       cursor: default;
+      border-color: #bee3f8;
     }
     
     /* Stile Errore Duplicati */
@@ -193,10 +194,10 @@
     }
 
     input[type="text"][readonly] {
-      background: #e2e8f0;
+      background: #ebf8ff;
       color: #2d3748;
-      cursor: not-allowed;
-      border-color: #e2e8f0;
+      cursor: default;
+      border-color: #bee3f8;
     }
 
     input[type="text"][readonly]:focus {
@@ -2055,9 +2056,9 @@
         const trFr = card.querySelector('.tr-fr'); if (trFr) trFr.checked = !!data.persona.transfer.fr;
       }
 
-      // Nascondi hint ricerca
+      // Mostra hint ricerca
       const cognomeHint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
-      if (cognomeHint) cognomeHint.style.display = 'none';
+      if (cognomeHint) cognomeHint.style.visibility = 'visible';
       
       const nomeField = card.querySelector('.nome-field');
       if (nomeField) nomeField.style.display = '';

@@ -801,9 +801,10 @@
   }
 
   input[readonly] {
-    background-color: #fff !important;
+    background-color: #ebf8ff !important;
     color: #2d3748;
     cursor: default;
+    border-color: #bee3f8;
   }
 </style>
 
@@ -2023,9 +2024,9 @@
       const trFr = card.querySelector('.tr-fr'); if (trFr) trFr.checked = !!data.persona.transfer.fr;
     }
 
-    // Nascondi hint ricerca
+    // Mostra hint ricerca
     const cognomeHint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
-    if (cognomeHint) cognomeHint.style.display = 'none';
+    if (cognomeHint) cognomeHint.style.visibility = 'visible';
     const nomeFieldA = card.querySelector('.nome-field');
     if (nomeFieldA) nomeFieldA.style.display = '';
     const nomeEl = card.querySelector('.person-nome');
