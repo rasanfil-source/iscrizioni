@@ -128,6 +128,79 @@
     color: #4a5568;
   }
 
+  .calc-inline-wrap {
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  /* Sidebar Progressiva */
+  #refCostsBox,
+  #partialTotalBox {
+    background: #edf2f7;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  .ref-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #2d3748;
+  }
+
+  .ref-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    color: #4a5568;
+  }
+
+  .partial-label {
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  .partial-value {
+    font-weight: 700;
+    color: #3182ce;
+    font-size: 1.1rem;
+  }
+
+  /* Mobile Sticky CTA */
+  #calcBtnContainer {
+    margin-bottom: 18px;
+  }
+
+  @media (max-width: 900px) {
+    body {
+      padding-bottom: 80px;
+    }
+
+    #calcBtnContainer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+      padding: 12px 20px;
+      margin-bottom: 0;
+      z-index: 2000;
+      display: none;
+      /* Gestito da JS */
+    }
+
+    #calcBtnContainer.active {
+      display: block !important;
+    }
+
+    #calcBtn {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
   input[type="text"],
   input[type="email"] {
     width: 100%;
@@ -753,10 +826,29 @@
     <aside>
       <div id="warmupBadge">⏳ Un momento...</div>
 
-      <div style="margin-bottom:18px;">
+      <div id="calcBtnContainer">
         <button class="primary" id="calcBtn" type="button" style="display:none;">Calcola il saldo</button>
         <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
           <span>Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
+        </div>
+      </div>
+
+      <div id="refCostsBox">
+        <div class="ref-title">Tariffe di riferimento</div>
+        <div class="ref-row"><span>Alloggio (Singola)</span><span>€480</span></div>
+        <div class="ref-row"><span>Alloggio (Doppia)</span><span>€540</span></div>
+        <div class="ref-row"><span>Colazione</span><span>€70</span></div>
+        <div class="ref-row"><span>Assicurazione</span><span>€20</span></div>
+        <div class="ref-row"><span>Transfer</span><span>€10 - €15</span></div>
+      </div>
+
+      <div id="partialTotalBox" style="display:none;">
+        <div class="ref-title">Saldo stimato</div>
+        <div class="ref-row">
+          <span class="partial-label">Totale parziale:</span>
+          <span class="partial-value" id="partialTotalValue">€ 0,00</span>
+        </div>
+        <div style="font-size:0.75rem; color:#718096; margin-top:6px;">Basato sulle opzioni selezionate (escl. caparra)
         </div>
       </div>
 
@@ -1172,9 +1264,59 @@
   function setCalcButtons({ text, display, disabled }) {
     calcButtons.forEach(btn => {
       if (typeof text === 'string') btn.textContent = text;
-      if (typeof display === 'string') btn.style.display = display;
+      if (typeof display === 'string') {
+        btn.style.display = display;
+        // Mostra/nasconde il container sticky su mobile
+        const container = document.getElementById('calcBtnContainer');
+        if (container) {
+          if (display === 'block') container.classList.add('active');
+          else container.classList.remove('active');
+        }
+      }
       if (typeof disabled === 'boolean') btn.disabled = disabled;
     });
+  }
+
+  function updatePartialTotal() {
+    if (lastCalcResult) return; // Non sovrascrivere il calcolo finale
+
+    let partial = 0;
+    let hasLoaded = false;
+
+    persone.forEach(p => {
+      if (!p.loaded) return;
+      hasLoaded = true;
+
+      // Costo base alloggio
+      if (p.alloggio && p.alloggio.toLowerCase().includes('singola')) partial += 480;
+      else if (p.alloggio && p.alloggio.toLowerCase().includes('doppia')) partial += 540;
+
+      // Extra bloccati
+      if (p.colazione) partial += 70;
+      if (p.assicurazione) partial += 20;
+
+      // Transfer (client-side DOM check)
+      const card = document.querySelector(`.person-card[data-person-index="${p.index}"]`);
+      if (card) {
+        if (card.querySelector('.tr-rf')?.checked) partial += 10;
+        if (card.querySelector('.tr-pt')?.checked) partial += 15;
+        if (card.querySelector('.tr-sc')?.checked) partial += 15;
+        if (card.querySelector('.tr-fr')?.checked) partial += 10;
+      }
+    });
+
+    const partialBox = document.getElementById('partialTotalBox');
+    const refBox = document.getElementById('refCostsBox');
+    const partialValueEl = document.getElementById('partialTotalValue');
+
+    if (hasLoaded && !lastCalcResult) {
+      partialBox.style.display = 'block';
+      refBox.style.display = 'none';
+      partialValueEl.textContent = formatEuro(partial);
+    } else {
+      partialBox.style.display = 'none';
+      refBox.style.display = 'block';
+    }
   }
 
   // Stepper (3 passi)
@@ -1399,9 +1541,12 @@
 
     bindLookupEvents(card, index);
 
-    // Transfer → infligge eventuale banner o reset
+    // Transfer → infligge eventuale banner o reset + update parziale
     card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
-      chk.addEventListener('change', onOptionsChanged);
+      chk.addEventListener('change', () => {
+        onOptionsChanged();
+        updatePartialTotal();
+      });
     });
 
     // Bottone rimuovi
@@ -1596,8 +1741,20 @@
     card.querySelector('.alloggio-box').textContent = formatAlloggioText(p.alloggio) || '—';
     card.querySelector('.colazione').checked = !!p.colazione;
     card.querySelector('.assicurazione').checked = !!p.assicurazione;
+
+    const colLbl = card.querySelector('.label-colazione');
+    const assLbl = card.querySelector('.label-assicurazione');
+    const lockedHelpWrap = card.querySelector('.locked-options-help')?.parentElement;
+    if (colLbl) colLbl.style.display = p.colazione ? '' : 'none';
+    if (assLbl) assLbl.style.display = p.assicurazione ? '' : 'none';
+    if (lockedHelpWrap && !p.colazione && !p.assicurazione) {
+      lockedHelpWrap.style.display = 'none';
+      lockedHelpWrap.nextElementSibling?.style.display = 'none'; // Nota "non più modificabili"
+    }
+
     card.querySelector('.loaded-data-section').style.display = 'block';
     card.querySelector('.btn-search-person').style.display = 'none';
+    updatePartialTotal();
 
     if (p.transfer) {
       trRf.checked = !!p.transfer.rf;
@@ -1754,6 +1911,16 @@
     const assEl = card.querySelector('.assicurazione');
     if (assEl) assEl.checked = person.assicurazione;
 
+    const colLbl = card.querySelector('.label-colazione');
+    const assLbl = card.querySelector('.label-assicurazione');
+    const lockedHelpWrap = card.querySelector('.locked-options-help')?.parentElement;
+    if (colLbl) colLbl.style.display = person.colazione ? '' : 'none';
+    if (assLbl) assLbl.style.display = person.assicurazione ? '' : 'none';
+    if (lockedHelpWrap && !person.colazione && !person.assicurazione) {
+      lockedHelpWrap.style.display = 'none';
+      lockedHelpWrap.nextElementSibling?.style.display = 'none'; // Nota "non più modificabili"
+    }
+
     if (data.persona?.transfer) {
       const trRf = card.querySelector('.tr-rf'); if (trRf) trRf.checked = !!data.persona.transfer.rf;
       const trPt = card.querySelector('.tr-pt'); if (trPt) trPt.checked = !!data.persona.transfer.pt;
@@ -1774,6 +1941,7 @@
     card.querySelector('.person-cognome')?.setAttribute('readonly', true);
     card.classList.add('locked');
     card.querySelector('.loaded-data-section')?.setAttribute('style', 'display:block');
+    updatePartialTotal();
 
     // Focus al primo controllo utile (transfer) e badge "già selezionato"
     const firstTransfer = card.querySelector('.tr-rf');
@@ -1935,6 +2103,8 @@
       hideRecalcBanner();
       setCalcButtons({ display: 'none' });
       updateStepper();
+      document.getElementById('partialTotalBox').style.display = 'none';
+      document.getElementById('refCostsBox').style.display = 'none';
 
       setTimeout(() => {
         document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
