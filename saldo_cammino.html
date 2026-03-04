@@ -1281,6 +1281,11 @@
    * UX helpers
    ***************/
 
+  function capitalize(str) {
+    if (!str) return '';
+    return str.toLowerCase().replace(/(?:^|\s|-|')\S/g, l => l.toUpperCase());
+  }
+
   // valuta: € 1.234,00
   const euroFmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
   function formatEuro(value) {
@@ -1511,6 +1516,9 @@
 
     nomeInput.addEventListener('keydown', onKeydown);
     cognomeInput.addEventListener('keydown', onKeydown);
+
+    nomeInput.addEventListener('blur', () => { nomeInput.value = capitalize(nomeInput.value); });
+    cognomeInput.addEventListener('blur', () => { cognomeInput.value = capitalize(cognomeInput.value); });
 
     // Reset su modifica (solo se non locked)
     const resetAndCancel = () => {
@@ -1828,8 +1836,8 @@
 
     persone.push({
       index,
-      nome: partnerData.nome,
-      cognome: partnerData.cognome,
+      nome: capitalize(partnerData.nome),
+      cognome: capitalize(partnerData.cognome),
       row: partnerData.row,
       alloggio: p.alloggio || '',
       colazione: !!p.colazione,
@@ -1934,8 +1942,8 @@
   }
 
   function applyResult(card, person, data, nomeOrig, cognomeOrig) {
-    person.nome = data.persona?.nome || nomeOrig;
-    person.cognome = data.persona?.cognome || cognomeOrig;
+    person.nome = capitalize(data.persona?.nome || nomeOrig);
+    person.cognome = capitalize(data.persona?.cognome || cognomeOrig);
     person.row = data.row;
     person.alloggio = data.persona?.alloggio || '—';
     person.colazione = !!data.persona?.colazione;
