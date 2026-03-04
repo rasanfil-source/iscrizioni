@@ -2240,6 +2240,9 @@
       await doSalvaTransfer(email);
       setGlobalStatus('ok', '✅ Email inviata a ' + email);
       btnSave.textContent = 'Email inviata ✓';
+
+      // Apri il popup IBAN per comodità su mobile
+      document.getElementById('ibanPopup').classList.add('active');
     } catch (err) {
       console.error('Errore salvataggio:', err);
       setGlobalStatus('error', 'Errore: ' + err.message);
