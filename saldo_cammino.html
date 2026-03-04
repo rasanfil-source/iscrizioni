@@ -793,17 +793,16 @@
       <div id="globalStatus" class="status"></div>
 
       <div id="actionSection" style="display:none; margin-top:10px;">
-        <div style="margin-bottom:18px;">
+        <button class="secondary" id="payBtn" type="button" disabled
+          style="background:#e67e22;border-color:#e67e22;margin-bottom:0;"><span class="mobile-hide-icon">💳 </span>Paga
+          con
+          carta</button>
+        <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
+        <button class="secondary" id="saveBtn" type="button" disabled>Ricevi email-riepilogo</button>
+        <div style="margin-top:18px;">
           <label>Email per il riepilogo</label>
           <input type="email" id="emailInput" placeholder="email@esempio.it">
         </div>
-
-        <button class="secondary" id="saveBtn" type="button" disabled>Ricevi email-riepilogo</button>
-        <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
-        <button class="secondary" id="payBtn" type="button" disabled
-          style="background:#e67e22;border-color:#e67e22;margin-top:0;"><span class="mobile-hide-icon">💳 </span>Paga
-          con
-          carta</button>
       </div>
 
     </aside>
@@ -2009,7 +2008,7 @@
     btnPay.disabled = true;
     try {
       await doSalvaTransfer(email);
-      setGlobalStatus('ok', 'Scelte salvate. Completa ora il pagamento con carta.');
+      setGlobalStatus('ok', 'Scelte salvate. Paga con Carta o Chiedi riepilogo via email');
     } catch (err) {
       console.error(err);
       setGlobalStatus('error', 'Errore salvataggio: ' + err.message);
