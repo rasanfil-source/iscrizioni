@@ -893,12 +893,11 @@
 
 
       <div id="partialTotalBox" style="display:none;">
-        <div class="ref-title">Saldo stimato</div>
         <div class="ref-row">
-          <span class="partial-label">Totale parziale:</span>
+          <span class="partial-label">Costo totale:</span>
           <span class="partial-value" id="partialTotalValue">€ 0,00</span>
         </div>
-        <div style="font-size:0.75rem; color:#718096; margin-top:6px;">Basato sulle opzioni selezionate</div>
+        <div style="font-size:0.75rem; color:#718096; margin-top:6px;">(caparra inclusa)</div>
       </div>
 
       <h2>Riepilogo</h2>
@@ -1399,21 +1398,22 @@
       if (!p.loaded) return;
       hasLoaded = true;
 
-      // Costo base alloggio
-      if (p.alloggio && p.alloggio.toLowerCase().includes('singola')) partial += 480;
-      else if (p.alloggio && p.alloggio.toLowerCase().includes('doppia')) partial += 540;
-
-      // Extra bloccati
-      if (p.colazione) partial += 70;
-      if (p.assicurazione) partial += 20;
-
-      // Transfer (client-side DOM check)
+      // Costo base alloggio (usa la tabella COSTI reale)
       const card = document.querySelector(`.person-card[data-person-index="${p.index}"]`);
       if (card) {
-        if (card.querySelector('.tr-rf')?.checked) partial += 10;
-        if (card.querySelector('.tr-pt')?.checked) partial += 15;
-        if (card.querySelector('.tr-sc')?.checked) partial += 15;
-        if (card.querySelector('.tr-fr')?.checked) partial += 10;
+        partial += getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
+      }
+
+      // Extra bloccati
+      if (p.colazione) partial += COSTI.colazione;
+      if (p.assicurazione) partial += COSTI.assicurazione;
+
+      // Transfer (client-side DOM check)
+      if (card) {
+        if (card.querySelector('.tr-rf')?.checked) partial += COSTI.transfer.rf;
+        if (card.querySelector('.tr-pt')?.checked) partial += COSTI.transfer.pt;
+        if (card.querySelector('.tr-sc')?.checked) partial += COSTI.transfer.sc;
+        if (card.querySelector('.tr-fr')?.checked) partial += COSTI.transfer.fr;
       }
     });
 
