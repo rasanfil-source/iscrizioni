@@ -867,11 +867,28 @@
       <div class="section-label"
         style="margin-top:20px;font-size:1.05rem;font-weight:600;color:#2d3748;text-transform:none;">🚌 Indicaci i
         trasferimenti di cui hai bisogno</div>
-      <div class="options transfer-options">
-        <label class="label-tr-rf"><input type="checkbox" class="tr-rf"> Roma → Fiumicino (€10)</label>
-        <label class="label-tr-pt"><input type="checkbox" class="tr-pt"> Porto → Tui (€15)</label>
-        <label class="label-tr-sc"><input type="checkbox" class="tr-sc"> Santiago → A Coruña (€15)</label>
-        <label class="label-tr-fr"><input type="checkbox" class="tr-fr"> Fiumicino → Roma (€10)</label>
+      <div style="font-size:0.85rem; color:#718096; margin-bottom:16px;">Seleziona solo i transfer di cui hai bisogno.
+        Il costo sarà aggiunto al tuo saldo.</div>
+
+      <div class="transfer-grid"
+        style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+        <!-- ANDATA -->
+        <div class="options transfer-options" style="margin-top:0;">
+          <div
+            style="font-weight:600; font-size:0.95rem; color:#2d3748; margin-bottom:10px; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">
+            🛫 All'andata</div>
+          <label class="label-tr-rf"><input type="checkbox" class="tr-rf"> Roma → Fiumicino (€10)</label>
+          <label class="label-tr-pt"><input type="checkbox" class="tr-pt"> Porto → Tui (€15)</label>
+        </div>
+
+        <!-- RITORNO -->
+        <div class="options transfer-options" style="margin-top:0;">
+          <div
+            style="font-weight:600; font-size:0.95rem; color:#2d3748; margin-bottom:10px; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">
+            🛬 Al ritorno</div>
+          <label class="label-tr-fr"><input type="checkbox" class="tr-fr"> Fiumicino → Roma (€10)</label>
+          <label class="label-tr-sc"><input type="checkbox" class="tr-sc"> Santiago → A Coruña (€15)</label>
+        </div>
       </div>
     </div>
   </div>
