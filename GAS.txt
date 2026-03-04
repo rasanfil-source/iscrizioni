@@ -442,7 +442,7 @@ function buildEmailHtml_(persone, totale, caparra, saldo) {
     <h2 style="color:#1a365d;font-size:18px;margin-bottom:15px;">Coordinate per il bonifico</h2>
     <div style="background:#ebf8ff;border-radius:8px;padding:20px;">
       <p style="margin:0 0 10px;color:#2c5282;"><strong>Intestatario:</strong> PARROCCHIA S. EUGENIO</p>
-      <p style="margin:0 0 10px;color:#2c5282;"><strong>IBAN:</strong> <code style="background:#fff;padding:4px 8px;border-radius:4px;font-family:monospace;font-size:16px;letter-spacing:.4px;">IT77U0306909606100000125525</code> <span style="font-size:12px;color:#718096;margin-left:8px;">(Copiabile se apri nel browser)</span></p>
+      <p style="margin:0 0 10px;color:#2c5282;"><strong>IBAN:</strong> <code style="background:#fff;padding:4px 11px;border-radius:4px;font-family:monospace;font-size:16px;letter-spacing:.4px;user-select:all;-webkit-user-select:all;-moz-user-select:all;ms-user-select:all;border:1px solid #d1e9ff;">IT77U0306909606100000125525</code> <span style="cursor:pointer;background:#fff;padding:4px 8px;border-radius:4px;border:1px solid #d1e9ff;margin-left:4px;" title="Seleziona e copia">📋</span></p>
       <p style="margin:0;color:#2c5282;"><strong>Causale:</strong> "Saldo Cammino 2026 ${(persone[0]?.nome || '')} ${(persone[0]?.cognome || '')}"</p>
     </div>
   </div>
