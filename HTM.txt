@@ -1249,9 +1249,16 @@
     const btnSave = document.getElementById('saveBtn');
     const summaryBox = document.getElementById('summaryBox');
     const breakdownBox = document.getElementById('breakdownBox');
-    const calcBtnContainer = document.getElementById('calcBtnContainer');
-    const calcBtnPlaceholder = document.createComment('calc-btn-container-anchor');
+    if (calcBtnContainer?.parentNode) {
+      calcBtnContainer.parentNode.insertBefore(calcBtnPlaceholder, calcBtnContainer);
+    }
 
+    function mountMobileCalcBtnContainer() {
+      if (!calcBtnContainer || !calcBtnPlaceholder.parentNode) return;
+      const isMobile = window.matchMedia('(max-width: 900px)').matches;
+
+      if (isMobile) {
+        if (calcBtnContainer.parentNode !== document.body) document.body.appendChild(calcBtnContainer);
       } else {
         if (calcBtnContainer.parentNode !== calcBtnPlaceholder.parentNode) {
           calcBtnPlaceholder.parentNode.insertBefore(calcBtnContainer, calcBtnPlaceholder.nextSibling);

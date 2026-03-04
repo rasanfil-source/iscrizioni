@@ -1334,20 +1334,24 @@
       if (typeof text === 'string') btn.textContent = text;
       if (typeof display === 'string') {
         btn.style.display = display;
-        // Mostra/nasconde il container sticky su mobile
-        const container = calcBtnContainer;
-        if (container) {
-          if (display === 'block') {
-            container.classList.add('active');
+
+        const isMobile = window.matchMedia('(max-width: 900px)').matches;
+        if (calcBtnContainer) {
+          if (display === 'block' && isMobile) {
+            calcBtnContainer.classList.add('active');
             document.body.classList.add('has-mobile-cta');
           } else {
-            container.classList.remove('active');
+            calcBtnContainer.classList.remove('active');
             document.body.classList.remove('has-mobile-cta');
           }
         }
       }
       if (typeof disabled === 'boolean') btn.disabled = disabled;
     });
+
+    if (desktopCalcShortcut && typeof display === 'string') {
+      desktopCalcShortcut.style.display = display;
+    }
   }
 
   function updatePartialTotal() {
