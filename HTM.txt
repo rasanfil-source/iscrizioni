@@ -1858,8 +1858,6 @@ function unlockCard(card, index) {
   // Ripristina hint nome
   const hint = cogInp.parentElement?.querySelector('.field-hint');
   if (hint) hint.style.visibility = 'visible';
-  const optHint = card.querySelector('.nome-optional-hint');
-  if (optHint) optHint.style.display = '';
 
   if (emailInput) emailInput.value = '';
 
