@@ -1,15 +1,11 @@
-﻿<style>
-  * {
-    box-sizing: border-box;
-  }
-
-  .success-check {
-    font-size: 0.75em;
-  }
+﻿<!-- Cammino Portoghese 2026 – Saldo prenotazioni v2.1 -->
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; }
 
   body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    color: #222;
+    color: #1a202c;
     margin: 0;
     background: #f0f2f5;
     overflow-x: hidden;
@@ -29,6 +25,7 @@
     color: #1a365d;
   }
 
+  /* ── Layout ── */
   .layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -36,9 +33,89 @@
   }
 
   @media (max-width: 900px) {
-    .layout {
-      grid-template-columns: 1fr;
-    }
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  /* ── Sidebar ── */
+  aside {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    position: sticky;
+    top: 20px;
+    align-self: start;
+  }
+
+  @media (max-width: 900px) {
+    aside { position: static; }
+  }
+
+  aside h2 {
+    margin-top: 0;
+    color: #2d3748;
+    font-size: 1.2rem;
+  }
+
+  /* ── Labels & Inputs ── */
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #4a5568;
+  }
+
+  input[type="text"],
+  input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color .2s, box-shadow .2s;
+    background: #fff;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49,130,206,.15);
+  }
+
+  /* Campo bloccato dopo lookup riuscito */
+  input[readonly] {
+    background-color: #ebf8ff !important;
+    color: #2d3748;
+    cursor: default;
+    border-color: #bee3f8;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338a169' stroke-width='2.5'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 34px !important;
+    transition: background-color .3s, border-color .3s;
+  }
+
+  input[type="text"][readonly]:focus { box-shadow: none; }
+
+  /* Errore (es. nome duplicato) */
+  input.has-error {
+    border-color: #e53e3e !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23e53e3e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='8' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'%3E%3C/line%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 36px !important;
+  }
+
+  /* Box info sola lettura */
+  .readonly-box {
+    background: #e2e8f0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    color: #2d3748;
+    font-weight: 500;
   }
 
   /* ── Card persona ── */
@@ -47,14 +124,15 @@
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 14px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    transition: box-shadow .2s;
   }
 
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
 
   .card-title {
@@ -63,6 +141,13 @@
     color: #2d3748;
   }
 
+  .card-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* Bottone ✕ rimuovi */
   .btn-remove {
     background: #e53e3e;
     color: #fff;
@@ -77,17 +162,14 @@
     justify-content: center;
     line-height: 0;
     padding: 0;
+    flex-shrink: 0;
+    transition: background .15s;
   }
 
-  .btn-remove:hover {
-    background: #c53030;
-  }
+  .btn-remove:hover { background: #c53030; }
+  .person-card.removable .btn-remove { display: flex; }
 
-  .person-card.removable .btn-remove {
-    display: flex;
-  }
-
-  /* Bottone "Cambia persona" (visibile quando la card è bloccata) */
+  /* Bottone "✎ Cambia" — visibile solo quando la card è bloccata */
   .btn-change {
     font-size: 0.8rem;
     padding: 4px 10px;
@@ -97,19 +179,19 @@
     cursor: pointer;
     color: #4a5568;
     display: none;
+    transition: background .15s, border-color .15s, color .15s;
   }
 
   .btn-change:hover {
-    background: #f7fafc;
+    background: #fff5f5;
     color: #e53e3e;
     border-color: #e53e3e;
   }
 
-  .person-card.locked .btn-change {
-    display: inline-block;
-  }
+  .person-card.locked .btn-change { display: inline-block; }
 
-  .person-card .input-row {
+  /* ── Griglia ricerca (Cognome | Nome | Carica) ── */
+  .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr auto;
     align-items: end;
@@ -117,194 +199,57 @@
     margin-bottom: 12px;
   }
 
+  .input-row .field-col { min-width: 0; }
+
+  .field-hint {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 4px;
+    min-height: 1.1em;
+  }
+
   @media (max-width: 500px) {
-    .person-card .input-row {
+    .input-row {
       grid-template-columns: 1fr;
       gap: 6px;
       margin-bottom: 6px;
     }
-
-    .page {
-      padding-left: 8px;
-      padding-right: 8px;
-    }
-
-    .person-card {
-      padding: 16px;
-    }
-
-    .person-card .input-row .field-hint {
-      display: none;
-    }
+    .field-hint { display: none; }
+    .page { padding-left: 8px; padding-right: 8px; }
+    .person-card { padding: 14px; }
   }
 
-  label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: #4a5568;
-  }
-
-  .calc-inline-wrap {
-    margin-bottom: 14px;
+  /* ── Sezione dati caricati ── */
+  .loaded-data-section {
     display: none;
+    margin-top: 16px;
   }
 
-  /* Sidebar Progressiva */
-  #partialTotalBox {
-    background: #edf2f7;
+  .section-label {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-top: 16px;
+    margin-bottom: 6px;
+  }
+
+  .promemoria-bozza {
+    background: #f9fafb;
     padding: 12px;
     border-radius: 8px;
-    font-size: 0.85rem;
-    margin-bottom: 16px;
+    border: 1px solid #e2e8f0;
   }
 
-  .desktop-calc-shortcut {
-    display: none;
-    margin-bottom: 12px;
-    text-align: center;
-  }
-
-  .desktop-calc-shortcut .primary {
-    display: block;
-    width: 100%;
-    max-width: 280px;
-    margin: 0 auto;
-  }
-
-  .ref-title {
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: #2d3748;
-  }
-
-  .ref-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
-    color: #4a5568;
-  }
-
-  .partial-label {
-    font-weight: 600;
-    color: #2d3748;
-  }
-
-  .partial-value {
-    font-weight: 700;
-    color: #3182ce;
-    font-size: 1.1rem;
-  }
-
-  /* Mobile Sticky CTA */
-  #calcBtnContainer {
-    margin-bottom: 18px;
-  }
-
-  @media (max-width: 900px) {
-    body {
-      padding-bottom: 0;
-    }
-
-    .page {
-      padding-bottom: 60px;
-    }
-
-    body.has-mobile-cta .page {
-      padding-bottom: 190px;
-    }
-
-    #calcBtnContainer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
-      padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
-      margin-bottom: 0;
-      z-index: 2147483647;
-      isolation: isolate;
-      transform: translateZ(0);
-      will-change: transform;
-      display: none;
-    }
-
-    #calcBtnContainer.active {
-      display: block !important;
-    }
-
-    #calcBtn {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    aside {
-      position: static;
-      top: auto;
-    }
-  }
-
-  input[type="text"],
-  input[type="email"] {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #cbd5e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color .2s;
-  }
-
-  input[type="text"]:focus,
-  input[type="email"]:focus {
-    outline: none;
-    border-color: #3182ce;
-    box-shadow: 0 0 0 3px rgba(49, 130, 206, .15);
-  }
-
-  /* Stile Errore Duplicati */
-  input.has-error {
-    border-color: #e53e3e !important;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23e53e3e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='8' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'%3E%3C/line%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 36px !important;
-  }
-
-  input[type="text"][readonly] {
-    background: #ebf8ff;
-    color: #2d3748;
-    cursor: default;
-    border-color: #bee3f8;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338a169' stroke-width='2.5'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 34px;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-  }
-
-  input[type="text"][readonly]:focus {
-    box-shadow: none;
-  }
-
-  .readonly-box {
-    background: #e2e8f0;
-    padding: 10px 12px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    color: #2d3748;
-    font-weight: 500;
-  }
-
+  /* ── Checkbox opzioni ── */
   .options {
     display: grid;
-    gap: 8px;
-    margin-top: 12px;
+    gap: 6px;
+    margin-top: 8px;
   }
 
-  .options.readonly {
-    opacity: .7;
-  }
+  .options.readonly { opacity: .7; }
 
   .options label {
     display: flex;
@@ -312,10 +257,17 @@
     gap: 10px;
     font-weight: normal;
     cursor: pointer;
-    padding: 1px 0;
+    padding: 2px 0;
   }
 
-  /* Badge "già selezionato" */
+  .options input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #3182ce;
+    flex-shrink: 0;
+  }
+
+  /* Badge "già incluso" */
   .badge-preselected {
     font-size: 0.65rem;
     background: #c6f6d5;
@@ -327,20 +279,20 @@
     margin-left: 4px;
   }
 
-  .options input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #3182ce;
+  /* Griglia transfer */
+  .transfer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
   }
 
-  .section-label {
-    font-size: .85rem;
+  .transfer-group-title {
     font-weight: 600;
-    color: #718096;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    margin-top: 16px;
-    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: #2d3748;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 6px;
   }
 
   /* ── Bottoni ── */
@@ -351,12 +303,10 @@
     background: #fff;
     cursor: pointer;
     font-size: 1rem;
-    transition: all .2s;
+    transition: background .2s, border-color .2s, opacity .2s;
   }
 
-  button:hover {
-    background: #f7fafc;
-  }
+  button:hover { background: #f7fafc; }
 
   button.primary {
     background: #3182ce;
@@ -366,14 +316,14 @@
     font-weight: 600;
   }
 
-  button.primary:hover {
-    background: #2c5282;
-  }
+  button.primary:hover { background: #2c5282; border-color: #2c5282; }
 
-  button.primary:disabled {
+  button.primary:disabled,
+  button.secondary:disabled {
     background: #a0aec0;
     border-color: #a0aec0;
     cursor: not-allowed;
+    opacity: .7;
   }
 
   button.secondary {
@@ -385,15 +335,7 @@
     margin-top: 10px;
   }
 
-  button.secondary:hover {
-    background: #38a169;
-  }
-
-  button.secondary:disabled {
-    background: #a0aec0;
-    border-color: #a0aec0;
-    cursor: not-allowed;
-  }
+  button.secondary:hover:not(:disabled) { background: #38a169; border-color: #38a169; }
 
   #btnAddPerson {
     background: #fff;
@@ -404,72 +346,102 @@
     border-radius: 12px;
     font-weight: 600;
     margin-bottom: 14px;
+    transition: border-color .2s, color .2s;
   }
 
-  #btnAddPerson:hover {
-    border-color: #3182ce;
-    color: #3182ce;
+  #btnAddPerson:hover { border-color: #3182ce; color: #3182ce; }
+
+  /* ── Bottone Cerca nella card ── */
+  .btn-search-person {
+    padding: 10px 14px !important;
+    width: auto !important;
+    white-space: nowrap;
   }
 
-  /* ── Sidebar ── */
-  aside {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
-    position: sticky;
-    top: 20px;
+  /* ── Sidebar: Totale parziale ── */
+  #partialTotalBox {
+    background: #edf2f7;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: none;
   }
 
-  aside h2 {
-    margin-top: 0;
-    color: #2d3748;
-    font-size: 1.2rem;
+  .ref-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
   }
 
+  .partial-label { font-weight: 600; color: #2d3748; }
+  .partial-value { font-weight: 700; color: #3182ce; font-size: 1.1rem; }
+
+  /* ── Sidebar: Desktop shortcut calcola ── */
+  #desktopCalcShortcut {
+    display: none;
+    margin-bottom: 14px;
+  }
+
+  /* ── Sidebar: Summary ── */
   #summaryBox {
     background: #f7fafc;
     padding: 12px;
     border-radius: 8px;
     min-height: 60px;
     font-size: .85rem;
-    line-height: 1.5;
+    line-height: 1.6;
     color: #718096;
   }
 
   #summaryBox .summary-line {
     padding: 4px 0;
     border-bottom: 1px solid #e2e8f0;
+    color: #2d3748;
   }
 
-  #summaryBox .summary-line:last-child {
-    border-bottom: none;
+  #summaryBox .summary-line:last-child { border-bottom: none; }
+
+  /* ── Sidebar: Breakdown ── */
+  #breakdownBox {
+    display: none;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 12px;
   }
 
-  #totalBox {
-    font-weight: 700;
-    font-size: 1.1rem;
-    margin-top: 14px;
-    padding: 12px;
-    background: #ebf8ff;
-    border-radius: 8px;
-    color: #2c5282;
-  }
-
-  .breakdown {
-    font-size: .9rem;
-    color: #4a5568;
-    margin-top: 8px;
-  }
-
-  .breakdown div {
+  .breakdown-row {
     display: flex;
     justify-content: space-between;
     padding: 4px 0;
   }
 
-  /* ── Status ── */
+  .breakdown-row.total {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e2e8f0;
+    font-weight: 600;
+  }
+
+  .breakdown-row.caparra { margin-top: 16px; color: #718096; }
+
+  /* ── Sidebar: Saldo totale ── */
+  #totalBox {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #2d3748;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 2px solid #cbd5e0;
+    display: flex;
+    justify-content: space-between;
+    transition: opacity .2s;
+  }
+
+  #totalBox.stale { opacity: .35; }
+
+  /* ── Status badges ── */
   .status {
     font-size: .9rem;
     margin-top: 8px;
@@ -478,56 +450,19 @@
     text-align: center;
   }
 
-  .status:empty {
-    display: none;
-  }
+  .status:empty { display: none; }
+  .status.ok    { color: #276749; background: #c6f6d5; }
+  .status.error { color: #c53030; background: #fed7d7; }
+  .status.loading { color: #744210; background: #fefcbf; }
 
-  .status.ok {
-    color: #276749;
-    background: #c6f6d5;
-  }
-
-  /* Animazione Checkmark Prominente */
-  .success-check {
-    display: inline;
-    font-size: 1.2rem;
-    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  @keyframes popIn {
-    0% {
-      transform: scale(0);
-      opacity: 0;
-    }
-
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  .status.error {
-    color: #c53030;
-    background: #fed7d7;
-  }
-
-  .status.loading {
-    color: #744210;
-    background: #fefcbf;
-  }
-
-  /* Spinner inline */
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
+  /* Spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   .spinner {
     display: inline-block;
     width: 14px;
     height: 14px;
-    border: 2px solid rgba(116, 66, 16, .3);
+    border: 2px solid rgba(116,66,16,.3);
     border-top-color: #744210;
     border-radius: 50%;
     animation: spin .7s linear infinite;
@@ -535,7 +470,18 @@
     margin-right: 6px;
   }
 
-  /* Indicatore warm-up GAS */
+  /* Success check pop */
+  @keyframes popIn {
+    0%   { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .success-check {
+    display: inline-block;
+    animation: popIn .45s cubic-bezier(.175,.885,.32,1.275);
+  }
+
+  /* ── Warm-up badge ── */
   #warmupBadge {
     font-size: .75rem;
     text-align: center;
@@ -547,26 +493,152 @@
     display: none;
   }
 
-  #warmupBadge.ready {
-    background: #c6f6d5;
-    color: #276749;
+  #warmupBadge.ready { background: #c6f6d5; color: #276749; }
+
+  /* ── Calcola button – mobile sticky ── */
+  #calcBtnContainer { margin-bottom: 18px; }
+
+  @media (max-width: 900px) {
+    body.has-mobile-cta .page { padding-bottom: 190px; }
+
+    #calcBtnContainer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #fff;
+      box-shadow: 0 -4px 12px rgba(0,0,0,.1);
+      padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+      margin-bottom: 0;
+      z-index: 2147483647;
+      isolation: isolate;
+      transform: translateZ(0);
+      will-change: transform;
+      display: none;
+    }
+
+    #calcBtnContainer.active { display: block !important; }
+    #calcBtn { max-width: 600px; margin: 0 auto; }
   }
 
-  /* ── Popup pagamento ── */
+  /* ── Stepper ── */
+  .stepper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 14px 0 18px;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.05);
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .step-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #cbd5e0;
+    color: #4a5568;
+    font-weight: 700;
+    font-size: .9rem;
+    flex-shrink: 0;
+    transition: background .2s, border-color .2s, color .2s;
+  }
+
+  .step-label { display: flex; flex-direction: column; min-width: 0; }
+
+  .step-title {
+    font-weight: 700;
+    font-size: .92rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .step-desc {
+    font-size: .78rem;
+    color: #718096;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .step.is-active .step-dot  { border-color: #3182ce; color: #2b6cb0; }
+  .step.is-done   .step-dot  { border-color: #38a169; background: #c6f6d5; color: #276749; }
+  .step.is-stale  .step-dot  { border-color: #dd6b20; background: #fffaf0; color: #9c4221; }
+
+  .step-sep { width: 22px; height: 1px; background: #e2e8f0; flex-shrink: 0; }
+
+  @media (max-width: 600px) {
+    .stepper { padding: 8px 10px; gap: 6px; }
+    .step-desc { display: none; }
+    .step-title { font-size: .8rem; }
+    .mobile-hide-icon { display: none; }
+  }
+
+  /* ── Banner ricalcolo necessario ── */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .recalc-banner {
+    display: none;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fffaf0;
+    border: 2px solid #fbd38d;
+    color: #7b341e;
+    font-size: .88rem;
+    box-shadow: 0 2px 8px rgba(245,158,11,.2);
+  }
+
+  .recalc-banner.active {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    animation: slideIn .25s ease-out;
+  }
+
+  .recalc-icon { font-size: 1rem; flex-shrink: 0; }
+  .recalc-text { flex: 1; font-weight: 600; }
+
+  .recalc-banner button {
+    border: 1px solid #f6ad55;
+    background: #fff;
+    color: #7b341e;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-weight: 700;
+    width: auto;
+  }
+
+  .recalc-banner button:hover { background: #fffbeb; }
+
+  /* ── Popup overlay ── */
   .popup-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, .45);
+    background: rgba(0,0,0,.45);
     z-index: 999999;
     align-items: flex-start;
     justify-content: center;
     overflow-y: auto;
   }
 
-  .popup-overlay.active {
-    display: flex;
-  }
+  .popup-overlay.active { display: flex; }
 
   .popup-box {
     background: #fff;
@@ -574,24 +646,26 @@
     padding: 26px 28px;
     max-width: 440px;
     width: 92%;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, .22);
-    margin-top: 140px;
-    /* Spazio per l'header del sito */
-    margin-bottom: 40px;
-    /* Spazio in basso quando si scorre */
+    box-shadow: 0 8px 30px rgba(0,0,0,.22);
+    margin: 100px auto 40px;
+  }
+
+  @media (max-width: 500px) {
+    .popup-box { padding: 20px 18px; margin: 60px auto 30px; }
   }
 
   .popup-box h3 {
     margin: 0 0 6px;
     font-size: 1.15rem;
     text-align: center;
+    color: #2d3748;
   }
 
-  .popup-box .popup-subtitle {
+  .popup-subtitle {
     text-align: center;
     color: #666;
     font-size: .85rem;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
   }
 
   .popup-field {
@@ -616,7 +690,7 @@
     border-radius: 6px;
     padding: 8px 10px;
     font-size: .95rem;
-    word-break: break-word;
+    word-break: break-all;
     color: #222;
   }
 
@@ -626,7 +700,7 @@
     font-size: 1.05rem;
   }
 
-  .popup-btn-copy-sm {
+  .popup-btn-copy {
     background: none;
     border: 1px solid #cbd5e0;
     border-radius: 6px;
@@ -634,26 +708,20 @@
     cursor: pointer;
     font-size: .85rem;
     white-space: nowrap;
-    transition: all .15s;
+    transition: background .15s, border-color .15s;
+    width: auto;
   }
 
-  .popup-btn-copy-sm:hover {
-    background: #ebf8ff;
-    border-color: #3182ce;
-  }
-
-  .popup-btn-copy-sm.copied {
-    background: #c6f6d5;
-    border-color: #38a169;
-  }
+  .popup-btn-copy:hover { background: #ebf8ff; border-color: #3182ce; }
+  .popup-btn-copy.copied { background: #c6f6d5; border-color: #38a169; }
 
   .popup-actions {
     display: flex;
     gap: 10px;
-    margin-top: 18px;
+    margin-top: 20px;
   }
 
-  .popup-btn-open {
+  .popup-btn-confirm {
     flex: 1;
     background: #e67e22;
     color: #fff;
@@ -663,13 +731,13 @@
     font-size: 1rem;
     cursor: pointer;
     font-weight: 600;
+    transition: background .15s;
+    width: auto;
   }
 
-  .popup-btn-open:hover {
-    background: #d35400;
-  }
+  .popup-btn-confirm:hover { background: #d35400; }
 
-  .popup-btn-close {
+  .popup-btn-dismiss {
     background: #fff;
     border: 1px solid #cbd5e0;
     border-radius: 8px;
@@ -677,11 +745,11 @@
     font-size: .95rem;
     cursor: pointer;
     color: #4a5568;
+    width: auto;
+    transition: background .15s;
   }
 
-  .popup-btn-close:hover {
-    background: #f7fafc;
-  }
+  .popup-btn-dismiss:hover { background: #f7fafc; }
 
   .popup-hint {
     text-align: center;
@@ -690,182 +758,29 @@
     margin-top: 12px;
   }
 
-  /* ─────────────────────────────────────────
-       STEP INDICATOR (3 passi)
-    ───────────────────────────────────────── */
-  .stepper {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin: 14px 0 18px;
-    padding: 10px 12px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
-  }
-
-  .step {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .step-dot {
-    width: 28px;
-    height: 28px;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #cbd5e0;
-    color: #4a5568;
-    font-weight: 700;
-    font-size: .9rem;
-    flex: 0 0 auto;
-  }
-
-  .step-label {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  .step-title {
-    font-weight: 700;
-    font-size: .92rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .step-desc {
-    font-size: .78rem;
-    color: #718096;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .step.is-active .step-dot {
-    border-color: #3182ce;
-    color: #2b6cb0;
-  }
-
-  .step.is-done .step-dot {
-    border-color: #38a169;
-    background: #c6f6d5;
-    color: #276749;
-  }
-
-  .step-sep {
-    width: 22px;
-    height: 1px;
-    background: #e2e8f0;
-    flex: 0 0 auto;
-  }
-
-  /* ─────────────────────────────────────────
-       BANNER “RICALCOLO NECESSARIO”
-    ───────────────────────────────────────── */
-  .recalc-banner {
-    display: none;
-    margin-top: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: #fffaf0;
-    border: 1px solid #fbd38d;
-    color: #7b341e;
-    font-size: .88rem;
-  }
-
-  .recalc-banner.active {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    /* Aggiungi animazione */
-    animation: slideIn 0.3s ease-out;
-    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-    border-width: 2px;
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .recalc-banner button {
-    border: 1px solid #f6ad55;
-    background: #fff;
-    color: #7b341e;
-    border-radius: 8px;
-    padding: 7px 10px;
-    cursor: pointer;
-    font-weight: 700;
-  }
-
-  .recalc-banner button:hover {
-    background: #fff3d6;
-  }
-
-  /* ─────────────────────────────────────────
-       ACCESSIBILITÀ
-    ───────────────────────────────────────── */
+  /* ── Accessibilità ── */
   .sr-only {
     position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
     overflow: hidden;
-    clip: rect(0, 0, 0, 0);
+    clip: rect(0,0,0,0);
     white-space: nowrap;
     border: 0;
   }
 
-  /* focus visibile (chiaro) */
   :focus-visible {
-    outline: 3px solid rgba(49, 130, 206, .45);
+    outline: 3px solid rgba(49,130,206,.5);
     outline-offset: 2px;
-  }
-
-  @media (max-width: 600px) {
-    .stepper {
-      display: none;
-    }
-
-    .mobile-hide-icon {
-      display: none;
-    }
-  }
-
-  input[readonly] {
-    background-color: #ebf8ff !important;
-    color: #2d3748;
-    cursor: default;
-    border-color: #bee3f8;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338a169' stroke-width='2.5'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 34px !important;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
 </style>
 
+<!-- ═══════════════════════════════════════════ HTML ═══════════════════════════════════════════ -->
 <div class="page">
   <h1>Saldo prenotazioni</h1>
 
-  <div id="stepper" class="stepper" aria-label="Stato procedura">
+  <!-- Stepper 3 passi -->
+  <nav id="stepper" class="stepper" aria-label="Stato procedura">
     <div class="step is-active" data-step="1">
       <div class="step-dot" aria-hidden="true">1</div>
       <div class="step-label">
@@ -889,1581 +804,1490 @@
         <div class="step-desc">Saldo e riepilogo</div>
       </div>
     </div>
-  </div>
+  </nav>
 
   <div class="layout">
 
     <!-- COLONNA SINISTRA -->
     <div>
       <div id="personsContainer"></div>
+
       <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
 
       <div id="calcBtnContainer">
         <button class="primary" id="calcBtn" type="button" style="display:none;">Calcola saldo</button>
-        <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite">
-          <span>Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
+        <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite" aria-atomic="true">
+          <span class="recalc-icon" aria-hidden="true">⚠️</span>
+          <span class="recalc-text">Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
         </div>
       </div>
     </div>
 
-    <!-- COLONNA DESTRA -->
+    <!-- COLONNA DESTRA (sidebar) -->
     <aside>
-      <div id="warmupBadge">⏳ Un momento...</div>
+      <div id="warmupBadge" role="status" aria-live="polite">⏳ Un momento...</div>
 
-
-      <div id="partialTotalBox" style="display:none;">
+      <!-- Totale parziale progressivo -->
+      <div id="partialTotalBox" aria-live="polite">
         <div class="ref-row">
-          <span class="partial-label">Costo totale:</span>
+          <span class="partial-label">Costo totale stimato:</span>
           <span class="partial-value" id="partialTotalValue">€ 0,00</span>
         </div>
-        <div style="font-size:0.75rem; color:#718096; margin-top:6px;">(caparra inclusa)</div>
+        <div style="font-size:0.75rem; color:#718096; margin-top:4px;">(caparra inclusa — clicca Calcola per confermare)</div>
       </div>
 
-      <div id="desktopCalcShortcut" class="desktop-calc-shortcut" style="display:none;">
-        <button class="primary" id="calcBtnDesktopTop" type="button">Calcola saldo</button>
+      <!-- Shortcut calcola desktop -->
+      <div id="desktopCalcShortcut">
+        <button class="primary" id="calcBtnDesktop" type="button">Calcola saldo</button>
       </div>
-
 
       <h2>Riepilogo</h2>
 
-      <div id="summaryBox">Inserisci cognome per iniziare</div>
+      <div id="summaryBox" aria-live="polite">Inserisci cognome per iniziare</div>
 
-      <div id="breakdownBox"
-        style="display:none; margin-top:12px; font-size:0.9rem; border-top:1px solid #e2e8f0; padding-top:12px;">
-        <div style="font-weight:600; margin-bottom:6px; color:#4a5568;">Dettaglio opzioni</div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Alloggio</span><span
-            id="totAlloggio">€ 0,00</span></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Colazione</span><span
-            id="totColazione">€ 0,00</span></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Assicurazione
-            annullamento</span><span id="totAssicurazione">€ 0,00</span></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Transfer
-            opzionali</span><span id="totTransfer">€ 0,00</span></div>
-        <div
-          style="display:flex; justify-content:space-between; margin-top:8px; padding-top:8px; border-top:1px solid #e2e8f0; font-weight:600;">
-          <span>Totale opzioni</span><span id="totOpzioni">€ 0,00</span>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; margin-top:16px; color:#718096;"><span>Caparra
-            versata</span><span id="caparraVersata">€ 0,00</span></div>
+      <!-- Breakdown dettaglio opzioni -->
+      <div id="breakdownBox">
+        <div style="font-weight:600; margin-bottom:8px; color:#4a5568;">Dettaglio opzioni</div>
+        <div class="breakdown-row"><span>Alloggio</span><span id="totAlloggio">€ 0,00</span></div>
+        <div class="breakdown-row"><span>Colazione</span><span id="totColazione">€ 0,00</span></div>
+        <div class="breakdown-row"><span>Assicurazione annullamento</span><span id="totAssicurazione">€ 0,00</span></div>
+        <div class="breakdown-row"><span>Transfer opzionali</span><span id="totTransfer">€ 0,00</span></div>
+        <div class="breakdown-row total"><span>Totale opzioni</span><span id="totOpzioni">€ 0,00</span></div>
+        <div class="breakdown-row caparra"><span>Caparra versata</span><span id="caparraVersata">€ 0,00</span></div>
       </div>
 
-      <div id="totalBox"
-        style="font-weight:700; font-size:1.1rem; color:#2d3748; margin-top:16px; padding-top:12px; border-top:2px solid #cbd5e0; display:flex; justify-content:space-between;">
+      <!-- Saldo finale -->
+      <div id="totalBox">
         <span>Saldo da versare</span>
         <span id="saldoDaVersare">€ —</span>
       </div>
 
-      <div id="globalStatus" class="status"></div>
+      <!-- Status globale -->
+      <div id="globalStatus" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
 
-      <div id="actionSection" style="display:none; margin-top:10px;">
+      <!-- Azioni post-calcolo -->
+      <div id="actionSection" style="display:none; margin-top:12px;">
         <button class="secondary" id="payBtn" type="button" disabled
-          style="background:#e67e22;border-color:#e67e22;margin-bottom:0;"><span class="mobile-hide-icon">💳 </span>Paga
-          con
-          carta</button>
-        <div id="orDivider" style="text-align:center; font-size:0.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
-        <button class="secondary" id="saveBtn" type="button" disabled style="margin-top:0;">Ricevi
-          email-riepilogo</button>
-        <div style="margin-top:18px;">
+          style="background:#e67e22; border-color:#e67e22; margin-top:0;">
+          <span class="mobile-hide-icon">💳 </span>Paga con carta
+        </button>
+        <div id="orDivider" style="text-align:center; font-size:.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
+        <button class="secondary" id="saveBtn" type="button" disabled style="margin-top:0;">
+          Invia riepilogo via email
+        </button>
+        <div style="margin-top:16px;">
           <label for="emailInput">Email per il riepilogo</label>
-          <input type="email" id="emailInput" placeholder="email@esempio.it">
+          <input type="email" id="emailInput" placeholder="email@esempio.it"
+                 autocomplete="email" inputmode="email">
+          <div style="font-size:.75rem; color:#718096; margin-top:4px;">
+            Riceverai importi, IBAN e causale
+          </div>
         </div>
       </div>
 
     </aside>
-
   </div>
 </div>
 
-<!-- Template card persona -->
+<!-- ═══════════════════ TEMPLATE CARD PERSONA ═══════════════════ -->
 <template id="personCardTemplate">
   <div class="person-card" data-person-index="">
+
     <div class="card-header">
       <span class="card-title">Cerca la tua prenotazione</span>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button type="button" class="btn-change" title="Cambia persona">✎ Cambia</button>
-        <button type="button" class="btn-remove" title="Rimuovi persona">✕</button>
+      <div class="card-header-actions">
+        <button type="button" class="btn-change" title="Modifica dati persona">✎ Cambia</button>
+        <button type="button" class="btn-remove" title="Rimuovi persona" aria-label="Rimuovi questa persona">✕</button>
       </div>
     </div>
 
+    <!-- Ricerca: Cognome + Nome (sempre visibili) + Carica -->
     <form onsubmit="return false;" autocomplete="off">
       <div class="input-row">
+
         <div class="field-col">
           <label class="person-cognome-label">Cognome</label>
-          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" autocorrect="off"
-            spellcheck="false" inputmode="text" autocapitalize="words" autofocus>
-          <div class="field-hint">Poi premi Invio per cercare</div>
+          <input type="text" class="person-cognome"
+                 placeholder="Es. Rossi, D'Angelo"
+                 autocomplete="family-name"
+                 autocorrect="off"
+                 autocapitalize="words"
+                 spellcheck="false"
+                 inputmode="text">
+          <div class="field-hint">Premi Invio per cercare</div>
         </div>
-        <div class="nome-field field-col" style="display:none;">
-          <label class="person-nome-label">Nome</label>
-          <input type="text" class="person-nome" placeholder="" autocomplete="given-name" autocorrect="off"
-            spellcheck="false" inputmode="text" autocapitalize="words" readonly>
-          <div class="field-hint" aria-hidden="true">&nbsp;</div>
-        </div>
+
         <div class="field-col">
-          <label style="visibility:hidden;">Azioni</label>
-          <button type="button" class="primary btn-search-person"
-            style="padding: 10px 14px; width: auto; white-space: nowrap;">Carica</button>
+          <label class="person-nome-label">
+            Nome
+          </label>
+          <input type="text" class="person-nome"
+                 placeholder=""
+                 autocomplete="given-name"
+                 autocorrect="off"
+                 autocapitalize="words"
+                 spellcheck="false"
+                 inputmode="text">
           <div class="field-hint" aria-hidden="true">&nbsp;</div>
         </div>
+
+        <div class="field-col">
+          <label style="visibility:hidden;" aria-hidden="true">Azioni</label>
+          <button type="button" class="primary btn-search-person btn-cerca">🔍 Carica</button>
+          <div class="field-hint" aria-hidden="true">&nbsp;</div>
+        </div>
+
       </div>
     </form>
 
-    <div class="status person-status"></div>
+    <!-- Status singola card -->
+    <div class="status person-status" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <div class="loaded-data-section" style="display: none; margin-top: 16px;">
+    <!-- Sezione dati caricati -->
+    <div class="loaded-data-section">
+
       <div class="section-label">Dati prenotazione</div>
 
-      <div class="promemoria-bozza"
-        style="margin-top:10px; background:#f9fafb; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
-
-        <label style="margin-bottom:4px; font-size:0.9rem;" class="label-alloggio">Alloggio</label>
+      <!-- Box opzioni non modificabili -->
+      <div class="promemoria-bozza">
+        <label style="font-size:.9rem; margin-bottom:4px;" class="label-alloggio">Alloggio</label>
         <div class="readonly-box alloggio-box" style="margin-bottom:12px;">—</div>
 
-        <div class="options readonly" style="margin-top:0;">
-          <label style="cursor:default;" class="label-colazione"><input type="checkbox" class="colazione" disabled> 🔒
-            Colazione <span class="costo-label">(€70)</span></label>
-          <label style="cursor:default;" class="label-assicurazione"><input type="checkbox" class="assicurazione"
-              disabled> 🔒 Assicurazione
-            annullamento <span class="costo-label">(€20)</span></label>
+        <div class="options readonly">
+          <span class="sr-only locked-options-help">
+            Opzioni confermate all'iscrizione, non più modificabili.
+          </span>
+          <label style="cursor:default;" class="label-colazione">
+            <input type="checkbox" class="colazione" disabled aria-describedby="">
+            🔒 Colazione <span class="costo-label" style="color:#718096;">(€70)</span>
+          </label>
+          <label style="cursor:default;" class="label-assicurazione">
+            <input type="checkbox" class="assicurazione" disabled aria-describedby="">
+            🔒 Assicurazione annullamento <span class="costo-label" style="color:#718096;">(€20)</span>
+          </label>
         </div>
-        <div style="font-size:0.8rem; color:#718096; margin-top:8px; border-top:1px solid #e2e8f0; padding-top:8px;">
-          Opzioni non più modificabili</div>
+        <div class="nota-locked" style="font-size:.8rem; color:#718096; margin-top:8px;
+             border-top:1px solid #e2e8f0; padding-top:8px;">
+          Opzioni non più modificabili
+        </div>
       </div>
 
-      <div class="section-label"
-        style="margin-top:20px;font-size:1.05rem;font-weight:600;color:#2d3748;text-transform:none;">🚌 Indicaci i
-        trasferimenti di cui hai bisogno</div>
-      <div style="font-size:0.85rem; color:#718096; margin-bottom:16px;">Seleziona solo i transfer di cui hai bisogno.
-        Il costo sarà aggiunto al tuo saldo.</div>
+      <!-- Transfer -->
+      <div class="section-label" style="margin-top:20px; font-size:1rem; font-weight:600;
+           color:#2d3748; text-transform:none;">
+        🚌 Indicaci i trasferimenti di cui hai bisogno
+      </div>
+      <div style="font-size:.85rem; color:#718096; margin-bottom:14px;">
+        Seleziona solo i transfer che vuoi aggiungere. Il costo sarà incluso nel saldo.
+      </div>
 
-      <div class="transfer-grid"
-        style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:16px;">
-        <!-- ANDATA -->
+      <div class="transfer-grid">
         <div class="options transfer-options" style="margin-top:0;">
-          <div
-            style="font-weight:600; font-size:0.95rem; color:#2d3748; margin-bottom:10px; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">
-            🛫 All'andata</div>
+          <div class="transfer-group-title">🛫 All'andata</div>
           <label class="label-tr-rf"><input type="checkbox" class="tr-rf"> Roma → Fiumicino (€10)</label>
           <label class="label-tr-pt"><input type="checkbox" class="tr-pt"> Porto → Tui (€15)</label>
         </div>
-
-        <!-- RITORNO -->
         <div class="options transfer-options" style="margin-top:0;">
-          <div
-            style="font-weight:600; font-size:0.95rem; color:#2d3748; margin-bottom:10px; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">
-            🛬 Al ritorno</div>
+          <div class="transfer-group-title">🛬 Al ritorno</div>
           <label class="label-tr-fr"><input type="checkbox" class="tr-fr"> Fiumicino → Roma (€10)</label>
           <label class="label-tr-sc"><input type="checkbox" class="tr-sc"> Santiago → A Coruña (€15)</label>
         </div>
       </div>
-    </div>
-  </div>
+
+    </div><!-- /loaded-data-section -->
+  </div><!-- /person-card -->
 </template>
 
-<!-- Popup dati per Tinaba -->
-<div class="popup-overlay" id="payPopup" role="dialog" aria-modal="true" aria-labelledby="popupTitle" tabindex="-1">
+<!-- ═══════════════════ POPUP: PAGAMENTO CARTA ═══════════════════ -->
+<div class="popup-overlay" id="payPopup"
+     role="dialog" aria-modal="true" aria-labelledby="popupTitle" tabindex="-1">
   <div class="popup-box" role="document">
     <h3 id="popupTitle">Completa il pagamento con carta</h3>
-    <div class="popup-subtitle">Verrai reindirizzato alla pagina sicura di pagamento della Parrocchia S. Eugenio. Copia
-      ogni campo e incollalo.</div>
+    <p class="popup-subtitle">
+      Verrai reindirizzato alla pagina sicura di pagamento della Parrocchia S. Eugenio
+    </p>
 
     <div class="popup-field">
       <span class="popup-field-label">Importo</span>
       <span class="popup-field-value importo" id="popupImporto"></span>
-      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupImporto',this)">📋</button>
+      <button type="button" class="popup-btn-copy" onclick="copyPopupField('popupImporto',this)">📋</button>
     </div>
     <div class="popup-field">
-      <span class="popup-field-label">Messaggio</span>
+      <span class="popup-field-label">Causale</span>
       <span class="popup-field-value" id="popupCausale"></span>
-      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('popupCausale',this)">📋</button>
+      <button type="button" class="popup-btn-copy" onclick="copyPopupField('popupCausale',this)">📋</button>
     </div>
 
     <div class="popup-actions">
-      <button type="button" class="popup-btn-open" id="popupOpenBtn">Apri Tinaba →</button>
-      <button type="button" class="popup-btn-close" id="popupCloseBtn">Chiudi</button>
+      <button type="button" class="popup-btn-confirm" id="popupOpenBtn">Apri pagina pagamento →</button>
+      <button type="button" class="popup-btn-dismiss" id="popupCloseBtn">Chiudi</button>
     </div>
-    <div class="popup-hint">Il popup resta aperto — passa all’altro tab per incollare i dati.</div>
+    <p class="popup-hint">Il popup resta aperto — passa all'altro tab per incollare i dati.</p>
   </div>
 </div>
 
-<!-- Popup di Conferma Custom (rimpiazza confirm) -->
-<div class="popup-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle"
-  tabindex="-1">
+<!-- ═══════════════════ POPUP: CONFERMA CUSTOM ═══════════════════ -->
+<div class="popup-overlay" id="confirmModal"
+     role="dialog" aria-modal="true" aria-labelledby="confirmTitle" tabindex="-1">
   <div class="popup-box" role="document" style="max-width:450px;">
-    <h3 id="confirmTitle" style="color:#2d3748; margin-top:0;">Conferma prenotazione</h3>
-    <div id="confirmBody" style="margin: 16px 0; color:#4a5568; line-height:1.5; text-align:left;"></div>
-    <div class="popup-actions" style="margin-top:24px;">
-      <button type="button" class="popup-btn-open" id="confirmOkBtn" style="flex:1;">Conferma e procedi</button>
-      <button type="button" class="popup-btn-close" id="confirmCancelBtn"
-        style="border:1px solid #cbd5e0; background:#fff; color:#4a5568;">Annulla</button>
+    <h3 id="confirmTitle" style="margin-top:0;">Conferma prenotazione</h3>
+    <div id="confirmBody" style="margin:14px 0; color:#4a5568; line-height:1.55; text-align:left;"></div>
+    <div class="popup-actions" style="margin-top:20px;">
+      <button type="button" class="popup-btn-confirm" id="confirmOkBtn" style="flex:1;">
+        Conferma e procedi
+      </button>
+      <button type="button" class="popup-btn-dismiss" id="confirmCancelBtn">Annulla</button>
     </div>
   </div>
 </div>
 
-<!-- Popup conferma Email / IBAN -->
-<div class="popup-overlay" id="ibanPopup" role="dialog" aria-modal="true" aria-labelledby="ibanTitle" tabindex="-1">
+<!-- ═══════════════════ POPUP: CONFERMA EMAIL / IBAN ═══════════════════ -->
+<div class="popup-overlay" id="ibanPopup"
+     role="dialog" aria-modal="true" aria-labelledby="ibanTitle" tabindex="-1">
   <div class="popup-box" role="document">
     <h3 id="ibanTitle">Email inviata! ✅</h3>
-    <p style="margin-bottom:20px; color:#4a5568;">Se vuoi procedere subito con il bonifico, ecco le coordinate:</p>
+    <p style="color:#4a5568; margin-bottom:18px;">
+      Se vuoi procedere subito con il bonifico, ecco le coordinate:
+    </p>
 
     <div class="popup-field">
       <span class="popup-field-label">IBAN</span>
-      <span class="popup-field-value monospace" id="ibanValue"
-        style="font-size:15px;">IT77U0306909606100000125525</span>
-      <button type="button" class="popup-btn-copy-sm" onclick="copyPopupField('ibanValue',this)">📋</button>
+      <span class="popup-field-value" id="ibanValue"
+            style="font-family:monospace; font-size:14px; letter-spacing:.3px;">
+        IT77U0306909606100000125525
+      </span>
+      <button type="button" class="popup-btn-copy" onclick="copyPopupField('ibanValue',this)">📋</button>
     </div>
     <div class="popup-field">
       <span class="popup-field-label">Intestatario</span>
       <span class="popup-field-value">PARROCCHIA S. EUGENIO</span>
     </div>
 
-    <div class="popup-actions" style="margin-top:24px;">
-      <button type="button" class="popup-btn-close"
-        onclick="document.getElementById('ibanPopup').classList.remove('active')">Chiudi</button>
+    <div class="popup-actions" style="margin-top:20px;">
+      <button type="button" class="popup-btn-dismiss" style="width:100%;"
+              onclick="document.getElementById('ibanPopup').classList.remove('active')">
+        Chiudi
+      </button>
     </div>
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════ JS ════════════════════════════════════════════ -->
 <script>
-  /***************
-   * CONFIG
-   ***************/
-  const GAS_ENDPOINT =
-    'https://script.google.com/macros/s/AKfycbypOQa6JsgF6Ga1SMzZlTFWFoSBo9kUxHOK319CpzePwRQkrYKCcFi6KIpZVz93-7gD/exec';
+'use strict';
 
-  const FETCH_TIMEOUT_MS = 10000; // 10 secondi
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const GAS_ENDPOINT =
+  'https://script.google.com/macros/s/AKfycbypOQa6JsgF6Ga1SMzZlTFWFoSBo9kUxHOK319CpzePwRQkrYKCcFi6KIpZVz93-7gD/exec';
 
-  const COSTI = {
-    alloggio: { M: 250, S: 640, DM: 475, DS: 475, T: 460 },
-    colazione: 70,
-    assicurazione: 20,
-    transfer: { rf: 10, pt: 15, sc: 15, fr: 10 },
-    caparra: 150
+const FETCH_TIMEOUT_MS = 12000;
+const TINABA_URL       = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
+
+const COSTI = {
+  alloggio:     { M: 250, S: 640, DM: 475, DS: 475, T: 460 },
+  colazione:    70,
+  assicurazione:20,
+  transfer:     { rf: 10, pt: 15, sc: 15, fr: 10 },
+  caparra:      150,
+};
+
+const LABELS = {
+  calc:        'Calcola saldo',
+  recalc:      'Ricalcola',
+  save:        'Invia riepilogo via email',
+  lookupHint:  'Inserisci cognome per iniziare',
+};
+
+
+// ─── NORMALIZZAZIONE CLIENT-SIDE ─────────────────────────────────────────────
+/**
+ * Stessa logica del GAS norm(): accenti, apostrofi, trattini, spazi.
+ * Usata per inviare al server la forma normalizzata (evita mismatch).
+ */
+function normClient(s) {
+  return String(s || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[''`ʼ\u2018\u2019\u02bc]/g, '')
+    .replace(/[-–—]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function capitalize(str) {
+  if (!str) return '';
+  return str.toLowerCase()
+    .replace(/(?:^|[\s\-])([a-zàèéìòùäöü])/g, (m, c) => m.replace(c, c.toUpperCase()))
+    .replace(/([''`])([a-zàèéìòùäöü])/g, (_, apos, c) => apos + c.toUpperCase());
+}
+
+
+// ─── ALLOGGIO HELPERS ─────────────────────────────────────────────────────────
+function getSiglaAlloggio(text) {
+  if (!text || text === '—') return null;
+  const t = text.toLowerCase();
+  if (t.includes('multipla') || t.includes('ostello')) return 'M';
+  if (t.includes('singola'))   return 'S';
+  if (t.includes('separati'))  return 'DS';
+  if (t.includes('tripla'))    return 'T';
+  const dm = t.match(/\(dm(\d*)\)/i);
+  if (dm) return 'DM' + dm[1];
+  if (t.includes('matrimoniale')) return 'DM';
+  const s = text.trim().toUpperCase().replace(/\d+$/, '');
+  return COSTI.alloggio[s] !== undefined ? s : null;
+}
+
+function getCostoAlloggio(text) {
+  if (!text || text === '—') return 0;
+  const fix = text.match(/€\s*(\d+)/);
+  if (fix) return parseInt(fix[1], 10);
+  const s = getSiglaAlloggio(text);
+  if (!s) return 0;
+  return COSTI.alloggio[/^DM/.test(s) ? 'DM' : s] || 0;
+}
+
+function formatAlloggioText(text) {
+  const costo = getCostoAlloggio(text);
+  if (costo === 0) return text || '—';
+  const s = getSiglaAlloggio(text);
+  const nomi = {
+    S: 'Albergo – Singola',
+    DS:'Albergo – Doppia (letti separati)',
+    M: 'Ostello – Multipla',
+    T: 'Albergo – Tripla',
+  };
+  const label = (s && /^DM/.test(s)) ? 'Albergo – Doppia matrimoniale'
+               : (nomi[s] || text);
+  return `${label} (€${costo})`;
+}
+
+
+// ─── FORMATTAZIONE VALUTA ─────────────────────────────────────────────────────
+const euroFmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+function formatEuro(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? euroFmt.format(n) : '€ —';
+}
+
+
+// ─── FETCH CON TIMEOUT ────────────────────────────────────────────────────────
+async function fetchWithTimeout(url, options = {}, ms = FETCH_TIMEOUT_MS) {
+  const ac     = new AbortController();
+  let timedOut = false;
+  const timer  = setTimeout(() => { timedOut = true; ac.abort(); }, ms);
+
+  const caller = options.signal;
+  if (caller) {
+    if (caller.aborted) { clearTimeout(timer); ac.abort(); }
+    else caller.addEventListener('abort', () => ac.abort(), { once: true });
+  }
+
+  const { signal: _drop, ...rest } = options;
+  try {
+    return await fetch(url, { ...rest, signal: ac.signal });
+  } finally {
+    clearTimeout(timer);
+    ac.signal._timedOut = timedOut;
+  }
+}
+
+async function gasPost(payload, signal) {
+  const res = await fetchWithTimeout(GAS_ENDPOINT, {
+    method:  'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body:    JSON.stringify(payload),
+    signal,
+  });
+  let data;
+  try { data = JSON.parse(await res.text()); }
+  catch { throw new Error('Risposta non valida dal server'); }
+  return data;
+}
+
+
+// ─── STATO APPLICAZIONE ──────────────────────────────────────────────────────
+let persone        = [];
+let personCounter  = 0;
+let lastCalcResult = null;
+let recalcNeeded   = false;
+let _lastSavedHash = null;
+let _calcInProgress= false;
+
+const lookupTimers      = {};
+const lookupControllers = {};
+const latestLookupToken = {};
+const lookupCache       = new Map();
+
+function makeCacheKey(nome, cognome) {
+  return `${normClient(nome)}|${normClient(cognome)}`;
+}
+
+
+// ─── DOM REFS ────────────────────────────────────────────────────────────────
+const container         = document.getElementById('personsContainer');
+const tmpl              = document.getElementById('personCardTemplate');
+const btnAdd            = document.getElementById('btnAddPerson');
+const btnCalc           = document.getElementById('calcBtn');
+const btnCalcDesktop    = document.getElementById('calcBtnDesktop');
+const desktopShortcut   = document.getElementById('desktopCalcShortcut');
+const calcButtons       = [btnCalc, btnCalcDesktop].filter(Boolean);
+const btnSave           = document.getElementById('saveBtn');
+const btnPay            = document.getElementById('payBtn');
+const summaryBox        = document.getElementById('summaryBox');
+const breakdownBox      = document.getElementById('breakdownBox');
+const calcBtnContainer  = document.getElementById('calcBtnContainer');
+const recalcBanner      = document.getElementById('recalcBanner');
+const totalBox          = document.getElementById('totalBox');
+const globalStatus      = document.getElementById('globalStatus');
+const emailInput        = document.getElementById('emailInput');
+const actionSection     = document.getElementById('actionSection');
+const payPopup          = document.getElementById('payPopup');
+const orDivider         = document.getElementById('orDivider');
+
+
+// ─── MOBILE: STICKY CALC BUTTON ──────────────────────────────────────────────
+const calcBtnAnchor = document.createComment('calc-btn-anchor');
+if (calcBtnContainer?.parentNode)
+  calcBtnContainer.parentNode.insertBefore(calcBtnAnchor, calcBtnContainer);
+
+function mountCalcBtn() {
+  if (!calcBtnContainer) return;
+  const isMobile = window.matchMedia('(max-width: 900px)').matches;
+  if (isMobile) {
+    if (calcBtnContainer.parentNode !== document.body)
+      document.body.appendChild(calcBtnContainer);
+  } else {
+    if (calcBtnAnchor.parentNode && calcBtnContainer.parentNode !== calcBtnAnchor.parentNode)
+      calcBtnAnchor.parentNode.insertBefore(calcBtnContainer, calcBtnAnchor.nextSibling);
+    document.body.classList.remove('has-mobile-cta');
+  }
+}
+
+mountCalcBtn();
+window.addEventListener('resize', mountCalcBtn);
+
+
+// ─── WARM-UP GAS ─────────────────────────────────────────────────────────────
+(async () => {
+  const badge = document.getElementById('warmupBadge');
+  badge.style.display = 'block';
+  document.querySelectorAll('.btn-search-person').forEach(b => b.disabled = true);
+
+  const hide = () => {
+    badge.style.display = 'none';
+    // Mostra shortcut calcola desktop se disponibile
+    if (desktopShortcut) desktopShortcut.style.display = '';
   };
 
-  const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
-
-  const LABELS = {
-    calc: 'Calcola saldo',
-    recalc: 'Ricalcola',
-    save: 'Invia riepilogo via email',
-    lookupHint: 'Inserisci cognome per iniziare'
-  };
-
-  let warmupReady = false;
-
-  /***************
-   * ALLOGGIO HELPERS
-   ***************/
-  function getSiglaAlloggio(text) {
-    if (!text || text === '—') return null;
-    const t = text.toLowerCase();
-    if (t.includes('multipla') || t.includes('ostello')) return 'M';
-    if (t.includes('singola')) return 'S';
-    const dm = t.match(/\(dm(\d*)\)/i);
-    if (dm) return 'DM' + dm[1];
-    if (t.includes('matrimoniale')) return 'DM';
-    if (t.includes('separati')) return 'DS';
-    if (t.includes('tripla')) return 'T';
-    let s = text.trim().toUpperCase();
-    if (/^DM\d*$/.test(s)) return s;
-    s = s.replace(/\d+$/, '');
-    return COSTI.alloggio[s] !== undefined ? s : null;
-  }
-
-  function getCostoAlloggio(text) {
-    if (!text || text === '—') return 0;
-    // Se il testo è stato già formattato (es. contiene '€'), estrai l'importo
-    const fixMatch = text.match(/€\s*(\d+)/);
-    if (fixMatch) return parseInt(fixMatch[1], 10);
-
-    const s = getSiglaAlloggio(text);
-    if (!s) return 0;
-    if (/^DM\d*$/.test(s)) return COSTI.alloggio['DM'] || 0;
-    return COSTI.alloggio[s] || 0;
-  }
-
-  function formatAlloggioText(text) {
-    const costo = getCostoAlloggio(text);
-    if (costo === 0) return text;
-
-    const s = getSiglaAlloggio(text);
-    let tipoStr = text;
-
-    // Rendi il nome della camera più "umano" nascondendo DMn
-    if (s && /^DM\d*$/.test(s)) tipoStr = 'Albergo – Doppia matrimoniale';
-    else if (s === 'S') tipoStr = 'Albergo – Singola';
-    else if (s === 'DS') tipoStr = 'Albergo – Doppia (letti separati)';
-    else if (s === 'M') tipoStr = 'Ostello – Multipla';
-    else if (s === 'T') tipoStr = 'Albergo – Tripla';
-
-    return `${tipoStr} (€${costo})`;
-  }
-
-  /***************
-   * FETCH CON TIMEOUT
-   * Combina il timeout controller con il signal di cancellazione del caller.
-   * Senza questo fix, il signal del caller veniva sovrascritto e cancelLookup()
-   * non interrompeva mai il fetch in corso.
-   ***************/
-  async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) {
-    const timeoutAC = new AbortController();
-    let timedOut = false;
-    const timer = setTimeout(() => { timedOut = true; timeoutAC.abort(); }, timeoutMs);
-
-    // Propaga il signal del caller (es. da cancelLookup) al controller del timeout
-    const callerSignal = options.signal;
-    if (callerSignal) {
-      if (callerSignal.aborted) {
-        clearTimeout(timer);
-        timeoutAC.abort();
-      } else {
-        callerSignal.addEventListener('abort', () => timeoutAC.abort(), { once: true });
-      }
-    }
-
-    // Rimuovi il signal dalle options originali (verrà sostituito da timeoutAC.signal)
-    const { signal: _omit, ...rest } = options;
-    try {
-      return await fetch(url, { ...rest, signal: timeoutAC.signal });
-    } finally {
-      clearTimeout(timer);
-      // Espone se l'abort era dovuto al timeout (usato nel catch di lookupPersona)
-      timeoutAC.signal._timedOut = timedOut;
-    }
-  }
-
-  /***************
-   * WARM-UP GAS (ping preventivo al caricamento della pagina)
-   * Riduce il cold-start da ~4s a ~200ms per il primo lookup reale.
-   ***************/
-  (async () => {
-    const badge = document.getElementById('warmupBadge');
-    badge.style.display = 'block';
-    const searchBtns = document.querySelectorAll('.btn-search-person');
-    searchBtns.forEach(b => b.disabled = true);
-    try {
-      // Ping senza timeout per attendere correttamente il cold start
-      await fetch(GAS_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: '__ping__' })
-      });
-      badge.textContent = '✅ Siamo pronti!';
-      badge.classList.add('ready');
-      setTimeout(() => { badge.style.display = 'none'; }, 3000);
-    } catch (_) {
-      badge.style.display = 'none';
-    } finally {
-      warmupReady = true;
-      document.querySelectorAll('.btn-search-person').forEach(btn => btn.disabled = false);
-    }
-  })();
-
-  /***************
-   * STATE
-   ***************/
-  let persone = [];
-  let personCounter = 0;
-  let lastCalcResult = null;
-  let recalcNeeded = false;
-  let _lastSavedHash = null;
-  const lookupTimers = {};
-  const lookupControllers = {};
-  const latestLookupToken = {};
-  const lookupCache = new Map();
-
-  function makeCacheKey(nome, cognome) {
-    return (nome || '').trim().toLowerCase() + '|' + (cognome || '').trim().toLowerCase();
-  }
-
-  /***************
-   * DOM REFS
-   ***************/
-  const container = document.getElementById('personsContainer');
-  const template = document.getElementById('personCardTemplate');
-  const btnAdd = document.getElementById('btnAddPerson');
-  const btnCalc = document.getElementById('calcBtn');
-  const btnCalcDesktopTop = document.getElementById('calcBtnDesktopTop');
-  const desktopCalcShortcut = document.getElementById('desktopCalcShortcut');
-  const calcButtons = [btnCalc, btnCalcDesktopTop].filter(Boolean);
-  const btnSave = document.getElementById('saveBtn');
-  const summaryBox = document.getElementById('summaryBox');
-  const breakdownBox = document.getElementById('breakdownBox');
-  const calcBtnContainer = document.getElementById('calcBtnContainer');
-  const calcBtnPlaceholder = document.createComment('calc-btn-container-anchor');
-
-  if (calcBtnContainer?.parentNode) {
-    calcBtnContainer.parentNode.insertBefore(calcBtnPlaceholder, calcBtnContainer);
-  }
-
-  function mountMobileCalcBtnContainer() {
-    if (!calcBtnContainer || !calcBtnPlaceholder.parentNode) return;
-    const isMobile = window.matchMedia('(max-width: 900px)').matches;
-
-    if (isMobile) {
-      if (calcBtnContainer.parentNode !== document.body) document.body.appendChild(calcBtnContainer);
-    } else {
-      if (calcBtnContainer.parentNode !== calcBtnPlaceholder.parentNode) {
-        calcBtnPlaceholder.parentNode.insertBefore(calcBtnContainer, calcBtnPlaceholder.nextSibling);
-      }
-      document.body.classList.remove('has-mobile-cta');
-    }
-  }
-
-  /***************
-   * MODALE CUSTOM
-   ***************/
-  function showConfirmModal(title, bodyHtml) {
-    return new Promise((resolve) => {
-      const modal = document.getElementById('confirmModal');
-      const titleEl = document.getElementById('confirmTitle');
-      const bodyEl = document.getElementById('confirmBody');
-      const okBtn = document.getElementById('confirmOkBtn');
-      const cancelBtn = document.getElementById('confirmCancelBtn');
-
-      titleEl.textContent = title;
-      bodyEl.innerHTML = bodyHtml;
-      modal.classList.add('active');
-      okBtn.focus();
-
-      const onKeyDown = (e) => {
-        if (!modal.classList.contains('active')) return;
-        if (e.key === 'Escape') {
-          e.preventDefault();
-          cleanup(false);
-          return;
-        }
-        if (e.key !== 'Tab') return;
-        const focusables = [cancelBtn, okBtn].filter(el => !el.disabled);
-        if (!focusables.length) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      };
-      document.addEventListener('keydown', onKeyDown, true);
-
-      const cleanup = (val) => {
-        modal.classList.remove('active');
-        okBtn.onclick = null;
-        cancelBtn.onclick = null;
-        document.removeEventListener('keydown', onKeyDown, true);
-        resolve(val);
-      };
-
-      okBtn.onclick = () => cleanup(true);
-      cancelBtn.onclick = () => cleanup(false);
+  try {
+    await fetch(GAS_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: '__ping__' }),
     });
+    badge.textContent = '✅ Siamo pronti!';
+    badge.classList.add('ready');
+    setTimeout(hide, 2500);
+  } catch (_) {
+    hide();
+  } finally {
+    document.querySelectorAll('.btn-search-person').forEach(b => b.disabled = false);
   }
-  const totalBox = document.getElementById('totalBox');
-  const globalStatus = document.getElementById('globalStatus');
-  const emailInput = document.getElementById('emailInput');
-  const btnPay = document.getElementById('payBtn');
-  const actionSection = document.getElementById('actionSection');
+})();
 
 
+// ─── STEPPER ─────────────────────────────────────────────────────────────────
+function updateStepper() {
+  const steps      = document.querySelectorAll('#stepper .step');
+  const loadedN    = persone.filter(p => p.loaded).length;
+  const step1Done  = loadedN > 0;
+  const step3Done  = !!lastCalcResult && !recalcNeeded;
+  const active     = step3Done ? 3 : step1Done ? 2 : 1;
 
-  /***************
-   * UX helpers
-   ***************/
-
-  function capitalize(str) {
-    if (!str) return '';
-    // Gestisce: de luca → De Luca, d'angelo → D'Angelo, dall'orto → Dall'Orto
-    return str.toLowerCase()
-      .replace(/(?:^|[\s\-])([a-zàèéìòùäöü])/g, (m, c) => m.replace(c, c.toUpperCase()))
-      .replace(/([''`])([a-zàèéìòùäöü])/g, (m, apos, c) => apos + c.toUpperCase());
-  }
-
-  // valuta: € 1.234,00
-  const euroFmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
-  function formatEuro(value) {
-    const n = Number(value);
-    if (!Number.isFinite(n)) return '€ —';
-    return euroFmt.format(n);
-  }
-
-  function setCalcButtons({ text, display, disabled }) {
-    calcButtons.forEach(btn => {
-      if (typeof text === 'string') btn.textContent = text;
-      if (typeof display === 'string') {
-        btn.style.display = display;
-
-        const isMobile = window.matchMedia('(max-width: 900px)').matches;
-        if (calcBtnContainer) {
-          if (display === 'block' && isMobile) {
-            calcBtnContainer.classList.add('active');
-            document.body.classList.add('has-mobile-cta');
-          } else {
-            calcBtnContainer.classList.remove('active');
-            document.body.classList.remove('has-mobile-cta');
-          }
-        }
-      }
-      if (typeof disabled === 'boolean') btn.disabled = disabled;
-    });
-
-    if (desktopCalcShortcut && typeof display === 'string') {
-      desktopCalcShortcut.style.display = display;
-    }
-  }
-
-  function updatePartialTotal() {
-    if (lastCalcResult) return; // Non sovrascrivere il calcolo finale
-
-    let partial = 0;
-    let hasLoaded = false;
-
-    persone.forEach(p => {
-      if (!p.loaded) return;
-      hasLoaded = true;
-
-      // Costo base alloggio (usa la tabella COSTI reale)
-      const card = document.querySelector(`.person-card[data-person-index="${p.index}"]`);
-      if (card) {
-        partial += getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
-      }
-
-      // Extra bloccati
-      if (p.colazione) partial += COSTI.colazione;
-      if (p.assicurazione) partial += COSTI.assicurazione;
-
-      // Transfer (client-side DOM check)
-      if (card) {
-        if (card.querySelector('.tr-rf')?.checked) partial += COSTI.transfer.rf;
-        if (card.querySelector('.tr-pt')?.checked) partial += COSTI.transfer.pt;
-        if (card.querySelector('.tr-sc')?.checked) partial += COSTI.transfer.sc;
-        if (card.querySelector('.tr-fr')?.checked) partial += COSTI.transfer.fr;
-      }
-    });
-
-    const partialBox = document.getElementById('partialTotalBox');
-    const partialValueEl = document.getElementById('partialTotalValue');
-
-    if (hasLoaded && !lastCalcResult) {
-      partialBox.style.display = 'block';
-      partialValueEl.textContent = formatEuro(partial);
-      if (summaryBox.textContent.includes(LABELS.lookupHint)) {
-        summaryBox.textContent = '';
-      }
-    } else {
-      partialBox.style.display = 'none';
-      if (!hasLoaded && !lastCalcResult) {
-        summaryBox.textContent = LABELS.lookupHint;
-      }
-    }
-  }
-
-  // Stepper (3 passi)
-  function updateStepper() {
-    const stepEls = Array.from(document.querySelectorAll('#stepper .step'));
-    const loadedCount = persone.filter(p => p.loaded).length;
-
-    const step1Done = loadedCount > 0;
-    const step2Done = step1Done;
-    const step3Done = !!lastCalcResult && !recalcNeeded;
-
-    let active = 1;
-    if (step1Done && !step3Done) active = 2;
-    if (step3Done) active = 3;
-
-    stepEls.forEach(el => {
-      const n = Number(el.getAttribute('data-step'));
-      el.classList.remove('is-active', 'is-done', 'is-stale');
-
-      if ((n === 1 && step1Done) || (n === 2 && step2Done) || (n === 3 && step3Done)) {
-        el.classList.add('is-done');
-      }
-      if (n === active) el.classList.add('is-active');
-      if (n === 3 && recalcNeeded) el.classList.add('is-stale');
-    });
-
-    const dot3 = document.querySelector('#stepper .step[data-step="3"] .step-dot');
-    if (dot3) dot3.textContent = recalcNeeded ? '!' : (step3Done ? '✓' : '3');
-  }
-
-  // Banner ricalcolo necessario
-  const recalcBanner = document.getElementById('recalcBanner');
-
-  function showRecalcBanner() {
-    recalcNeeded = true;
-    recalcBanner?.classList.add('active');
-    setCalcButtons({ display: 'block', text: LABELS.recalc });
-    btnSave.disabled = true;
-    btnSave.textContent = LABELS.save;
-    _lastSavedHash = null;
-    btnPay.disabled = true;
-    totalBox.classList.add('stale');
-    document.getElementById('orDivider').style.color = '#a0aec0';
-    updateStepper();
-  }
-
-  function hideRecalcBanner() {
-    recalcNeeded = false;
-    recalcBanner?.classList.remove('active');
-    totalBox.classList.remove('stale');
-    updateStepper();
-  }
-
-  // quando cambiano transfer: se già calcolato → banner, altrimenti reset normale
-  function onOptionsChanged() {
-    if (lastCalcResult) {
-      showRecalcBanner();
-      setGlobalStatus('', '');
-      document.getElementById('saldoDaVersare').textContent = '€ —';
-      document.getElementById('breakdownBox').style.display = 'none';
-      summaryBox.innerHTML = '⚠️ Opzioni modificate: premi “Ricalcola” per aggiornare il totale.';
-    } else {
-      resetCalcState();
-    }
-  }
-
-
-
-  /***************
-   * MODAL accessibile (focus + ESC + trap)
-   ***************/
-  const payPopup = document.getElementById('payPopup');
-  const popupCloseBtn = document.getElementById('popupCloseBtn');
-  const popupOpenBtn = document.getElementById('popupOpenBtn');
-
-  let _lastFocusBeforeModal = null;
-
-  function getFocusableInModal() {
-    if (!payPopup) return [];
-    return Array.from(payPopup.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
-      .filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
-  }
-
-  function openModal() {
-    if (!payPopup) return;
-    _lastFocusBeforeModal = document.activeElement;
-    payPopup.classList.add('active');
-    payPopup.setAttribute('aria-hidden', 'false');
-
-    const focusables = getFocusableInModal();
-    (focusables[0] || payPopup).focus();
-
-    document.addEventListener('keydown', onModalKeydown, true);
-  }
-
-  function closeModal() {
-    if (!payPopup) return;
-    payPopup.classList.remove('active');
-    payPopup.setAttribute('aria-hidden', 'true');
-    document.removeEventListener('keydown', onModalKeydown, true);
-
-    if (_lastFocusBeforeModal && typeof _lastFocusBeforeModal.focus === 'function') {
-      _lastFocusBeforeModal.focus();
-    }
-  }
-
-  function onModalKeydown(e) {
-    if (!payPopup.classList.contains('active')) return;
-
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      closeModal();
-      return;
-    }
-
-    if (e.key === 'Tab') {
-      const focusables = getFocusableInModal();
-      if (focusables.length === 0) return;
-
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  }
-
-  popupCloseBtn?.addEventListener('click', closeModal);
-  payPopup?.addEventListener('mousedown', (e) => {
-    if (e.target === payPopup) closeModal();
+  steps.forEach(el => {
+    const n = +el.dataset.step;
+    el.classList.remove('is-active', 'is-done', 'is-stale');
+    if ((n === 1 && step1Done) || (n === 2 && step1Done) || (n === 3 && step3Done))
+      el.classList.add('is-done');
+    if (n === active)        el.classList.add('is-active');
+    if (n === 3 && recalcNeeded) el.classList.add('is-stale');
   });
 
-  // Inizializza
+  const dot3 = document.querySelector('#stepper .step[data-step="3"] .step-dot');
+  if (dot3) dot3.textContent = recalcNeeded ? '!' : (step3Done ? '✓' : '3');
+}
+
+updateStepper();
+
+
+// ─── STATUS HELPERS ──────────────────────────────────────────────────────────
+function setGlobalStatus(type, msg) {
+  globalStatus.innerHTML  = msg;
+  globalStatus.className  = 'status' + (type ? ` ${type}` : '');
+}
+
+function setCardStatus(card, type, msg) {
+  const el       = card.querySelector('.person-status');
+  el.innerHTML   = msg;
+  el.className   = 'status person-status' + (type ? ` ${type}` : '');
+}
+
+
+// ─── CALC BUTTONS ────────────────────────────────────────────────────────────
+function setCalcButtons({ text, display, disabled }) {
+  const isMobile = window.matchMedia('(max-width: 900px)').matches;
+
+  calcButtons.forEach(btn => {
+    if (text    != null) btn.textContent = text;
+    if (display != null) btn.style.display = display;
+    if (disabled!= null) btn.disabled = disabled;
+  });
+
+  if (display != null) {
+    const show = display === 'block';
+    if (isMobile && calcBtnContainer) {
+      calcBtnContainer.classList.toggle('active', show);
+      document.body.classList.toggle('has-mobile-cta', show);
+    }
+    if (desktopShortcut) desktopShortcut.style.display = show ? '' : 'none';
+  }
+}
+
+
+// ─── TOTALE PARZIALE PROGRESSIVO ─────────────────────────────────────────────
+function updatePartialTotal() {
+  if (lastCalcResult) return;
+
+  let partial   = 0;
+  let hasLoaded = false;
+
+  persone.forEach(p => {
+    if (!p.loaded) return;
+    hasLoaded = true;
+    const card = p.cardEl;
+    if (!card) return;
+    partial += getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
+    if (p.colazione)    partial += COSTI.colazione;
+    if (p.assicurazione)partial += COSTI.assicurazione;
+    if (card.querySelector('.tr-rf')?.checked) partial += COSTI.transfer.rf;
+    if (card.querySelector('.tr-pt')?.checked) partial += COSTI.transfer.pt;
+    if (card.querySelector('.tr-sc')?.checked) partial += COSTI.transfer.sc;
+    if (card.querySelector('.tr-fr')?.checked) partial += COSTI.transfer.fr;
+  });
+
+  const box = document.getElementById('partialTotalBox');
+  if (hasLoaded) {
+    box.style.display = 'block';
+    document.getElementById('partialTotalValue').textContent = formatEuro(partial);
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+
+// ─── BANNER RICALCOLO ────────────────────────────────────────────────────────
+function showRecalcBanner() {
+  recalcNeeded = true;
+  recalcBanner.classList.add('active');
+  setCalcButtons({ display: 'block', text: LABELS.recalc });
+  btnSave.disabled = true;
+  btnPay.disabled  = true;
+  totalBox.classList.add('stale');
+  orDivider.style.color = '#a0aec0';
+  _lastSavedHash = null;
   updateStepper();
+}
 
-  /***************
-   * GESTIONE CARD
-   ***************/
-  function bindLookupEvents(card, index) {
-    if (card.dataset.lookupBound === 'true') return;
+function hideRecalcBanner() {
+  recalcNeeded = false;
+  recalcBanner.classList.remove('active');
+  totalBox.classList.remove('stale');
+  updateStepper();
+}
 
-    const nomeInput = card.querySelector('.person-nome');
-    const cognomeInput = card.querySelector('.person-cognome');
+function onOptionsChanged() {
+  if (lastCalcResult) {
+    showRecalcBanner();
+    setGlobalStatus('', '');
+    document.getElementById('saldoDaVersare').textContent = '€ —';
+    breakdownBox.style.display = 'none';
+    summaryBox.innerHTML = '⚠️ Opzioni modificate — premi "Ricalcola" per aggiornare.';
+  } else {
+    resetCalcState();
+  }
+  updatePartialTotal();
+}
 
-    // Trigger lookup: blur + Enter su entrambi i campi
-    const triggerLookup = () => debouncedLookup(card, index, 0);
-    const onKeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); triggerLookup(); } };
 
-    const searchBtn = card.querySelector('.btn-search-person');
-    searchBtn.addEventListener('click', triggerLookup);
+// ─── MODAL ACCESSIBILE (payPopup) ────────────────────────────────────────────
+let _focusBeforeModal = null;
 
-    nomeInput.addEventListener('keydown', onKeydown);
-    cognomeInput.addEventListener('keydown', onKeydown);
+function getFocusables(el) {
+  return Array.from(el.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  )).filter(e => !e.disabled && e.offsetParent !== null);
+}
 
-    nomeInput.addEventListener('blur', () => { nomeInput.value = capitalize(nomeInput.value); });
-    cognomeInput.addEventListener('blur', () => { cognomeInput.value = capitalize(cognomeInput.value); });
+function openModal() {
+  _focusBeforeModal = document.activeElement;
+  payPopup.classList.add('active');
+  payPopup.setAttribute('aria-hidden', 'false');
+  (getFocusables(payPopup)[0] || payPopup).focus();
+  document.addEventListener('keydown', onModalKey, true);
+}
 
-    // Reset su modifica (solo se non locked)
-    const resetAndCancel = () => {
-      const p = persone.find(p => p.index === index);
-      if (p && p.loaded) return; // bloccata: ignora input (campo è readonly)
-      cancelLookup(index);
-      resetCard(card, index);
+function closeModal() {
+  payPopup.classList.remove('active');
+  payPopup.setAttribute('aria-hidden', 'true');
+  document.removeEventListener('keydown', onModalKey, true);
+  _focusBeforeModal?.focus();
+}
+
+function onModalKey(e) {
+  if (!payPopup.classList.contains('active')) return;
+  if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
+  if (e.key !== 'Tab') return;
+  const f = getFocusables(payPopup);
+  if (!f.length) return;
+  if (e.shiftKey && document.activeElement === f[0]) {
+    e.preventDefault(); f[f.length - 1].focus();
+  } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) {
+    e.preventDefault(); f[0].focus();
+  }
+}
+
+document.getElementById('popupCloseBtn')?.addEventListener('click', closeModal);
+payPopup?.addEventListener('mousedown', e => { if (e.target === payPopup) closeModal(); });
+
+
+// ─── MODALE CONFERMA CUSTOM ──────────────────────────────────────────────────
+function showConfirmModal(title, bodyHtml) {
+  return new Promise(resolve => {
+    const modal     = document.getElementById('confirmModal');
+    const titleEl   = document.getElementById('confirmTitle');
+    const bodyEl    = document.getElementById('confirmBody');
+    const okBtn     = document.getElementById('confirmOkBtn');
+    const cancelBtn = document.getElementById('confirmCancelBtn');
+
+    titleEl.textContent = title;
+    bodyEl.innerHTML    = bodyHtml;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    okBtn.focus();
+
+    const onKey = e => {
+      if (!modal.classList.contains('active')) return;
+      if (e.key === 'Escape') { e.preventDefault(); done(false); return; }
+      if (e.key !== 'Tab') return;
+      const f = getFocusables(modal);
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) {
+        e.preventDefault(); f[f.length - 1].focus();
+      } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) {
+        e.preventDefault(); f[0].focus();
+      }
     };
-    nomeInput.addEventListener('input', () => {
-      const p = persone.find(p => p.index === index);
-      if (p && p.loaded) return;
-      cancelLookup(index);
-      if (p) p.loaded = false;
-      setCardStatus(card, '', '');
-      nomeInput.classList.remove('has-error');
-    });
-    cognomeInput.addEventListener('input', resetAndCancel);
+    document.addEventListener('keydown', onKey, true);
 
-    // Se il cognome viene modificato e non siamo locked, assicuriamoci che il nome torni readonly
-    cognomeInput.addEventListener('input', () => {
-      const p = persone.find(p => p.index === index);
-      if (p && !p.loaded) {
-        nomeInput.setAttribute('readonly', true);
-      }
-    });
+    const done = val => {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      okBtn.onclick     = null;
+      cancelBtn.onclick = null;
+      document.removeEventListener('keydown', onKey, true);
+      resolve(val);
+    };
 
-    card.dataset.lookupBound = 'true';
+    okBtn.onclick     = () => done(true);
+    cancelBtn.onclick = () => done(false);
+  });
+}
+
+
+// ─── RICERCA PERSONA ─────────────────────────────────────────────────────────
+function cancelLookup(index) {
+  clearTimeout(lookupTimers[index]);
+  delete lookupTimers[index];
+  lookupControllers[index]?.abort();
+  delete lookupControllers[index];
+  delete latestLookupToken[index];
+}
+
+function debouncedLookup(card, index, delay = 120) {
+  clearTimeout(lookupTimers[index]);
+  lookupTimers[index] = setTimeout(() => {
+    lookupPersona(card, index);
+    delete lookupTimers[index];
+  }, delay);
+}
+
+async function lookupPersona(card, index) {
+  const p = persone.find(p => p.index === index);
+  if (!p || p.loaded) return;
+
+  const cognomeRaw = card.querySelector('.person-cognome').value.trim();
+  const nomeRaw    = card.querySelector('.person-nome').value.trim();
+  const cognome    = normClient(cognomeRaw);
+  const nome       = normClient(nomeRaw);
+
+  if (!cognome) return;
+
+  const key = makeCacheKey(nome, cognome);
+  if (lookupCache.has(key)) {
+    applyResult(card, p, lookupCache.get(key), nomeRaw, cognomeRaw);
+    return;
   }
 
-  function addPersonCard() {
-    const clone = template.content.cloneNode(true);
-    const card = clone.querySelector('.person-card');
-    const index = personCounter++;
+  cancelLookup(index);
+  const ctrl  = new AbortController();
+  lookupControllers[index] = ctrl;
+  const token = Symbol();
+  latestLookupToken[index] = token;
 
-    card.dataset.personIndex = index;
-    card.querySelector('.card-title').textContent = index === 0 ? 'Cerca la tua prenotazione' : 'Persona ' + (persone.length + 1);
-    if (persone.length > 0) card.classList.add('removable');
+  setCardStatus(card, 'loading', '<span class="spinner"></span>Caricamento…');
 
-    // Accessibilità: ID univoci
-    const cognomeInp = card.querySelector('.person-cognome');
-    const nomeInp = card.querySelector('.person-nome');
-    const cognomeLbl = card.querySelector('.person-cognome-label');
-    const nomeLbl = card.querySelector('.person-nome-label');
-    const statusDiv = card.querySelector('.person-status');
+  try {
+    const payload = nome
+      ? { action: 'lookupPersona',   nome,    cognome }
+      : { action: 'lookupByCognome',          cognome };
 
-    cognomeInp.id = `cognome-${index}`;
-    nomeInp.id = `nome-${index}`;
-    statusDiv.id = `status-${index}`;
+    const data = await gasPost(payload, ctrl.signal);
 
-    if (cognomeLbl) cognomeLbl.setAttribute('for', cognomeInp.id);
-    if (nomeLbl) nomeLbl.setAttribute('for', nomeInp.id);
+    if (latestLookupToken[index] !== token) return; // risposta obsoleta
 
-    cognomeInp.setAttribute('aria-describedby', statusDiv.id);
-    nomeInp.setAttribute('aria-describedby', statusDiv.id);
-
-    const trRf = card.querySelector('.tr-rf');
-    const trPt = card.querySelector('.tr-pt');
-    const trSc = card.querySelector('.tr-sc');
-    const trFr = card.querySelector('.tr-fr');
-    trRf.id = `p${index}_tr_rf`; card.querySelector('.label-tr-rf').setAttribute('for', trRf.id);
-    trPt.id = `p${index}_tr_pt`; card.querySelector('.label-tr-pt').setAttribute('for', trPt.id);
-    trSc.id = `p${index}_tr_sc`; card.querySelector('.label-tr-sc').setAttribute('for', trSc.id);
-    trFr.id = `p${index}_tr_fr`; card.querySelector('.label-tr-fr').setAttribute('for', trFr.id);
-
-    bindLookupEvents(card, index);
-
-    // Transfer → infligge eventuale banner o reset + update parziale
-    card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
-      chk.addEventListener('change', () => {
-        onOptionsChanged();
-        updatePartialTotal();
-      });
-    });
-
-    // Bottone rimuovi
-    card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
-
-    // Bottone "Cambia persona" → sblocca la card per reinserire i dati
-    card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
-
-    container.appendChild(card);
-
-    persone.push({
-      index,
-      nome: '', cognome: '', row: null,
-      alloggio: '', colazione: false, assicurazione: false,
-      loaded: false,
-      cardEl: card
-    });
-
-    updateCardTitles();
-    resetCalcState();
-  }
-
-  function removeCard(index) {
-    const i = persone.findIndex(p => p.index === index);
-    if (i === -1) return;
-    cancelLookup(index);
-
-    const partnerIdx = persone[i].partnerIndex;
-
-    persone[i].cardEl?.remove();
-    persone.splice(i, 1);
-
-    if (partnerIdx != null) {
-      const pi = persone.findIndex(p => p.index === partnerIdx);
-      if (pi !== -1) {
-        persone[pi].cardEl?.remove();
-        persone.splice(pi, 1);
-      }
-    }
-
-    updateCardTitles();
-    resetCalcState();
-  }
-
-  function updateCardTitles() {
-    persone.forEach((p, i) => {
-      if (!p.cardEl) return;
-      const title = p.cardEl.querySelector('.card-title');
-      if (!title) return;
-      const labelCaricata = p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : (i === 0 ? 'La tua prenotazione' : 'Partecipante aggiuntivo');
-      const labelIniziale = p.isPartner ? '<span class="partner-badge">👥 Partner camera</span>' : 'Carica la tua prenotazione (basta il cognome)';
-      title.innerHTML = p.loaded ? labelCaricata : labelIniziale;
-
-      // Prima card removibile solo se ci sono altre card
-      if (i === 0) {
-        p.cardEl.classList.toggle('removable', persone.length > 1);
+    if (!data.success) {
+      if (data.error === 'duplicate') {
+        setCardStatus(card, 'error',
+          'Cognome presente più volte – inserisci anche il nome.');
+        card.querySelector('.person-nome').removeAttribute('readonly');
+        card.querySelector('.person-nome').classList.add('has-error');
+        card.querySelector('.person-nome').focus();
       } else {
-        p.cardEl.classList.add('removable');
+        setCardStatus(card, 'error',
+          `Prenotazione non trovata per "<strong>${capitalize(cognomeRaw)}</strong>". ` +
+          `Controlla l'ortografia o ` +
+          `<a href="mailto:info@parrocchiasanteugenio.it" style="color:#c53030;">` +
+          `contattaci</a>.`);
       }
-    });
-  }
-
-  function resetCard(card, index) {
-    const p = persone.find(p => p.index === index);
-    if (!p) return;
-
-    p.nome = ''; p.cognome = ''; p.row = null;
-    p.alloggio = ''; p.colazione = false; p.assicurazione = false;
-    p.loaded = false;
-
-    card.querySelector('.alloggio-box').textContent = '—';
-    card.querySelector('.colazione').checked = false;
-    card.querySelector('.assicurazione').checked = false;
-    card.querySelector('.loaded-data-section').style.display = 'none';
-    const nfReset = card.querySelector('.nome-field');
-    if (nfReset) nfReset.style.display = 'none';
-    setCardStatus(card, '', '');
-    updateCardTitles();
-    resetCalcState();
-  }
-
-  // Sblocca una card già caricata per correggere nome/cognome
-  function unlockCard(card, index) {
-    const p = persone.find(p => p.index === index);
-    if (!p) return;
-
-    lookupCache.delete(makeCacheKey(p.nome, p.cognome));
-
-    // Rimuovi l'eventuale partner card generata automaticamente
-    if (p.partnerIndex != null) {
-      removeCard(p.partnerIndex);
-      p.partnerIndex = null;
-    }
-
-    // Svuota i campi e azzera lo stato
-    if (emailInput) emailInput.value = '';
-    card.querySelector('.person-nome').setAttribute('readonly', true);
-    card.querySelector('.person-cognome').removeAttribute('readonly');
-    card.querySelector('.person-nome').value = '';
-    card.querySelector('.person-nome').setAttribute('readonly', true);
-    const nomeField = card.querySelector('.nome-field');
-    if (nomeField) nomeField.style.display = 'none';
-    card.querySelector('.person-cognome').value = '';
-    card.querySelector('.alloggio-box').textContent = '—';
-    card.querySelector('.colazione').checked = false;
-    card.querySelector('.assicurazione').checked = false;
-    card.querySelector('.loaded-data-section').style.display = 'none';
-
-    // Rimuovi badge "già selezionato" e resetta transfer
-    card.querySelectorAll('.badge-preselected').forEach(b => b.remove());
-    card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => chk.checked = false);
-
-    p.nome = ''; p.cognome = ''; p.row = null;
-    p.alloggio = ''; p.colazione = false; p.assicurazione = false;
-    p.loaded = false;
-
-    setSearchButtonVisibility(card, true);
-
-    // Mostra hint ricerca
-    const cognomeHint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
-    if (cognomeHint) cognomeHint.style.visibility = 'visible';
-
-    bindLookupEvents(card, index);
-
-    setCardStatus(card, '', '');
-    updateCardTitles();
-    resetCalcState();
-    card.querySelector('.person-cognome').focus();
-  }
-
-  function cancelLookup(index) {
-    if (lookupTimers[index]) { clearTimeout(lookupTimers[index]); delete lookupTimers[index]; }
-    if (lookupControllers[index]) { lookupControllers[index].abort(); delete lookupControllers[index]; }
-    delete latestLookupToken[index];
-  }
-
-  function setCardStatus(card, type, msg) {
-    const el = card.querySelector('.person-status');
-    el.innerHTML = msg;
-    el.className = 'status person-status' + (type ? ' ' + type : '');
-  }
-
-  function setSearchButtonVisibility(card, isVisible) {
-    const searchBtn = card.querySelector('.btn-search-person');
-    if (!searchBtn) return;
-    searchBtn.style.display = isVisible ? 'block' : 'none';
-
-    const searchFieldCol = searchBtn.closest('.field-col');
-    if (searchFieldCol) searchFieldCol.style.display = isVisible ? '' : 'none';
-  }
-
-  function debouncedLookup(card, index, delay = 150) {
-    if (lookupTimers[index]) clearTimeout(lookupTimers[index]);
-    lookupTimers[index] = setTimeout(() => {
-      lookupPersona(card, index);
-      delete lookupTimers[index];
-    }, delay);
-  }
-
-  /***************
-   * CARICAMENTO PARTNER (camera DM numerata)
-   ***************/
-  function loadPartnerCard(partnerData) {
-    if (persone.some(p => p.row === partnerData.row)) return; // già presente
-
-    const clone = template.content.cloneNode(true);
-    const card = clone.querySelector('.person-card');
-    const index = personCounter++;
-
-    card.dataset.personIndex = index;
-    card.classList.add('removable', 'locked');
-
-    const nomeInput = card.querySelector('.person-nome');
-    const cognomeInput = card.querySelector('.person-cognome');
-    const nomeFieldP = card.querySelector('.nome-field');
-    if (nomeFieldP) nomeFieldP.style.display = '';
-    nomeInput.value = partnerData.nome;
-    cognomeInput.value = partnerData.cognome;
-    nomeInput.setAttribute('readonly', true);
-    cognomeInput.setAttribute('readonly', true);
-
-    // Accessibilità: ID univoci
-    const cognomeLbl = card.querySelector('.person-cognome-label');
-    const nomeLbl = card.querySelector('.person-nome-label');
-    const statusDiv = card.querySelector('.person-status');
-
-    cognomeInput.id = `cognome-${index}`;
-    nomeInput.id = `nome-${index}`;
-    statusDiv.id = `status-${index}`;
-
-    if (cognomeLbl) cognomeLbl.setAttribute('for', cognomeInput.id);
-    if (nomeLbl) nomeLbl.setAttribute('for', nomeInput.id);
-
-    cognomeInput.setAttribute('aria-describedby', statusDiv.id);
-    nomeInput.setAttribute('aria-describedby', statusDiv.id);
-
-    const trRf = card.querySelector('.tr-rf');
-    const trPt = card.querySelector('.tr-pt');
-    const trSc = card.querySelector('.tr-sc');
-    const trFr = card.querySelector('.tr-fr');
-    trRf.id = `p${index}_tr_rf`; card.querySelector('.label-tr-rf').setAttribute('for', trRf.id);
-    trPt.id = `p${index}_tr_pt`; card.querySelector('.label-tr-pt').setAttribute('for', trPt.id);
-    trSc.id = `p${index}_tr_sc`; card.querySelector('.label-tr-sc').setAttribute('for', trSc.id);
-    trFr.id = `p${index}_tr_fr`; card.querySelector('.label-tr-fr').setAttribute('for', trFr.id);
-
-    const p = partnerData.persona;
-    card.querySelector('.alloggio-box').textContent = formatAlloggioText(p.alloggio) || '—';
-    card.querySelector('.colazione').checked = !!p.colazione;
-    card.querySelector('.assicurazione').checked = !!p.assicurazione;
-
-    const colLbl = card.querySelector('.label-colazione');
-    const assLbl = card.querySelector('.label-assicurazione');
-    const lockedHelpWrap = card.querySelector('.locked-options-help')?.parentElement;
-    if (colLbl) colLbl.style.display = p.colazione ? '' : 'none';
-    if (assLbl) assLbl.style.display = p.assicurazione ? '' : 'none';
-    if (lockedHelpWrap && !p.colazione && !p.assicurazione) {
-      lockedHelpWrap.style.display = 'none';
-      lockedHelpWrap.nextElementSibling?.style.display = 'none'; // Nota "non più modificabili"
-    }
-
-    card.querySelector('.loaded-data-section').style.display = 'block';
-    setSearchButtonVisibility(card, false);
-    card.querySelector('.btn-change').style.display = ''; // Aggiunto
-    updatePartialTotal();
-
-
-    if (p.transfer) {
-      trRf.checked = !!p.transfer.rf;
-      trPt.checked = !!p.transfer.pt;
-      trSc.checked = !!p.transfer.sc;
-      trFr.checked = !!p.transfer.fr;
-    }
-
-    // Badge "già incluso" per transfer pre-compilati
-    ['rf', 'pt', 'sc', 'fr'].forEach(key => {
-      const chk = card.querySelector(`.tr-${key}`);
-      if (chk && chk.checked) {
-        const lbl = card.querySelector(`.label-tr-${key}`);
-        if (lbl && !lbl.querySelector('.badge-preselected')) {
-          const b = document.createElement('span');
-          b.className = 'badge-preselected';
-          b.textContent = 'già incluso';
-          lbl.appendChild(b);
-        }
-      }
-    });
-
-    card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
-      chk.addEventListener('change', onOptionsChanged);
-    });
-
-    card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
-    card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
-    bindLookupEvents(card, index);
-
-    container.appendChild(card);
-    setTimeout(() => {
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      card.style.outline = '3px solid #48bb78';
-      card.style.transition = 'outline 0.3s';
-      setTimeout(() => { card.style.outline = 'none'; }, 2500);
-    }, 150);
-
-    persone.push({
-      index,
-      nome: capitalize(partnerData.nome),
-      cognome: capitalize(partnerData.cognome),
-      row: partnerData.row,
-      alloggio: p.alloggio || '',
-      colazione: !!p.colazione,
-      assicurazione: !!p.assicurazione,
-      loaded: true,
-      isPartner: true,
-      cardEl: card
-    });
-
-    setCardStatus(card, 'ok', '👫 Compagno/a di camera aggiunto automaticamente.');
-    updateCardTitles();
-    updatePartialTotal();
-    setGlobalStatus('ok', '👫 Camera doppia: abbiamo caricato anche il/la tuo/a compagno/a di stanza.');
-    return index;
-  }
-
-  // Aggiungi questa funzione helper
-  function normClient(s) {
-    return String(s || '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[''`ʼ\u2018\u2019]/g, '')
-      .replace(/[-–—]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  /***************
-   * LOOKUP
-   ***************/
-  async function lookupPersona(card, index) {
-    const p = persone.find(p => p.index === index);
-    if (!p || p.loaded) return;
-
-    const cognomeRaw = card.querySelector('.person-cognome').value.trim();
-    const cognome = normClient(cognomeRaw); // invia forma normalizzata al GAS
-    const nomeRaw = card.querySelector('.person-nome').value.trim();
-    const nome = normClient(nomeRaw);
-    if (!cognome) return;
-
-    const key = makeCacheKey(nome, cognome);
-    if (lookupCache.has(key)) {
-      applyResult(card, p, lookupCache.get(key), nome, cognome);
       return;
     }
 
-    cancelLookup(index);
-    const controller = new AbortController();
-    lookupControllers[index] = controller;
-    const token = Symbol();
-    latestLookupToken[index] = token;
+    lookupCache.set(key, data);
+    applyResult(card, p, data, nomeRaw, cognomeRaw);
 
-    setCardStatus(card, 'loading', '<span class="spinner"></span>Caricamento…');
-
-    try {
-      const payload = nome
-        ? { action: 'lookupPersona', nome, cognome }
-        : { action: 'lookupByCognome', cognome };
-
-      const res = await fetchWithTimeout(GAS_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload),
-        signal: controller.signal
-      });
-
-      let data;
-      try { data = JSON.parse(await res.text()); }
-      catch { throw new Error('Risposta non valida dal server'); }
-
-      if (latestLookupToken[index] !== token) return; // risposta obsoleta
-
-      if (!data.success) {
-        if (data.error === 'duplicate') {
-          const msg = 'Cognome presente più volte – specifica anche il nome.';
-          setCardStatus(card, 'error', msg);
-          const nomeFieldD = card.querySelector('.nome-field');
-          if (nomeFieldD) nomeFieldD.style.display = '';
-          const nomeInp = card.querySelector('.person-nome');
-          nomeInp.removeAttribute('readonly');
-          nomeInp.classList.add('has-error');
-          nomeInp.focus();
-        } else {
-          setCardStatus(card, 'error', 'Prenotazione non trovata. Controlla l\'ortografia o scrivi a <a href="mailto:info@parrocchiasanteugenio.it" style="color:#c53030;text-decoration:underline;">info@parrocchiasanteugenio.it</a>.');
-        }
-        return;
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      if (lookupControllers[index]) {
+        // Timeout (non cancel utente)
+        setCardStatus(card, 'error',
+          'Il server sta impiegando troppo tempo. ' +
+          `<a href="#" onclick="event.preventDefault();cancelLookup(${index});` +
+          `lookupPersona(this.closest('.person-card'),${index});"` +
+          ` style="color:#c53030;">↻ Riprova</a>`);
       }
-
-      lookupCache.set(key, data);
-      try {
-        applyResult(card, p, data, nome, cognome);
-      } catch (e) {
-        console.error('Errore visualizzazione:', e);
-        setCardStatus(card, 'error', 'Errore caricamento dati locali: ' + e.message);
-      }
-
-    } catch (err) {
-      if (err.name === 'AbortError') {
-        // Se lookupControllers[index] esiste ancora → non è stato cancellato dall'utente → timeout
-        // Se è stato cancellato dall'utente (cancelLookup lo elimina) → non mostrare niente
-        if (lookupControllers[index]) {
-          setCardStatus(card, 'error', 'Il server sta impiegando troppo tempo. <a href="#" onclick="cancelLookup(' + index + '); lookupPersona(this.closest(\'.person-card\'), ' + index + '); return false;" style="color:#c53030;text-decoration:underline;">↻ Riprova</a>');
-        }
-        // else: cancel utente → status già svuotato da resetCard/resetAndCancel
-        return;
-      }
-      console.error('Errore lookup:', err);
-      // Mostra errore solo se la card non è stata nel frattempo caricata con successo
-      if (!p.loaded) {
-        setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
-      }
-    } finally {
-      if (lookupControllers[index] === controller) delete lookupControllers[index];
+      return;
     }
+    if (!p.loaded) setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
+  } finally {
+    if (lookupControllers[index] === ctrl) delete lookupControllers[index];
+  }
+}
+
+function applyResult(card, person, data, nomeRaw, cognomeRaw) {
+  person.nome         = capitalize(data.persona?.nome || nomeRaw);
+  person.cognome      = capitalize(data.persona?.cognome || cognomeRaw);
+  person.row          = data.row;
+  person.alloggio     = data.persona?.alloggio || '—';
+  person.colazione    = !!data.persona?.colazione;
+  person.assicurazione= !!data.persona?.assicurazione;
+  person.loaded       = true;
+
+  // Popola UI
+  card.querySelector('.alloggio-box').textContent   = formatAlloggioText(person.alloggio);
+  card.querySelector('.colazione').checked          = person.colazione;
+  card.querySelector('.assicurazione').checked      = person.assicurazione;
+
+  // Mostra/nasconde opzioni bloccate
+  const colLbl      = card.querySelector('.label-colazione');
+  const assLbl      = card.querySelector('.label-assicurazione');
+  const lockedWrap  = card.querySelector('.locked-options-help')?.parentElement;
+  const notaLocked  = card.querySelector('.nota-locked');
+  if (colLbl) colLbl.style.display = person.colazione    ? '' : 'none';
+  if (assLbl) assLbl.style.display = person.assicurazione? '' : 'none';
+  if (lockedWrap && !person.colazione && !person.assicurazione) {
+    lockedWrap.style.display = 'none';
+    if (notaLocked) notaLocked.style.display = 'none';
   }
 
-  function applyResult(card, person, data, nomeOrig, cognomeOrig) {
-    person.nome = capitalize(data.persona?.nome || nomeOrig);
-    person.cognome = capitalize(data.persona?.cognome || cognomeOrig);
-    person.row = data.row;
-    person.alloggio = data.persona?.alloggio || '—';
-    person.colazione = !!data.persona?.colazione;
-    person.assicurazione = !!data.persona?.assicurazione;
-    person.loaded = true;
+  // Transfer
+  if (data.persona?.transfer) {
+    const tr = data.persona.transfer;
+    ['rf','pt','sc','fr'].forEach(k => {
+      const chk = card.querySelector(`.tr-${k}`);
+      if (chk) chk.checked = !!tr[k];
+    });
+  }
 
-    const alloggioEl = card.querySelector('.alloggio-box');
-    if (alloggioEl) alloggioEl.textContent = formatAlloggioText(person.alloggio);
+  // Badge "già incluso"
+  ['rf','pt','sc','fr'].forEach(k => {
+    const chk = card.querySelector(`.tr-${k}`);
+    const lbl = card.querySelector(`.label-tr-${k}`);
+    if (chk?.checked && lbl && !lbl.querySelector('.badge-preselected')) {
+      const b = document.createElement('span');
+      b.className   = 'badge-preselected';
+      b.textContent = 'già incluso';
+      lbl.appendChild(b);
+    }
+  });
 
-    const colEl = card.querySelector('.colazione');
-    if (colEl) colEl.checked = person.colazione;
+  // Pre-compila email se il campo è vuoto
+  if (emailInput && data.persona?.email && !emailInput.value.trim())
+    emailInput.value = data.persona.email;
 
-    const assEl = card.querySelector('.assicurazione');
-    if (assEl) assEl.checked = person.assicurazione;
+  // Blocca i campi di ricerca
+  card.querySelector('.person-cognome').setAttribute('readonly', true);
+  card.querySelector('.person-nome').setAttribute('readonly', true);
+  card.querySelector('.person-nome').classList.remove('has-error');
+  card.querySelector('.loaded-data-section').style.display = 'block';
+  card.classList.add('locked');
+  setSearchBtnVisible(card, false);
 
-    const colLbl = card.querySelector('.label-colazione');
-    const assLbl = card.querySelector('.label-assicurazione');
-    const lockedHelpWrap = card.querySelector('.locked-options-help')?.parentElement;
-    if (colLbl) colLbl.style.display = person.colazione ? '' : 'none';
-    if (assLbl) assLbl.style.display = person.assicurazione ? '' : 'none';
-    if (lockedHelpWrap && !person.colazione && !person.assicurazione) {
-      lockedHelpWrap.style.display = 'none';
-      lockedHelpWrap.nextElementSibling?.style.display = 'none'; // Nota "non più modificabili"
+  // Nascondi hint cognome
+  const hint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
+  if (hint) hint.style.visibility = 'hidden';
+
+  // Ripristina la grafia corretta dal foglio (cognome e nome)
+  // Es. "decclesia" → "D'Ecclesia", "rossi" → "Rossi"
+  const cogEl = card.querySelector('.person-cognome');
+  if (cogEl) cogEl.value = person.cognome;
+
+  const nomeEl = card.querySelector('.person-nome');
+  if (nomeEl) nomeEl.value = person.nome;
+
+  setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
+  updateCardTitles();
+  updatePartialTotal();
+
+  // Carica eventuale partner
+  if (data.partner?.persona) {
+    try { person.partnerIndex = loadPartnerCard(data.partner); }
+    catch (e) { console.error('Errore partner:', e); }
+  }
+
+  // Focus al primo transfer utile
+  setTimeout(() => card.querySelector('.tr-rf')?.focus(), 100);
+
+  resetCalcState();
+}
+
+
+// ─── GESTIONE CARD ────────────────────────────────────────────────────────────
+function setSearchBtnVisible(card, visible) {
+  const btn = card.querySelector('.btn-search-person');
+  if (!btn) return;
+  const col = btn.closest('.field-col');
+  btn.style.display = visible ? '' : 'none';
+  if (col) col.style.display = visible ? '' : 'none';
+}
+
+function bindLookupEvents(card, index) {
+  if (card.dataset.lookupBound === 'true') return;
+
+  const cognomeInp = card.querySelector('.person-cognome');
+  const nomeInp    = card.querySelector('.person-nome');
+  const searchBtn  = card.querySelector('.btn-search-person');
+
+  const trigger = () => debouncedLookup(card, index, 0);
+  const onEnter = e => { if (e.key === 'Enter') { e.preventDefault(); trigger(); } };
+
+  searchBtn?.addEventListener('click', trigger);
+  cognomeInp.addEventListener('keydown', onEnter);
+  nomeInp.addEventListener('keydown', onEnter);
+
+  cognomeInp.addEventListener('blur', () => {
+    cognomeInp.value = capitalize(cognomeInp.value);
+  });
+  nomeInp.addEventListener('blur', () => {
+    if (!nomeInp.hasAttribute('readonly'))
+      nomeInp.value = capitalize(nomeInp.value);
+  });
+
+  // Modifica cognome → reset se non locked
+  cognomeInp.addEventListener('input', () => {
+    const p = persone.find(p => p.index === index);
+    if (p?.loaded) return;
+    cancelLookup(index);
+    resetCard(card, index);
+  });
+
+  // Modifica nome → solo pulizia errore, non reset completo
+  nomeInp.addEventListener('input', () => {
+    const p = persone.find(p => p.index === index);
+    if (p?.loaded) return;
+    cancelLookup(index);
+    if (p) p.loaded = false;
+    setCardStatus(card, '', '');
+    nomeInp.classList.remove('has-error');
+  });
+
+  card.dataset.lookupBound = 'true';
+}
+
+function addPersonCard() {
+  const clone = tmpl.content.cloneNode(true);
+  const card  = clone.querySelector('.person-card');
+  const index = personCounter++;
+
+  card.dataset.personIndex = index;
+  if (persone.length > 0) card.classList.add('removable');
+
+  // ID univoci accessibilità
+  const cogInp   = card.querySelector('.person-cognome');
+  const nomInp   = card.querySelector('.person-nome');
+  const cogLbl   = card.querySelector('.person-cognome-label');
+  const nomLbl   = card.querySelector('.person-nome-label');
+  const statDiv  = card.querySelector('.person-status');
+  const lockHelp = card.querySelector('.locked-options-help');
+  const colLock  = card.querySelector('.colazione');
+  const assLock  = card.querySelector('.assicurazione');
+
+  cogInp.id = `cognome-${index}`;
+  nomInp.id = `nome-${index}`;
+  statDiv.id= `status-${index}`;
+
+  cogLbl?.setAttribute('for', cogInp.id);
+  nomLbl?.setAttribute('for', nomInp.id);
+  cogInp.setAttribute('aria-describedby', statDiv.id);
+  nomInp.setAttribute('aria-describedby', statDiv.id);
+
+  if (lockHelp) {
+    lockHelp.id = `lockedhelp-${index}`;
+    colLock?.setAttribute('aria-describedby', lockHelp.id);
+    assLock?.setAttribute('aria-describedby', lockHelp.id);
+  }
+
+  ['rf','pt','sc','fr'].forEach(k => {
+    const chk = card.querySelector(`.tr-${k}`);
+    const lbl = card.querySelector(`.label-tr-${k}`);
+    if (chk) { chk.id = `p${index}_tr_${k}`; lbl?.setAttribute('for', chk.id); }
+  });
+
+  // Transfer → opzioni changed
+  card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
+    chk.addEventListener('change', onOptionsChanged);
+  });
+
+  card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
+  card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
+
+  bindLookupEvents(card, index);
+  container.appendChild(card);
+
+  persone.push({
+    index, nome: '', cognome: '', row: null,
+    alloggio: '', colazione: false, assicurazione: false,
+    loaded: false, cardEl: card,
+  });
+
+  updateCardTitles();
+  resetCalcState();
+
+  // Focus primo input della nuova card
+  if (persone.length > 1) card.querySelector('.person-cognome').focus();
+}
+
+function removeCard(index) {
+  const i = persone.findIndex(p => p.index === index);
+  if (i === -1) return;
+  cancelLookup(index);
+
+  const partnerIdx = persone[i].partnerIndex;
+  persone[i].cardEl?.remove();
+  persone.splice(i, 1);
+
+  if (partnerIdx != null) {
+    const pi = persone.findIndex(p => p.index === partnerIdx);
+    if (pi !== -1) { persone[pi].cardEl?.remove(); persone.splice(pi, 1); }
+  }
+
+  updateCardTitles();
+  resetCalcState();
+}
+
+function resetCard(card, index) {
+  const p = persone.find(p => p.index === index);
+  if (!p) return;
+
+  Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'',
+                     colazione:false, assicurazione:false, loaded:false });
+
+  card.querySelector('.alloggio-box').textContent            = '—';
+  card.querySelector('.colazione').checked                   = false;
+  card.querySelector('.assicurazione').checked               = false;
+  card.querySelector('.loaded-data-section').style.display   = 'none';
+
+  setCardStatus(card, '', '');
+  updateCardTitles();
+  resetCalcState();
+}
+
+function unlockCard(card, index) {
+  const p = persone.find(p => p.index === index);
+  if (!p) return;
+
+  lookupCache.delete(makeCacheKey(p.nome, p.cognome));
+
+  // Rimuovi partner se presente
+  if (p.partnerIndex != null) { removeCard(p.partnerIndex); p.partnerIndex = null; }
+
+  // Reset campi
+  const cogInp = card.querySelector('.person-cognome');
+  const nomInp = card.querySelector('.person-nome');
+  cogInp.removeAttribute('readonly');
+  nomInp.removeAttribute('readonly');
+  cogInp.value = '';
+  nomInp.value = '';
+
+  card.querySelector('.alloggio-box').textContent          = '—';
+  card.querySelector('.colazione').checked                 = false;
+  card.querySelector('.assicurazione').checked             = false;
+  card.querySelector('.loaded-data-section').style.display = 'none';
+  card.querySelectorAll('.badge-preselected').forEach(b => b.remove());
+  card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(c => c.checked = false);
+
+  // Ripristina hint nome
+  const hint = cogInp.parentElement?.querySelector('.field-hint');
+  if (hint) hint.style.visibility = 'visible';
+  const optHint = card.querySelector('.nome-optional-hint');
+  if (optHint) optHint.style.display = '';
+
+  if (emailInput) emailInput.value = '';
+
+  Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'',
+                     colazione:false, assicurazione:false, loaded:false });
+
+  card.classList.remove('locked');
+  setSearchBtnVisible(card, true);
+  bindLookupEvents(card, index);
+  setCardStatus(card, '', '');
+  updateCardTitles();
+  resetCalcState();
+  cogInp.focus();
+}
+
+function updateCardTitles() {
+  persone.forEach((p, i) => {
+    if (!p.cardEl) return;
+    const title = p.cardEl.querySelector('.card-title');
+    if (!title) return;
+
+    const loadedLabel   = p.isPartner
+      ? '👥 Partner camera'
+      : (i === 0 ? 'La tua prenotazione' : 'Partecipante aggiuntivo');
+    const unloadedLabel = p.isPartner
+      ? '👥 Partner camera'
+      : 'Cerca la tua prenotazione';
+
+    title.textContent = p.loaded ? loadedLabel : unloadedLabel;
+
+    p.cardEl.classList.toggle('removable',
+      i === 0 ? persone.length > 1 : true);
+  });
+}
+
+
+// ─── CARICAMENTO PARTNER ──────────────────────────────────────────────────────
+function loadPartnerCard(partnerData) {
+  if (persone.some(p => p.row === partnerData.row)) return null; // già presente
+
+  const clone = tmpl.content.cloneNode(true);
+  const card  = clone.querySelector('.person-card');
+  const index = personCounter++;
+
+  card.dataset.personIndex = index;
+  card.classList.add('removable', 'locked');
+
+  // Accessibilità ID
+  const cogInp  = card.querySelector('.person-cognome');
+  const nomInp  = card.querySelector('.person-nome');
+  const statDiv = card.querySelector('.person-status');
+  const lockHelp= card.querySelector('.locked-options-help');
+
+  cogInp.id  = `cognome-${index}`;
+  nomInp.id  = `nome-${index}`;
+  statDiv.id = `status-${index}`;
+  card.querySelector('.person-cognome-label')?.setAttribute('for', cogInp.id);
+  card.querySelector('.person-nome-label')?.setAttribute('for', nomInp.id);
+  cogInp.setAttribute('aria-describedby', statDiv.id);
+  nomInp.setAttribute('aria-describedby', statDiv.id);
+
+  if (lockHelp) {
+    lockHelp.id = `lockedhelp-${index}`;
+    card.querySelector('.colazione')?.setAttribute('aria-describedby', lockHelp.id);
+    card.querySelector('.assicurazione')?.setAttribute('aria-describedby', lockHelp.id);
+  }
+
+  ['rf','pt','sc','fr'].forEach(k => {
+    const chk = card.querySelector(`.tr-${k}`);
+    const lbl = card.querySelector(`.label-tr-${k}`);
+    if (chk) { chk.id = `p${index}_tr_${k}`; lbl?.setAttribute('for', chk.id); }
+  });
+
+  // Popola
+  cogInp.value = partnerData.cognome;
+  nomInp.value = partnerData.nome;
+  cogInp.setAttribute('readonly', true);
+  nomInp.setAttribute('readonly', true);
+
+  const pp = partnerData.persona;
+  card.querySelector('.alloggio-box').textContent = formatAlloggioText(pp.alloggio) || '—';
+  card.querySelector('.colazione').checked        = !!pp.colazione;
+  card.querySelector('.assicurazione').checked    = !!pp.assicurazione;
+
+  const colLbl     = card.querySelector('.label-colazione');
+  const assLbl     = card.querySelector('.label-assicurazione');
+  const lockedWrap = card.querySelector('.locked-options-help')?.parentElement;
+  const notaLocked = card.querySelector('.nota-locked');
+  if (colLbl) colLbl.style.display = pp.colazione    ? '' : 'none';
+  if (assLbl) assLbl.style.display = pp.assicurazione? '' : 'none';
+  if (lockedWrap && !pp.colazione && !pp.assicurazione) {
+    lockedWrap.style.display = 'none';
+    if (notaLocked) notaLocked.style.display = 'none';
+  }
+
+  if (pp.transfer) {
+    ['rf','pt','sc','fr'].forEach(k => {
+      const chk = card.querySelector(`.tr-${k}`);
+      if (chk) chk.checked = !!pp.transfer[k];
+    });
+  }
+
+  // Badge pre-selezionati
+  ['rf','pt','sc','fr'].forEach(k => {
+    const chk = card.querySelector(`.tr-${k}`);
+    const lbl = card.querySelector(`.label-tr-${k}`);
+    if (chk?.checked && lbl && !lbl.querySelector('.badge-preselected')) {
+      const b = document.createElement('span');
+      b.className   = 'badge-preselected';
+      b.textContent = 'già incluso';
+      lbl.appendChild(b);
+    }
+  });
+
+  card.querySelector('.loaded-data-section').style.display = 'block';
+  setSearchBtnVisible(card, false);
+
+  card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
+    chk.addEventListener('change', onOptionsChanged);
+  });
+
+  card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
+  card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
+  bindLookupEvents(card, index);
+
+  container.appendChild(card);
+
+  persone.push({
+    index,
+    nome:    capitalize(partnerData.nome),
+    cognome: capitalize(partnerData.cognome),
+    row:     partnerData.row,
+    alloggio:    pp.alloggio || '',
+    colazione:   !!pp.colazione,
+    assicurazione: !!pp.assicurazione,
+    loaded:    true,
+    isPartner: true,
+    cardEl:    card,
+  });
+
+  setCardStatus(card, 'ok', '👫 Compagno/a di camera aggiunto automaticamente.');
+  setGlobalStatus('ok', '👫 Camera doppia: abbiamo caricato anche il/la tuo/a compagno/a di stanza.');
+  updateCardTitles();
+  updatePartialTotal();
+
+  // Scroll + highlight sulla nuova card
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.style.outline    = '3px solid #48bb78';
+    card.style.transition = 'outline .3s';
+    setTimeout(() => { card.style.outline = ''; }, 2500);
+  }, 200);
+
+  return index;
+}
+
+
+// ─── CALCOLO ──────────────────────────────────────────────────────────────────
+function getTransfer(card) {
+  return {
+    rf: !!card.querySelector('.tr-rf')?.checked,
+    pt: !!card.querySelector('.tr-pt')?.checked,
+    sc: !!card.querySelector('.tr-sc')?.checked,
+    fr: !!card.querySelector('.tr-fr')?.checked,
+  };
+}
+
+async function calcolaTotale() {
+  if (_calcInProgress) return;
+  _calcInProgress = true;
+
+  try {
+    const loaded = persone.filter(p => p.loaded);
+    if (loaded.length === 0) {
+      setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
+      return;
     }
 
-    if (data.persona?.transfer) {
-      const trRf = card.querySelector('.tr-rf'); if (trRf) trRf.checked = !!data.persona.transfer.rf;
-      const trPt = card.querySelector('.tr-pt'); if (trPt) trPt.checked = !!data.persona.transfer.pt;
-      const trSc = card.querySelector('.tr-sc'); if (trSc) trSc.checked = !!data.persona.transfer.sc;
-      const trFr = card.querySelector('.tr-fr'); if (trFr) trFr.checked = !!data.persona.transfer.fr;
-    }
-
-    // Nascondi hint ricerca
-    const cognomeHint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
-    if (cognomeHint) cognomeHint.style.visibility = 'hidden';
-    const nomeFieldA = card.querySelector('.nome-field');
-    if (nomeFieldA) nomeFieldA.style.display = '';
-    const nomeEl = card.querySelector('.person-nome');
-    if (nomeEl) {
-      nomeEl.value = person.nome;
-      nomeEl.setAttribute('readonly', true);
-      nomeEl.classList.remove('has-error');
-    }
-
-    setSearchButtonVisibility(card, false);
-    card.querySelector('.person-cognome')?.setAttribute('readonly', true);
-    card.classList.add('locked');
-    card.querySelector('.loaded-data-section')?.setAttribute('style', 'display:block');
-    updatePartialTotal();
-
-    // Focus al primo controllo utile (transfer) e badge "già incluso"
-    const firstTransfer = card.querySelector('.tr-rf');
-    if (firstTransfer) {
-      setTimeout(() => firstTransfer.focus(), 100);
-    }
-
-    // Aggiungi badge se pre-selezionati
-    ['rf', 'pt', 'sc', 'fr'].forEach(key => {
-      const chk = card.querySelector(`.tr-${key}`);
-      if (chk && chk.checked) {
-        const lbl = card.querySelector(`.label-tr-${key}`);
-        if (lbl && !lbl.querySelector('.badge-preselected')) {
-          const b = document.createElement('span');
-          b.className = 'badge-preselected';
-          b.textContent = 'già incluso';
-          lbl.appendChild(b);
-        }
-      }
+    // Costruisci modale di conferma
+    const nomi = loaded.map(p => `${p.cognome} ${p.nome}`).join(', ');
+    let serviziList = [];
+    loaded.forEach(p => {
+      const tr     = getTransfer(p.cardEl);
+      const prefix = loaded.length > 1 ? `${p.nome}: ` : '';
+      if (tr.rf) serviziList.push(prefix + 'Roma-Fiumicino');
+      if (tr.pt) serviziList.push(prefix + 'Porto-Tui');
+      if (tr.sc) serviziList.push(prefix + 'Santiago-A Coruña');
+      if (tr.fr) serviziList.push(prefix + 'Fiumicino-Roma');
     });
 
-    // Pre-compila email (solo se il campo è vuoto)
-    if (emailInput && data.persona?.email && !emailInput.value.trim()) {
-      emailInput.value = data.persona.email;
+    let confirmBody = `<p>Confermi la prenotazione di <strong>${nomi}</strong>?</p>`;
+    if (serviziList.length) {
+      confirmBody +=
+        `<div style="background:#f7fafc;padding:12px;border-radius:8px;` +
+        `border-left:4px solid #3182ce;margin-top:10px;">` +
+        `<strong style="font-size:.85rem;color:#2c5282;text-transform:uppercase;` +
+        `display:block;margin-bottom:6px;">Servizi prenotati</strong>` +
+        `<ul style="margin:0;padding-left:20px;font-size:.9rem;">` +
+        `<li>${serviziList.join('</li><li>')}</li></ul></div>`;
     }
 
-    card.querySelector('.person-nome').classList.remove('has-error');
+    const confirmed = await showConfirmModal('Riepilogo e registrazione', confirmBody);
+    if (!confirmed) return;  // _calcInProgress viene resettato nel finally
 
-    setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
-    updateCardTitles();
+    setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
+    setCalcButtons({ disabled: true });
 
-    if (data.partner?.persona) {
-      try {
-        person.partnerIndex = loadPartnerCard(data.partner);
-      } catch (e) { console.error('Errore partner:', e); }
+    // Calcolo importi
+    let totale = 0, totAlloggio = 0, totColazione = 0, totAssic = 0, totTr = 0;
+    const lines = [];
+
+    loaded.forEach(p => {
+      const card = p.cardEl;
+      const tr   = getTransfer(card);
+
+      const costoAll = getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
+      const costoCol = card.querySelector('.colazione')?.checked  ? COSTI.colazione    : 0;
+      const costoAss = card.querySelector('.assicurazione')?.checked? COSTI.assicurazione: 0;
+      const costoTr  = (tr.rf ? COSTI.transfer.rf : 0)
+                     + (tr.pt ? COSTI.transfer.pt : 0)
+                     + (tr.sc ? COSTI.transfer.sc : 0)
+                     + (tr.fr ? COSTI.transfer.fr : 0);
+
+      const sub = costoAll + costoCol + costoAss + costoTr;
+      totale      += sub;
+      totAlloggio += costoAll;
+      totColazione+= costoCol;
+      totAssic    += costoAss;
+      totTr       += costoTr;
+
+      lines.push(`${p.cognome} ${p.nome}: ${formatEuro(sub - COSTI.caparra)}`);
+    });
+
+    const caparra = COSTI.caparra * loaded.length;
+    const saldo   = totale - caparra;
+
+    if (saldo < 0) {
+      setGlobalStatus('error',
+        'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
+      return;
     }
 
-    resetCalcState();
-  }
-
-  /***************
-   * CALCOLO
-   ***************/
-  function getTransfer(card) {
-    return {
-      rf: card.querySelector('.tr-rf').checked,
-      pt: card.querySelector('.tr-pt').checked,
-      sc: card.querySelector('.tr-sc').checked,
-      fr: card.querySelector('.tr-fr').checked
+    lastCalcResult = {
+      persone: loaded.map(p => ({
+        nome: p.nome, cognome: p.cognome, row: p.row,
+        transfer: getTransfer(p.cardEl),
+      })),
+      totaleOpzioni: totale,
+      caparra,
+      saldo,
     };
+
+    // Salva sul foglio (senza email qui — l'email si invia solo con il bottone dedicato)
+    await doSalvaTransfer();
+
+    // Aggiorna UI sidebar
+    summaryBox.innerHTML =
+      `<div style="font-weight:600;margin-bottom:6px;color:#4a5568;">Saldo per:</div>` +
+      lines.map(l => `<div class="summary-line">${l}</div>`).join('');
+
+    breakdownBox.style.display = 'block';
+    document.getElementById('totAlloggio').textContent     = formatEuro(totAlloggio);
+    document.getElementById('totColazione').textContent    = formatEuro(totColazione);
+    document.getElementById('totAssicurazione').textContent= formatEuro(totAssic);
+    document.getElementById('totTransfer').textContent     = formatEuro(totTr);
+    document.getElementById('totOpzioni').textContent      = formatEuro(totale);
+    document.getElementById('caparraVersata').textContent  = '−' + formatEuro(caparra);
+    document.getElementById('saldoDaVersare').textContent  = formatEuro(saldo);
+    totalBox.style.display = 'flex';
+
+    btnSave.disabled        = false;
+    btnSave.textContent     = LABELS.save;
+    btnPay.disabled         = false;
+    actionSection.style.display = 'block';
+    orDivider.style.color   = '#666';
+
+    setGlobalStatus('ok',
+      '<span class="success-check">✅</span> Prenotazione aggiornata');
+
+    hideRecalcBanner();
+    setCalcButtons({ display: 'none' });
+    document.getElementById('partialTotalBox').style.display = 'none';
+
+    setTimeout(() =>
+      summaryBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 120);
+
+  } catch (err) {
+    console.error('Errore calcolo:', err);
+    setGlobalStatus('error',
+      'Impossibile aggiornare la prenotazione: ' + err.message);
+    lastCalcResult = null;
+  } finally {
+    setCalcButtons({ disabled: false });
+    _calcInProgress = false;   // ← reset SEMPRE, anche dopo Annulla
+  }
+}
+
+function resetCalcState() {
+  lastCalcResult = null;
+  _lastSavedHash = null;
+  btnSave.disabled    = true;
+  btnPay.disabled     = true;
+  btnSave.textContent = LABELS.save;
+  orDivider.style.color = '#a0aec0';
+  breakdownBox.style.display = 'none';
+
+  const loadedN = persone.filter(p => p.loaded).length;
+  summaryBox.textContent = loadedN > 0 ? '' : LABELS.lookupHint;
+
+  if (loadedN > 0) setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
+  else             setCalcButtons({ display: 'none', disabled: false });
+
+  recalcBanner.classList.remove('active');
+  hideRecalcBanner();
+  setGlobalStatus('', '');
+  updateStepper();
+}
+
+
+// ─── SALVA TRANSFER ──────────────────────────────────────────────────────────
+function _hash(result, email) {
+  return JSON.stringify({ ...result, email: email || '' });
+}
+
+async function doSalvaTransfer(email) {
+  if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
+
+  const hash = _hash(lastCalcResult, email);
+  if (hash === _lastSavedHash) {
+    // Stesso stato già salvato — skip silenzioso
+    return { success: true, skipped: true };
   }
 
-  let _calcInProgress = false;
-  async function calcolaTotale() {
-    if (_calcInProgress) return;
-    _calcInProgress = true;
-    try {
-      const loaded = persone.filter(p => p.loaded);
-      if (loaded.length === 0) {
-        setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
-        return;
-      }
+  const data = await gasPost({
+    action:  'salvaTransfer',
+    email:   email || '',
+    persone: lastCalcResult.persone,
+    totale:  lastCalcResult.totaleOpzioni,
+    caparra: lastCalcResult.caparra,
+    saldo:   lastCalcResult.saldo,
+  });
 
-      const nomi = loaded.map(p => `${p.cognome} ${p.nome}`).join(', ');
-      let serviziList = [];
-      loaded.forEach(p => {
-        const tr = getTransfer(p.cardEl);
-        const prefix = loaded.length > 1 ? `${p.nome}: ` : '';
-        if (tr.rf) serviziList.push(`${prefix}Roma-Fiumicino`);
-        if (tr.pt) serviziList.push(`${prefix}Porto-Tui`);
-        if (tr.sc) serviziList.push(`${prefix}Santiago-A Coruña`);
-        if (tr.fr) serviziList.push(`${prefix}Fiumicino-Roma`);
-      });
+  if (!data.success) throw new Error(data.message || data.error || 'Errore sconosciuto');
+  _lastSavedHash = hash;
+  return data;
+}
 
-      let confirmBody = `<p>Confermi la prenotazione di <strong>${nomi}</strong>?</p>`;
-      if (serviziList.length > 0) {
-        confirmBody += `<div style="background:#f7fafc; padding:12px; border-radius:8px; border-left:4px solid #3182ce; margin-top:10px;">
-          <strong style="font-size:0.85rem; color:#2c5282; text-transform:uppercase; display:block; margin-bottom:6px;">Nuovi servizi prenotati</strong>
-          <ul style="margin:0; padding-left:20px; font-size:0.9rem;">
-            <li>${serviziList.join('</li><li>')}</li>
-          </ul>
-        </div>`;
-      }
+async function salvaEInvia() {
+  if (!lastCalcResult) { setGlobalStatus('error', 'Prima calcola il totale.'); return; }
 
-      const confirmed = await showConfirmModal('Riepilogo e registrazione', confirmBody);
-      if (!confirmed) return;
+  const email = emailInput.value.trim();
+  if (!email || !email.includes('@')) {
+    setGlobalStatus('error', "Inserisci un'email valida.");
+    emailInput.focus();
+    return;
+  }
 
-      setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
-      setCalcButtons({ disabled: true });
+  btnSave.disabled = true;
+  setGlobalStatus('loading', '<span class="spinner"></span>Invio email…');
 
-      let totaleCorrente = 0;
-      let totAlloggio = 0;
-      let totColazione = 0;
-      let totAssicurazione = 0;
-      let totTransfer = 0;
-      const lines = [];
+  try {
+    await doSalvaTransfer(email);
+    setGlobalStatus('ok', `✅ Email inviata a ${email}`);
+    btnSave.textContent = 'Email inviata ✓';
+    document.getElementById('ibanPopup').classList.add('active');
+  } catch (err) {
+    console.error('Errore email:', err);
+    setGlobalStatus('error', 'Errore: ' + err.message);
+    btnSave.disabled = false;
+  }
+}
 
-      loaded.forEach(p => {
-        const card = p.cardEl;
-        let s = 0;
-        let tmpCol = 0, tmpAss = 0, tmpTr = 0;
 
-        if (card.querySelector('.colazione')?.checked) { tmpCol += COSTI.colazione; }
-        if (card.querySelector('.assicurazione')?.checked) { tmpAss += COSTI.assicurazione; }
-        const tr = getTransfer(card);
-        if (tr.rf) tmpTr += COSTI.transfer.rf;
-        if (tr.pt) tmpTr += COSTI.transfer.pt;
-        if (tr.sc) tmpTr += COSTI.transfer.sc;
-        if (tr.fr) tmpTr += COSTI.transfer.fr;
+// ─── PAGA CON CARTA ──────────────────────────────────────────────────────────
+async function openPayPopup() {
+  if (!lastCalcResult) return;
+  const loaded = persone.filter(p => p.loaded);
+  if (!loaded.length) return;
 
-        const alloggioCosto = getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
-        s = alloggioCosto + tmpCol + tmpAss + tmpTr;
-        totaleCorrente += s;
-        totAlloggio += alloggioCosto;
-        totColazione += tmpCol;
-        totAssicurazione += tmpAss;
-        totTransfer += tmpTr;
+  const causale = 'Saldo Cammino 2026 ' + loaded.map(p => p.cognome).join(' - ');
+  const email   = emailInput.value.trim();
 
-        lines.push(`${p.cognome} ${p.nome}: ${formatEuro(s - COSTI.caparra)}`);
-      });
+  setGlobalStatus('loading', '<span class="spinner"></span>Attendere…');
+  btnPay.disabled = true;
 
-      const caparra = COSTI.caparra * loaded.length;
-      const saldo = totaleCorrente - caparra;
+  try {
+    await doSalvaTransfer(email);
+  } catch (err) {
+    setGlobalStatus('error', 'Errore: ' + err.message);
+    btnPay.disabled = false;
+    return;
+  }
 
-      if (saldo < 0) {
-        setGlobalStatus('error', 'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
-        setCalcButtons({ disabled: false });
-        return;
-      }
+  btnPay.disabled = false;
+  setGlobalStatus('', '');
 
-      lastCalcResult = {
-        persone: loaded.map(p => ({
-          nome: p.nome, cognome: p.cognome, row: p.row,
-          transfer: getTransfer(p.cardEl)
-        })),
-        totaleOpzioni: totaleCorrente,
-        caparra,
-        saldo
-      };
+  document.getElementById('popupImporto').textContent = formatEuro(lastCalcResult.saldo);
+  document.getElementById('popupCausale').textContent = causale;
+  document.querySelectorAll('.popup-btn-copy').forEach(b => {
+    b.textContent = '📋'; b.classList.remove('copied');
+  });
+  openModal();
+}
 
-      try {
-        await doSalvaTransfer();
+async function copyPopupField(fieldId, btn) {
+  const val = document.getElementById(fieldId).textContent;
+  try {
+    await navigator.clipboard.writeText(val);
+    btn.textContent = '✅';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
+  } catch {
+    prompt('Copia manualmente:', val);
+  }
+}
 
-        summaryBox.innerHTML = '<div style="font-weight:600; margin-bottom:6px; color:#4a5568;">Saldo per:</div>' + lines.map(l => `<div class="summary-line">${l}</div>`).join('');
-        breakdownBox.style.display = 'block';
-        document.getElementById('totAlloggio').textContent = formatEuro(totAlloggio);
-        document.getElementById('totColazione').textContent = formatEuro(totColazione);
-        document.getElementById('totAssicurazione').textContent = formatEuro(totAssicurazione);
-        document.getElementById('totTransfer').textContent = formatEuro(totTransfer);
-        document.getElementById('totOpzioni').textContent = formatEuro(totaleCorrente);
-        document.getElementById('caparraVersata').textContent = '-' + formatEuro(caparra);
-        document.getElementById('saldoDaVersare').textContent = formatEuro(saldo);
-        document.getElementById('totalBox').style.display = 'flex';
+function openTinaba() {
+  window.open(TINABA_URL, '_blank');
+}
 
-        btnSave.disabled = false;
-        btnSave.textContent = LABELS.save;
-        btnPay.disabled = false;
-        actionSection.style.display = 'block';
-        document.getElementById('orDivider').style.color = '#666';
 
-        setGlobalStatus('ok', '<span class="success-check">✅</span> Prenotazione aggiornata');
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+addPersonCard();
 
-        hideRecalcBanner();
-        setCalcButtons({ display: 'none' });
-        updateStepper();
-        document.getElementById('partialTotalBox').style.display = 'none';
-
-        setTimeout(() => {
-          document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-
-      } catch (err) {
-        console.error('Errore salvataggio:', err);
-        setGlobalStatus('error', 'Impossibile aggiornare la prenotazione: ' + err.message);
-      } finally {
-        setCalcButtons({ disabled: false });
-        _calcInProgress = false;
-      }
-    }
-
-  function resetCalcState() {
-      lastCalcResult = null;
-      _lastSavedHash = null;
-      btnSave.disabled = true;
-      btnPay.disabled = true;
-      btnSave.textContent = LABELS.save;
-      document.getElementById('orDivider').style.color = '#a0aec0';
-      const loadedCount = persone.filter(p => p.loaded).length;
-      summaryBox.textContent = loadedCount > 0 ? '' : LABELS.lookupHint;
-      breakdownBox.style.display = 'none';
-      if (loadedCount > 0) {
-        setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
-      } else {
-        setCalcButtons({ display: 'none', disabled: false });
-      }
-
-      recalcBanner?.classList.remove('active');
-      hideRecalcBanner();
-      setGlobalStatus('', '');
-      updateStepper();
-    }
-
-    /***************
-     * SALVA TRANSFER — funzione condivisa con hash dedup
-     ***************/
-
-    function _calcResultHash(result, email) {
-      return JSON.stringify({ ...result, email });
-    }
-
-    async function doSalvaTransfer(email) {
-      if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
-      const hash = _calcResultHash(lastCalcResult, email);
-      if (hash === _lastSavedHash) {
-        setGlobalStatus('ok', 'Hai già inviato questo riepilogo. Nessuna modifica rilevata.');
-        return { success: true, skipped: true };
-      }
-
-      const res = await fetchWithTimeout(GAS_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'salvaTransfer',
-          email,
-          persone: lastCalcResult.persone,
-          totale: lastCalcResult.totaleOpzioni,
-          caparra: lastCalcResult.caparra,
-          saldo: lastCalcResult.saldo
-        })
-      });
-      let data;
-      try { data = JSON.parse(await res.text()); }
-      catch { throw new Error('Risposta non valida dal server'); }
-      if (!data.success) throw new Error(data.message || data.error || 'Errore sconosciuto');
-
-      _lastSavedHash = hash;
-      return data;
-    }
-
-    async function salvaEInvia() {
-      if (!lastCalcResult) { setGlobalStatus('error', 'Prima calcola il totale.'); return; }
-
-      const email = emailInput.value.trim();
-      if (!email || !email.includes('@')) {
-        setGlobalStatus('error', "Inserisci un'email valida."); return;
-      }
-
-      btnSave.disabled = true;
-      setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
-
-      try {
-        await doSalvaTransfer(email);
-        setGlobalStatus('ok', '✅ Email inviata a ' + email);
-        btnSave.textContent = 'Email inviata ✓';
-
-        // Apri il popup IBAN per comodità su mobile
-        document.getElementById('ibanPopup').classList.add('active');
-      } catch (err) {
-        console.error('Errore salvataggio:', err);
-        setGlobalStatus('error', 'Errore: ' + err.message);
-        btnSave.disabled = false;
-      }
-    }
-
-    /***************
-     * PAGA CON CARTA (popup persistente + copia campi)
-     ***************/
-    async function openPayPopup() {
-      if (!lastCalcResult) return;
-
-      const loaded = persone.filter(p => p.loaded);
-      if (loaded.length === 0) return;
-
-      const primo = loaded[0];
-      const tuttiCognomi = loaded.map(p => p.cognome).join(' - ');
-      const causale = 'Saldo Cammino 2026 ' + tuttiCognomi;
-      const email = emailInput.value.trim();
-
-      setGlobalStatus('loading', '<span class="spinner"></span>Attendere, prego...');
-      btnPay.disabled = true;
-      try {
-        await doSalvaTransfer(email);
-        setGlobalStatus('ok', 'Attendere, prego...');
-      } catch (err) {
-        console.error(err);
-        setGlobalStatus('error', 'Errore salvataggio: ' + err.message);
-        btnPay.disabled = false;
-        return;
-      }
-      btnPay.disabled = false;
-
-      document.getElementById('popupImporto').textContent = formatEuro(lastCalcResult.saldo);
-      document.getElementById('popupCausale').textContent = causale;
-
-      document.querySelectorAll('.popup-btn-copy-sm').forEach(btn => {
-        btn.textContent = '📋';
-        btn.classList.remove('copied');
-      });
-
-      openModal();
-    }
-
-    async function copyPopupField(fieldId, btn) {
-      const value = document.getElementById(fieldId).textContent;
-      try {
-        await navigator.clipboard.writeText(value);
-        btn.textContent = '✅';
-        btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
-      } catch {
-        prompt('Copia manualmente:', value);
-      }
-    }
-
-    function openTinaba() {
-      window.open(TINABA_URL, '_blank');
-    }
-
-    /***************
-     * STATUS HELPERS
-     ***************/
-    function setGlobalStatus(type, msg) {
-      globalStatus.innerHTML = msg;
-      globalStatus.className = 'status' + (type ? ' ' + type : '');
-    }
-
-    /***************
-     * INIT
-     ***************/
-    mountMobileCalcBtnContainer();
-    window.addEventListener('resize', mountMobileCalcBtnContainer);
-
-    addPersonCard();
-    btnAdd.addEventListener('click', addPersonCard);
-    btnCalc.addEventListener('click', calcolaTotale);
-    btnCalcDesktopTop?.addEventListener('click', calcolaTotale);
-    btnSave.addEventListener('click', salvaEInvia);
-    btnPay.addEventListener('click', openPayPopup);
-    document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
+btnAdd.addEventListener('click', addPersonCard);
+btnCalc.addEventListener('click', calcolaTotale);
+btnCalcDesktop?.addEventListener('click', calcolaTotale);
+btnSave.addEventListener('click', salvaEInvia);
+btnPay.addEventListener('click', openPayPopup);
+document.getElementById('popupOpenBtn')?.addEventListener('click', openTinaba);
 </script>
