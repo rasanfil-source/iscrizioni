@@ -2229,7 +2229,7 @@
       try {
         await doSalvaTransfer();
 
-        summaryBox.innerHTML = lines.map(l => `<div class="summary-line">${l}</div>`).join('');
+        summaryBox.innerHTML = '<div style="font-weight:600; margin-bottom:6px; color:#4a5568;">Saldo per:</div>' + lines.map(l => `<div class="summary-line">${l}</div>`).join('');
         breakdownBox.style.display = 'block';
         document.getElementById('totAlloggio').textContent = formatEuro(totAlloggio);
         document.getElementById('totColazione').textContent = formatEuro(totColazione);
