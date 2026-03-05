@@ -1490,7 +1490,6 @@ document.getElementById('ibanCloseBtn')?.addEventListener('click', closeModal);
 
 function showConfirmModal(title, bodyHtml) {
   return new Promise(resolve => {
-    const modal     = document.getElementById('confirmModal');
     const titleEl   = document.getElementById('confirmTitle');
     const bodyEl    = document.getElementById('confirmBody');
     const okBtn     = document.getElementById('confirmOkBtn');
@@ -1499,37 +1498,17 @@ function showConfirmModal(title, bodyHtml) {
     titleEl.textContent = title;
     bodyEl.innerHTML    = bodyHtml;
 
-    _focusBeforeModal = document.activeElement;
-    _activeModal      = modal;
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    okBtn.focus();
-    document.addEventListener('keydown', onModalKey, true);
+    okBtn.onclick     = () => done(true);
+    cancelBtn.onclick = () => done(false);
 
-    const onKey = e => {
-      if (!modal.classList.contains('active')) return;
-      if (e.key === 'Escape') { e.preventDefault(); done(false); return; }
-      if (e.key !== 'Tab') return;
-      const f = getFocusables(modal);
-      if (!f.length) return;
-      if (e.shiftKey && document.activeElement === f[0]) {
-        e.preventDefault(); f[f.length - 1].focus();
-      } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) {
-        e.preventDefault(); f[0].focus();
-      }
-    };
-    document.addEventListener('keydown', onKey, true);
+    openModal('confirmModal');
 
     const done = val => {
-      _activeModal = modal; // ensure we close the right one
       closeModal();
       okBtn.onclick     = null;
       cancelBtn.onclick = null;
       resolve(val);
     };
-
-    okBtn.onclick     = () => done(true);
-    cancelBtn.onclick = () => done(false);
   });
 }
 
@@ -1596,7 +1575,6 @@ async function lookupPersona(card, index) {
                   `Sono ${capitalize(c.nome)}</button>`;
         });
         html += '</div>';
-        html += '<div style="margin-top:10px; font-size:.8rem; color:#718096;">Oppure inserisci il nome manualmente sopra.</div>';
         
         setCardStatus(card, 'error', html);
         card.querySelector('.person-nome').removeAttribute('readonly');
@@ -2281,7 +2259,7 @@ async function salvaEInvia() {
     await doSalvaTransfer(email);
     setGlobalStatus('ok', `✅ Email inviata a ${email}`);
     btnSave.textContent = 'Email inviata ✓';
-    document.getElementById('ibanPopup').classList.add('active');
+    openModal('ibanPopup');
   } catch (err) {
     console.error('Errore email:', err);
     setGlobalStatus('error', 'Errore: ' + err.message);
@@ -2318,7 +2296,7 @@ async function openPayPopup() {
   document.querySelectorAll('.popup-btn-copy').forEach(b => {
     b.textContent = '📋'; b.classList.remove('copied');
   });
-  openModal();
+  openModal('payPopup');
 }
 
 async function copyPopupField(fieldId, btn) {

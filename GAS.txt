@@ -268,6 +268,7 @@ function doPost(e) {
       if (found.status === 'duplicate') {
         const candidates = found.rows.map(idx => ({
           nome: rows[idx][COL_NOME - 1],
+          cognome: rows[idx][COL_COGNOME - 1],
           row: idx + DATA_START_ROW
         }));
         return jsonOut({ success: false, error: 'duplicate', candidates });

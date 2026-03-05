@@ -1,7 +1,11 @@
 ﻿<!-- Cammino Portoghese 2026 – Saldo prenotazioni v2.1 -->
 <style>
   /* ── Reset & Base ── */
-  *, *::before, *::after { box-sizing: border-box; }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
   body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -33,7 +37,9 @@
   }
 
   @media (max-width: 900px) {
-    .layout { grid-template-columns: 1fr; }
+    .layout {
+      grid-template-columns: 1fr;
+    }
   }
 
   /* ── Sidebar ── */
@@ -42,14 +48,16 @@
     padding: 20px;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
     position: sticky;
     top: 20px;
     align-self: start;
   }
 
   @media (max-width: 900px) {
-    aside { position: static; }
+    aside {
+      position: static;
+    }
   }
 
   aside h2 {
@@ -81,7 +89,7 @@
   input[type="email"]:focus {
     outline: none;
     border-color: #3182ce;
-    box-shadow: 0 0 0 3px rgba(49,130,206,.15);
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, .15);
   }
 
   /* Campo bloccato dopo lookup riuscito */
@@ -97,7 +105,9 @@
     transition: background-color .3s, border-color .3s;
   }
 
-  input[type="text"][readonly]:focus { box-shadow: none; }
+  input[type="text"][readonly]:focus {
+    box-shadow: none;
+  }
 
   /* Errore (es. nome duplicato) */
   input.has-error {
@@ -124,7 +134,7 @@
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
     transition: box-shadow .2s;
   }
 
@@ -166,8 +176,13 @@
     transition: background .15s;
   }
 
-  .btn-remove:hover { background: #c53030; }
-  .person-card.removable .btn-remove { display: flex; }
+  .btn-remove:hover {
+    background: #c53030;
+  }
+
+  .person-card.removable .btn-remove {
+    display: flex;
+  }
 
   /* Bottone "✎ Cambia" — visibile solo quando la card è bloccata */
   .btn-change {
@@ -188,7 +203,9 @@
     border-color: #e53e3e;
   }
 
-  .person-card.locked .btn-change { display: inline-block; }
+  .person-card.locked .btn-change {
+    display: inline-block;
+  }
 
   /* ── Griglia ricerca (Cognome | Nome | Carica) ── */
   .input-row {
@@ -199,7 +216,9 @@
     margin-bottom: 12px;
   }
 
-  .input-row .field-col { min-width: 0; }
+  .input-row .field-col {
+    min-width: 0;
+  }
 
   .field-hint {
     font-size: 0.75rem;
@@ -214,9 +233,19 @@
       gap: 6px;
       margin-bottom: 6px;
     }
-    .field-hint { display: none; }
-    .page { padding-left: 8px; padding-right: 8px; }
-    .person-card { padding: 14px; }
+
+    .field-hint {
+      display: none;
+    }
+
+    .page {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+
+    .person-card {
+      padding: 14px;
+    }
   }
 
   /* ── Sezione dati caricati ── */
@@ -249,7 +278,9 @@
     margin-top: 8px;
   }
 
-  .options.readonly { opacity: .7; }
+  .options.readonly {
+    opacity: .7;
+  }
 
   .options label {
     display: flex;
@@ -306,7 +337,9 @@
     transition: background .2s, border-color .2s, opacity .2s;
   }
 
-  button:hover { background: #f7fafc; }
+  button:hover {
+    background: #f7fafc;
+  }
 
   button.primary {
     background: #3182ce;
@@ -316,7 +349,10 @@
     font-weight: 600;
   }
 
-  button.primary:hover { background: #2c5282; border-color: #2c5282; }
+  button.primary:hover {
+    background: #2c5282;
+    border-color: #2c5282;
+  }
 
   button.primary:disabled,
   button.secondary:disabled {
@@ -335,7 +371,10 @@
     margin-top: 10px;
   }
 
-  button.secondary:hover:not(:disabled) { background: #38a169; border-color: #38a169; }
+  button.secondary:hover:not(:disabled) {
+    background: #38a169;
+    border-color: #38a169;
+  }
 
   #btnAddPerson {
     background: #fff;
@@ -349,7 +388,10 @@
     transition: border-color .2s, color .2s;
   }
 
-  #btnAddPerson:hover { border-color: #3182ce; color: #3182ce; }
+  #btnAddPerson:hover {
+    border-color: #3182ce;
+    color: #3182ce;
+  }
 
   /* ── Bottone Cerca nella card ── */
   .btn-search-person {
@@ -374,8 +416,16 @@
     margin-bottom: 4px;
   }
 
-  .partial-label { font-weight: 600; color: #2d3748; }
-  .partial-value { font-weight: 700; color: #3182ce; font-size: 1.1rem; }
+  .partial-label {
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  .partial-value {
+    font-weight: 700;
+    color: #3182ce;
+    font-size: 1.1rem;
+  }
 
   /* ── Sidebar: Desktop shortcut calcola ── */
   #desktopCalcShortcut {
@@ -400,7 +450,9 @@
     color: #2d3748;
   }
 
-  #summaryBox .summary-line:last-child { border-bottom: none; }
+  #summaryBox .summary-line:last-child {
+    border-bottom: none;
+  }
 
   /* ── Sidebar: Breakdown ── */
   #breakdownBox {
@@ -424,7 +476,10 @@
     font-weight: 600;
   }
 
-  .breakdown-row.caparra { margin-top: 16px; color: #718096; }
+  .breakdown-row.caparra {
+    margin-top: 16px;
+    color: #718096;
+  }
 
   /* ── Sidebar: Saldo totale ── */
   #totalBox {
@@ -439,7 +494,9 @@
     transition: opacity .2s;
   }
 
-  #totalBox.stale { opacity: .35; }
+  #totalBox.stale {
+    opacity: .35;
+  }
 
   /* ── Status badges ── */
   .status {
@@ -450,19 +507,37 @@
     text-align: center;
   }
 
-  .status:empty { display: none; }
-  .status.ok    { color: #276749; background: #c6f6d5; }
-  .status.error { color: #c53030; background: #fed7d7; }
-  .status.loading { color: #744210; background: #fefcbf; }
+  .status:empty {
+    display: none;
+  }
+
+  .status.ok {
+    color: #276749;
+    background: #c6f6d5;
+  }
+
+  .status.error {
+    color: #c53030;
+    background: #fed7d7;
+  }
+
+  .status.loading {
+    color: #744210;
+    background: #fefcbf;
+  }
 
   /* Spinner */
-  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 
   .spinner {
     display: inline-block;
     width: 14px;
     height: 14px;
-    border: 2px solid rgba(116,66,16,.3);
+    border: 2px solid rgba(116, 66, 16, .3);
     border-top-color: #744210;
     border-radius: 50%;
     animation: spin .7s linear infinite;
@@ -472,13 +547,20 @@
 
   /* Success check pop */
   @keyframes popIn {
-    0%   { transform: scale(0); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 
   .success-check {
     display: inline-block;
-    animation: popIn .45s cubic-bezier(.175,.885,.32,1.275);
+    animation: popIn .45s cubic-bezier(.175, .885, .32, 1.275);
   }
 
   /* ── Warm-up badge ── */
@@ -493,19 +575,28 @@
     display: none;
   }
 
-  #warmupBadge.ready { background: #c6f6d5; color: #276749; }
+  #warmupBadge.ready {
+    background: #c6f6d5;
+    color: #276749;
+  }
 
   /* ── Calcola button – mobile sticky ── */
-  #calcBtnContainer { margin-bottom: 18px; }
+  #calcBtnContainer {
+    margin-bottom: 18px;
+  }
 
   @media (max-width: 900px) {
-    body.has-mobile-cta .page { padding-bottom: 190px; }
+    body.has-mobile-cta .page {
+      padding-bottom: 190px;
+    }
 
     #calcBtnContainer {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
       background: #fff;
-      box-shadow: 0 -4px 12px rgba(0,0,0,.1);
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, .1);
       padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
       margin-bottom: 0;
       z-index: 2147483647;
@@ -515,8 +606,14 @@
       display: none;
     }
 
-    #calcBtnContainer.active { display: block !important; }
-    #calcBtn { max-width: 600px; margin: 0 auto; }
+    #calcBtnContainer.active {
+      display: block !important;
+    }
+
+    #calcBtn {
+      max-width: 600px;
+      margin: 0 auto;
+    }
   }
 
   /* ── Stepper ── */
@@ -529,7 +626,7 @@
     background: #fff;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
   }
 
   .step {
@@ -541,7 +638,8 @@
   }
 
   .step-dot {
-    width: 28px; height: 28px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
@@ -554,7 +652,11 @@
     transition: background .2s, border-color .2s, color .2s;
   }
 
-  .step-label { display: flex; flex-direction: column; min-width: 0; }
+  .step-label {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
 
   .step-title {
     font-weight: 700;
@@ -572,22 +674,53 @@
     text-overflow: ellipsis;
   }
 
-  .step.is-active .step-dot  { border-color: #3182ce; color: #2b6cb0; }
-  .step.is-done   .step-dot  { border-color: #38a169; background: #c6f6d5; color: #276749; }
-  .step.is-stale  .step-dot  { border-color: #dd6b20; background: #fffaf0; color: #9c4221; }
+  .step.is-active .step-dot {
+    border-color: #3182ce;
+    color: #2b6cb0;
+  }
 
-  .step-sep { width: 22px; height: 1px; background: #e2e8f0; flex-shrink: 0; }
+  .step.is-done .step-dot {
+    border-color: #38a169;
+    background: #c6f6d5;
+    color: #276749;
+  }
+
+  .step.is-stale .step-dot {
+    border-color: #dd6b20;
+    background: #fffaf0;
+    color: #9c4221;
+  }
+
+  .step-sep {
+    width: 22px;
+    height: 1px;
+    background: #e2e8f0;
+    flex-shrink: 0;
+  }
 
   @media (max-width: 600px) {
+
     /* Rimosso stepper su mobile (nascondeva le didascalie rendendolo inutile/confuso) */
-    .stepper { display: none !important; }
-    .mobile-hide-icon { display: none; }
+    .stepper {
+      display: none !important;
+    }
+
+    .mobile-hide-icon {
+      display: none;
+    }
   }
 
   /* ── Banner ricalcolo necessario ── */
   @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .recalc-banner {
@@ -599,7 +732,7 @@
     border: 2px solid #fbd38d;
     color: #7b341e;
     font-size: .88rem;
-    box-shadow: 0 2px 8px rgba(245,158,11,.2);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, .2);
   }
 
   .recalc-banner.active {
@@ -610,8 +743,15 @@
     animation: slideIn .25s ease-out;
   }
 
-  .recalc-icon { font-size: 1rem; flex-shrink: 0; }
-  .recalc-text { flex: 1; font-weight: 600; }
+  .recalc-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .recalc-text {
+    flex: 1;
+    font-weight: 600;
+  }
 
   .recalc-banner button {
     border: 1px solid #f6ad55;
@@ -623,21 +763,25 @@
     width: auto;
   }
 
-  .recalc-banner button:hover { background: #fffbeb; }
+  .recalc-banner button:hover {
+    background: #fffbeb;
+  }
 
   /* ── Popup overlay ── */
   .popup-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.45);
+    background: rgba(0, 0, 0, .45);
     z-index: 999999;
     align-items: flex-start;
     justify-content: center;
     overflow-y: auto;
   }
 
-  .popup-overlay.active { display: flex; }
+  .popup-overlay.active {
+    display: flex;
+  }
 
   .popup-box {
     background: #fff;
@@ -645,12 +789,15 @@
     padding: 26px 28px;
     max-width: 440px;
     width: 92%;
-    box-shadow: 0 8px 30px rgba(0,0,0,.22);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, .22);
     margin: 100px auto 40px;
   }
 
   @media (max-width: 500px) {
-    .popup-box { padding: 20px 18px; margin: 60px auto 30px; }
+    .popup-box {
+      padding: 20px 18px;
+      margin: 60px auto 30px;
+    }
   }
 
   .popup-box h3 {
@@ -711,8 +858,15 @@
     width: auto;
   }
 
-  .popup-btn-copy:hover { background: #ebf8ff; border-color: #3182ce; }
-  .popup-btn-copy.copied { background: #c6f6d5; border-color: #38a169; }
+  .popup-btn-copy:hover {
+    background: #ebf8ff;
+    border-color: #3182ce;
+  }
+
+  .popup-btn-copy.copied {
+    background: #c6f6d5;
+    border-color: #38a169;
+  }
 
   .popup-actions {
     display: flex;
@@ -734,7 +888,9 @@
     width: auto;
   }
 
-  .popup-btn-confirm:hover { background: #d35400; }
+  .popup-btn-confirm:hover {
+    background: #d35400;
+  }
 
   .popup-btn-dismiss {
     background: #fff;
@@ -748,7 +904,9 @@
     transition: background .15s;
   }
 
-  .popup-btn-dismiss:hover { background: #f7fafc; }
+  .popup-btn-dismiss:hover {
+    background: #f7fafc;
+  }
 
   .popup-hint {
     text-align: center;
@@ -760,16 +918,18 @@
   /* ── Accessibilità ── */
   .sr-only {
     position: absolute;
-    width: 1px; height: 1px;
-    padding: 0; margin: -1px;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
     overflow: hidden;
-    clip: rect(0,0,0,0);
+    clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
   }
 
   :focus-visible {
-    outline: 3px solid rgba(49,130,206,.5);
+    outline: 3px solid rgba(49, 130, 206, .5);
     outline-offset: 2px;
   }
 </style>
@@ -849,7 +1009,8 @@
         <div style="font-weight:600; margin-bottom:8px; color:#4a5568;">Dettaglio opzioni</div>
         <div class="breakdown-row"><span>Alloggio</span><span id="totAlloggio">€ 0,00</span></div>
         <div class="breakdown-row"><span>Colazione</span><span id="totColazione">€ 0,00</span></div>
-        <div class="breakdown-row"><span>Assicurazione annullamento</span><span id="totAssicurazione">€ 0,00</span></div>
+        <div class="breakdown-row"><span>Assicurazione annullamento</span><span id="totAssicurazione">€ 0,00</span>
+        </div>
         <div class="breakdown-row"><span>Transfer opzionali</span><span id="totTransfer">€ 0,00</span></div>
         <div class="breakdown-row total"><span>Totale opzioni</span><span id="totOpzioni">€ 0,00</span></div>
         <div class="breakdown-row caparra"><span>Caparra versata</span><span id="caparraVersata">€ 0,00</span></div>
@@ -876,8 +1037,7 @@
         </button>
         <div style="margin-top:16px;">
           <label for="emailInput">Email per il riepilogo</label>
-          <input type="email" id="emailInput" placeholder="email@esempio.it"
-                 autocomplete="email" inputmode="email">
+          <input type="email" id="emailInput" placeholder="email@esempio.it" autocomplete="email" inputmode="email">
           <div style="font-size:.75rem; color:#718096; margin-top:4px;">
             Riceverai importi, IBAN e causale
           </div>
@@ -906,13 +1066,8 @@
 
         <div class="field-col">
           <label class="person-cognome-label">Cognome</label>
-          <input type="text" class="person-cognome"
-                 placeholder="Es. Rossi, D'Angelo"
-                 autocomplete="family-name"
-                 autocorrect="off"
-                 autocapitalize="words"
-                 spellcheck="false"
-                 inputmode="text">
+          <input type="text" class="person-cognome" placeholder="Es. Rossi, D'Angelo" autocomplete="family-name"
+            autocorrect="off" autocapitalize="words" spellcheck="false" inputmode="text">
           <div class="field-hint">Premi Invio o clicca “Carica”</div>
         </div>
 
@@ -920,13 +1075,8 @@
           <label class="person-nome-label">
             Nome
           </label>
-          <input type="text" class="person-nome"
-                 placeholder=""
-                 autocomplete="given-name"
-                 autocorrect="off"
-                 autocapitalize="words"
-                 spellcheck="false"
-                 inputmode="text">
+          <input type="text" class="person-nome" placeholder="" autocomplete="given-name" autocorrect="off"
+            autocapitalize="words" spellcheck="false" inputmode="text">
           <div class="field-hint" aria-hidden="true">&nbsp;</div>
         </div>
 
@@ -997,8 +1147,7 @@
 </template>
 
 <!-- ═══════════════════ POPUP: PAGAMENTO CARTA ═══════════════════ -->
-<div class="popup-overlay" id="payPopup"
-     role="dialog" aria-modal="true" aria-labelledby="popupTitle" tabindex="-1">
+<div class="popup-overlay" id="payPopup" role="dialog" aria-modal="true" aria-labelledby="popupTitle" tabindex="-1">
   <div class="popup-box" role="document">
     <h3 id="popupTitle">Completa il pagamento con carta</h3>
     <p class="popup-subtitle">
@@ -1025,8 +1174,8 @@
 </div>
 
 <!-- ═══════════════════ POPUP: CONFERMA CUSTOM ═══════════════════ -->
-<div class="popup-overlay" id="confirmModal"
-     role="dialog" aria-modal="true" aria-labelledby="confirmTitle" tabindex="-1">
+<div class="popup-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle"
+  tabindex="-1">
   <div class="popup-box" role="document" style="max-width:450px;">
     <h3 id="confirmTitle" style="margin-top:0;">Conferma prenotazione</h3>
     <div id="confirmBody" style="margin:14px 0; color:#4a5568; line-height:1.55; text-align:left;"></div>
@@ -1040,8 +1189,7 @@
 </div>
 
 <!-- ═══════════════════ POPUP: CONFERMA EMAIL / IBAN ═══════════════════ -->
-<div class="popup-overlay" id="ibanPopup"
-     role="dialog" aria-modal="true" aria-labelledby="ibanTitle" tabindex="-1">
+<div class="popup-overlay" id="ibanPopup" role="dialog" aria-modal="true" aria-labelledby="ibanTitle" tabindex="-1">
   <div class="popup-box" role="document">
     <h3 id="ibanTitle">Email inviata! ✅</h3>
     <p style="color:#4a5568; margin-bottom:18px;">
@@ -1051,7 +1199,7 @@
     <div class="popup-field">
       <span class="popup-field-label">IBAN</span>
       <span class="popup-field-value" id="ibanValue"
-            style="font-family:monospace; font-size:14px; letter-spacing:.3px;">
+        style="font-family:monospace; font-size:14px; letter-spacing:.3px;">
         IT77U0306909606100000125525
       </span>
       <button type="button" class="popup-btn-copy" onclick="copyPopupField('ibanValue',this)">📋</button>
@@ -1071,1280 +1219,1262 @@
 
 <!-- ═══════════════════════════════════════════ JS ════════════════════════════════════════════ -->
 <script>
-'use strict';
+  'use strict';
 
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
-const GAS_ENDPOINT =
-  'https://script.google.com/macros/s/AKfycbypOQa6JsgF6Ga1SMzZlTFWFoSBo9kUxHOK319CpzePwRQkrYKCcFi6KIpZVz93-7gD/exec';
+  // ─── CONFIG ──────────────────────────────────────────────────────────────────
+  const GAS_ENDPOINT =
+    'https://script.google.com/macros/s/AKfycbypOQa6JsgF6Ga1SMzZlTFWFoSBo9kUxHOK319CpzePwRQkrYKCcFi6KIpZVz93-7gD/exec';
 
-const FETCH_TIMEOUT_MS = 12000;
-const TINABA_URL       = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
+  const FETCH_TIMEOUT_MS = 12000;
+  const TINABA_URL = 'https://crowdfunding.tinaba.it/donate-with-card/1020284';
 
-const COSTI = {
-  alloggio:     { M: 250, S: 640, DM: 475, DS: 475, T: 460 },
-  colazione:    70,
-  assicurazione:20,
-  transfer:     { rf: 10, pt: 15, sc: 15, fr: 10 },
-  caparra:      150,
-};
-
-const LABELS = {
-  calc:        'Aggiorna saldo',
-  recalc:      'Ricalcola',
-  save:        'Invia riepilogo via email',
-  lookupHint:  'Inserisci cognome per iniziare',
-};
-
-
-// ─── NORMALIZZAZIONE CLIENT-SIDE ─────────────────────────────────────────────
-/**
- * Stessa logica del GAS norm(): accenti, apostrofi, trattini, spazi.
- * Usata per inviare al server la forma normalizzata (evita mismatch).
- */
-function normClient(s) {
-  return String(s || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[''`ʼ\u2018\u2019\u02bc]/g, '')
-    .replace(/[-–—]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function capitalize(str) {
-  if (!str) return '';
-  return str.toLowerCase()
-    .replace(/(?:^|[\s\-])([a-zàèéìòùäöü])/g, (m, c) => m.replace(c, c.toUpperCase()))
-    .replace(/([''`])([a-zàèéìòùäöü])/g, (_, apos, c) => apos + c.toUpperCase());
-}
-
-
-// ─── ALLOGGIO HELPERS ─────────────────────────────────────────────────────────
-function getSiglaAlloggio(text) {
-  if (!text || text === '—') return null;
-  const t = text.toLowerCase();
-  if (t.includes('multipla') || t.includes('ostello')) return 'M';
-  if (t.includes('singola'))   return 'S';
-  if (t.includes('separati'))  return 'DS';
-  if (t.includes('tripla'))    return 'T';
-  const dm = t.match(/\(dm(\d*)\)/i);
-  if (dm) return 'DM' + dm[1];
-  if (t.includes('matrimoniale')) return 'DM';
-  const s = text.trim().toUpperCase().replace(/\d+$/, '');
-  return COSTI.alloggio[s] !== undefined ? s : null;
-}
-
-function getCostoAlloggio(text) {
-  if (!text || text === '—') return 0;
-  const fix = text.match(/€\s*(\d+)/);
-  if (fix) return parseInt(fix[1], 10);
-  const s = getSiglaAlloggio(text);
-  if (!s) return 0;
-  return COSTI.alloggio[/^DM/.test(s) ? 'DM' : s] || 0;
-}
-
-function formatAlloggioText(text) {
-  const costo = getCostoAlloggio(text);
-  if (costo === 0) return text || '—';
-  const s = getSiglaAlloggio(text);
-  const nomi = {
-    S: 'Albergo – Singola',
-    DS:'Albergo – Doppia (letti separati)',
-    M: 'Ostello – Multipla',
-    T: 'Albergo – Tripla',
-  };
-  const label = (s && /^DM/.test(s)) ? 'Albergo – Doppia matrimoniale'
-               : (nomi[s] || text);
-  return `${label} (€${costo})`;
-}
-
-
-// ─── FORMATTAZIONE VALUTA ─────────────────────────────────────────────────────
-const euroFmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
-function formatEuro(v) {
-  const n = Number(v);
-  return Number.isFinite(n) ? euroFmt.format(n) : '€ —';
-}
-
-
-// ─── FETCH CON TIMEOUT ────────────────────────────────────────────────────────
-async function fetchWithTimeout(url, options = {}, ms = FETCH_TIMEOUT_MS) {
-  const ac     = new AbortController();
-  let timedOut = false;
-  const timer  = setTimeout(() => { timedOut = true; ac.abort(); }, ms);
-
-  const caller = options.signal;
-  if (caller) {
-    if (caller.aborted) { clearTimeout(timer); ac.abort(); }
-    else caller.addEventListener('abort', () => ac.abort(), { once: true });
-  }
-
-  const { signal: _drop, ...rest } = options;
-  try {
-    return await fetch(url, { ...rest, signal: ac.signal });
-  } finally {
-    clearTimeout(timer);
-    ac.signal._timedOut = timedOut;
-  }
-}
-
-async function gasPost(payload, signal) {
-  const res = await fetchWithTimeout(GAS_ENDPOINT, {
-    method:  'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body:    JSON.stringify(payload),
-    signal,
-  });
-  let data;
-  try { data = JSON.parse(await res.text()); }
-  catch { throw new Error('Risposta non valida dal server'); }
-  return data;
-}
-
-
-// ─── STATO APPLICAZIONE ──────────────────────────────────────────────────────
-let persone        = [];
-let personCounter  = 0;
-let lastCalcResult = null;
-let recalcNeeded   = false;
-let _lastSavedHash = null;
-let _calcInProgress= false;
-
-const lookupTimers      = {};
-const lookupControllers = {};
-const latestLookupToken = {};
-const lookupCache       = new Map();
-const CACHE_TTL_MS      = 300000; // 5 minuti
-
-function getFromCache(key) {
-  const entry = lookupCache.get(key);
-  if (!entry) return null;
-  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
-    lookupCache.delete(key);
-    return null;
-  }
-  return entry.data;
-}
-
-function setInCache(key, data) {
-  lookupCache.set(key, { data, timestamp: Date.now() });
-}
-
-function makeCacheKey(nome, cognome) {
-  return `${normClient(nome)}|${normClient(cognome)}`;
-}
-
-
-// ─── DOM REFS ────────────────────────────────────────────────────────────────
-const container         = document.getElementById('personsContainer');
-const tmpl              = document.getElementById('personCardTemplate');
-const btnAdd            = document.getElementById('btnAddPerson');
-const btnCalc           = document.getElementById('calcBtn');
-const btnCalcDesktop    = document.getElementById('calcBtnDesktop');
-const desktopShortcut   = document.getElementById('desktopCalcShortcut');
-const calcButtons       = [btnCalc, btnCalcDesktop].filter(Boolean);
-const btnSave           = document.getElementById('saveBtn');
-const btnPay            = document.getElementById('payBtn');
-const summaryBox        = document.getElementById('summaryBox');
-const breakdownBox      = document.getElementById('breakdownBox');
-const calcBtnContainer  = document.getElementById('calcBtnContainer');
-const recalcBanner      = document.getElementById('recalcBanner');
-const totalBox          = document.getElementById('totalBox');
-const globalStatus      = document.getElementById('globalStatus');
-const emailInput        = document.getElementById('emailInput');
-const actionSection     = document.getElementById('actionSection');
-const payPopup          = document.getElementById('payPopup');
-const orDivider         = document.getElementById('orDivider');
-
-
-// ─── MOBILE: STICKY CALC BUTTON ──────────────────────────────────────────────
-const calcBtnAnchor = document.createComment('calc-btn-anchor');
-if (calcBtnContainer?.parentNode)
-  calcBtnContainer.parentNode.insertBefore(calcBtnAnchor, calcBtnContainer);
-
-function mountCalcBtn() {
-  if (!calcBtnContainer) return;
-  const isMobile = window.matchMedia('(max-width: 900px)').matches;
-  if (isMobile) {
-    if (calcBtnContainer.parentNode !== document.body)
-      document.body.appendChild(calcBtnContainer);
-  } else {
-    if (calcBtnAnchor.parentNode && calcBtnContainer.parentNode !== calcBtnAnchor.parentNode)
-      calcBtnAnchor.parentNode.insertBefore(calcBtnContainer, calcBtnAnchor.nextSibling);
-    document.body.classList.remove('has-mobile-cta');
-  }
-}
-
-mountCalcBtn();
-window.addEventListener('resize', mountCalcBtn);
-
-
-// ─── WARM-UP GAS ─────────────────────────────────────────────────────────────
-(async () => {
-  const badge = document.getElementById('warmupBadge');
-  if (badge) badge.style.display = 'block';
-  document.querySelectorAll('.btn-search-person').forEach(b => b.disabled = true);
-
-  const hide = () => {
-    if (badge) badge.style.display = 'none';
-    if (desktopShortcut) desktopShortcut.style.display = '';
+  const COSTI = {
+    alloggio: { M: 250, S: 640, DM: 475, DS: 475, T: 460 },
+    colazione: 70,
+    assicurazione: 20,
+    transfer: { rf: 10, pt: 15, sc: 15, fr: 10 },
+    caparra: 150,
   };
 
-  try {
-    await gasPost({ action: '__ping__' });
-    if (badge) {
-      badge.textContent = '✅ Siamo pronti!';
-      badge.classList.add('ready');
-    }
-    setTimeout(hide, 2500);
-  } catch (_) {
-    hide();
-  } finally {
-    document.querySelectorAll('.btn-search-person').forEach(b => b.disabled = false);
+  const LABELS = {
+    calc: 'Aggiorna saldo',
+    recalc: 'Ricalcola',
+    save: 'Invia riepilogo via email',
+    lookupHint: 'Inserisci cognome per iniziare',
+  };
+
+
+  // ─── NORMALIZZAZIONE CLIENT-SIDE ─────────────────────────────────────────────
+  /**
+   * Stessa logica del GAS norm(): accenti, apostrofi, trattini, spazi.
+   * Usata per inviare al server la forma normalizzata (evita mismatch).
+   */
+  function normClient(s) {
+    return String(s || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[''`ʼ\u2018\u2019\u02bc]/g, '')
+      .replace(/[-–—]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
-})();
 
-
-// ─── STEPPER ─────────────────────────────────────────────────────────────────
-function updateStepper() {
-  const steps      = document.querySelectorAll('#stepper .step');
-  const loadedN    = persone.filter(p => p.loaded).length;
-  const step1Done  = loadedN > 0;
-  const step3Done  = !!lastCalcResult && !recalcNeeded;
-  const active     = step3Done ? 3 : step1Done ? 2 : 1;
-
-  steps.forEach(el => {
-    const n = +el.dataset.step;
-    el.classList.remove('is-active', 'is-done', 'is-stale');
-    if ((n === 1 && step1Done) || (n === 2 && step1Done) || (n === 3 && step3Done))
-      el.classList.add('is-done');
-    if (n === active)        el.classList.add('is-active');
-    if (n === 3 && recalcNeeded) el.classList.add('is-stale');
-  });
-
-  const dot3 = document.querySelector('#stepper .step[data-step="3"] .step-dot');
-  if (dot3) dot3.textContent = recalcNeeded ? '!' : (step3Done ? '✓' : '3');
-}
-
-updateStepper();
-
-
-// ─── STATUS HELPERS ──────────────────────────────────────────────────────────
-function setGlobalStatus(type, msg) {
-  globalStatus.innerHTML  = msg;
-  globalStatus.className  = 'status' + (type ? ` ${type}` : '');
-}
-
-function setCardStatus(card, type, msg) {
-  const el       = card.querySelector('.person-status');
-  el.innerHTML   = msg;
-  el.className   = 'status person-status' + (type ? ` ${type}` : '');
-}
-
-
-// ─── CALC BUTTONS ────────────────────────────────────────────────────────────
-function setCalcButtons({ text, display, disabled }) {
-  const isMobile = window.matchMedia('(max-width: 900px)').matches;
-
-  calcButtons.forEach(btn => {
-    if (text    != null) btn.textContent = text;
-    if (display != null) btn.style.display = display;
-    if (disabled!= null) btn.disabled = disabled;
-  });
-
-  if (display != null) {
-    const show = display === 'block';
-    if (isMobile && calcBtnContainer) {
-      calcBtnContainer.classList.toggle('active', show);
-      document.body.classList.toggle('has-mobile-cta', show);
-    }
-    if (desktopShortcut) desktopShortcut.style.display = (show && !isMobile) ? 'block' : 'none';
+  function capitalize(str) {
+    if (!str) return '';
+    return str.toLowerCase()
+      .replace(/(?:^|[\s\-])([a-zàèéìòùäöü])/g, (m, c) => m.replace(c, c.toUpperCase()))
+      .replace(/([''`])([a-zàèéìòùäöü])/g, (_, apos, c) => apos + c.toUpperCase());
   }
-}
 
 
-// ─── TOTALE PARZIALE PROGRESSIVO ─────────────────────────────────────────────
-function updatePartialTotal() {
-  if (lastCalcResult) return;
-
-  let partial   = 0;
-  let hasLoaded = false;
-
-  const uniqueRooms = new Set();
-  persone.forEach(p => {
-    if (!p.loaded) return;
-    hasLoaded = true;
-    const card = p.cardEl;
-    if (!card) return;
-    
-    if (!uniqueRooms.has(p.row)) {
-      partial += (p.costoAlloggio || 0);
-      uniqueRooms.add(p.row);
-    }
-    
-    if (p.colazione)    partial += COSTI.colazione;
-    if (p.assicurazione)partial += COSTI.assicurazione;
-    if (card.querySelector('.tr-rf')?.checked) partial += COSTI.transfer.rf;
-    if (card.querySelector('.tr-pt')?.checked) partial += COSTI.transfer.pt;
-    if (card.querySelector('.tr-sc')?.checked) partial += COSTI.transfer.sc;
-    if (card.querySelector('.tr-fr')?.checked) partial += COSTI.transfer.fr;
-  });
-
-  const box = document.getElementById('partialTotalBox');
-  if (hasLoaded) {
-    box.style.display = 'block';
-    document.getElementById('partialTotalValue').textContent = formatEuro(partial);
-  } else {
-    box.style.display = 'none';
+  // ─── ALLOGGIO HELPERS ─────────────────────────────────────────────────────────
+  function getSiglaAlloggio(text) {
+    if (!text || text === '—') return null;
+    const t = text.toLowerCase();
+    if (t.includes('multipla') || t.includes('ostello')) return 'M';
+    if (t.includes('singola')) return 'S';
+    if (t.includes('separati')) return 'DS';
+    if (t.includes('tripla')) return 'T';
+    const dm = t.match(/\(dm(\d*)\)/i);
+    if (dm) return 'DM' + dm[1];
+    if (t.includes('matrimoniale')) return 'DM';
+    const s = text.trim().toUpperCase().replace(/\d+$/, '');
+    return COSTI.alloggio[s] !== undefined ? s : null;
   }
-}
+
+  function getCostoAlloggio(text) {
+    if (!text || text === '—') return 0;
+    const fix = text.match(/€\s*(\d+)/);
+    if (fix) return parseInt(fix[1], 10);
+    const s = getSiglaAlloggio(text);
+    if (!s) return 0;
+    return COSTI.alloggio[/^DM/.test(s) ? 'DM' : s] || 0;
+  }
+
+  function formatAlloggioText(text) {
+    const costo = getCostoAlloggio(text);
+    if (costo === 0) return text || '—';
+    const s = getSiglaAlloggio(text);
+    const nomi = {
+      S: 'Albergo – Singola',
+      DS: 'Albergo – Doppia (letti separati)',
+      M: 'Ostello – Multipla',
+      T: 'Albergo – Tripla',
+    };
+    const label = (s && /^DM/.test(s)) ? 'Albergo – Doppia matrimoniale'
+      : (nomi[s] || text);
+    return `${label} (€${costo})`;
+  }
 
 
-// ─── BANNER RICALCOLO ────────────────────────────────────────────────────────
-function showRecalcBanner() {
-  recalcNeeded = true;
-  recalcBanner.classList.add('active');
-  setCalcButtons({ display: 'block', text: LABELS.recalc });
-  btnSave.disabled = true;
-  btnPay.disabled  = true;
-  totalBox.classList.add('stale');
-  orDivider.style.color = '#a0aec0';
-  _lastSavedHash = null;
+  // ─── FORMATTAZIONE VALUTA ─────────────────────────────────────────────────────
+  const euroFmt = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+  function formatEuro(v) {
+    const n = Number(v);
+    return Number.isFinite(n) ? euroFmt.format(n) : '€ —';
+  }
+
+
+  // ─── FETCH CON TIMEOUT ────────────────────────────────────────────────────────
+  async function fetchWithTimeout(url, options = {}, ms = FETCH_TIMEOUT_MS) {
+    const ac = new AbortController();
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; ac.abort(); }, ms);
+
+    const caller = options.signal;
+    if (caller) {
+      if (caller.aborted) { clearTimeout(timer); ac.abort(); }
+      else caller.addEventListener('abort', () => ac.abort(), { once: true });
+    }
+
+    const { signal: _drop, ...rest } = options;
+    try {
+      return await fetch(url, { ...rest, signal: ac.signal });
+    } finally {
+      clearTimeout(timer);
+      ac.signal._timedOut = timedOut;
+    }
+  }
+
+  async function gasPost(payload, signal) {
+    const res = await fetchWithTimeout(GAS_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      signal,
+    });
+    let data;
+    try { data = JSON.parse(await res.text()); }
+    catch { throw new Error('Risposta non valida dal server'); }
+    return data;
+  }
+
+
+  // ─── STATO APPLICAZIONE ──────────────────────────────────────────────────────
+  let persone = [];
+  let personCounter = 0;
+  let lastCalcResult = null;
+  let recalcNeeded = false;
+  let _lastSavedHash = null;
+  let _calcInProgress = false;
+
+  const lookupTimers = {};
+  const lookupControllers = {};
+  const latestLookupToken = {};
+  const lookupCache = new Map();
+  const CACHE_TTL_MS = 300000; // 5 minuti
+
+  function getFromCache(key) {
+    const entry = lookupCache.get(key);
+    if (!entry) return null;
+    if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+      lookupCache.delete(key);
+      return null;
+    }
+    return entry.data;
+  }
+
+  function setInCache(key, data) {
+    lookupCache.set(key, { data, timestamp: Date.now() });
+  }
+
+  function makeCacheKey(nome, cognome) {
+    return `${normClient(nome)}|${normClient(cognome)}`;
+  }
+
+
+  // ─── DOM REFS ────────────────────────────────────────────────────────────────
+  const container = document.getElementById('personsContainer');
+  const tmpl = document.getElementById('personCardTemplate');
+  const btnAdd = document.getElementById('btnAddPerson');
+  const btnCalc = document.getElementById('calcBtn');
+  const btnCalcDesktop = document.getElementById('calcBtnDesktop');
+  const desktopShortcut = document.getElementById('desktopCalcShortcut');
+  const calcButtons = [btnCalc, btnCalcDesktop].filter(Boolean);
+  const btnSave = document.getElementById('saveBtn');
+  const btnPay = document.getElementById('payBtn');
+  const summaryBox = document.getElementById('summaryBox');
+  const breakdownBox = document.getElementById('breakdownBox');
+  const calcBtnContainer = document.getElementById('calcBtnContainer');
+  const recalcBanner = document.getElementById('recalcBanner');
+  const totalBox = document.getElementById('totalBox');
+  const globalStatus = document.getElementById('globalStatus');
+  const emailInput = document.getElementById('emailInput');
+  const actionSection = document.getElementById('actionSection');
+  const payPopup = document.getElementById('payPopup');
+  const orDivider = document.getElementById('orDivider');
+
+
+  // ─── MOBILE: STICKY CALC BUTTON ──────────────────────────────────────────────
+  const calcBtnAnchor = document.createComment('calc-btn-anchor');
+  if (calcBtnContainer?.parentNode)
+    calcBtnContainer.parentNode.insertBefore(calcBtnAnchor, calcBtnContainer);
+
+  function mountCalcBtn() {
+    if (!calcBtnContainer) return;
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    if (isMobile) {
+      if (calcBtnContainer.parentNode !== document.body)
+        document.body.appendChild(calcBtnContainer);
+    } else {
+      if (calcBtnAnchor.parentNode && calcBtnContainer.parentNode !== calcBtnAnchor.parentNode)
+        calcBtnAnchor.parentNode.insertBefore(calcBtnContainer, calcBtnAnchor.nextSibling);
+      document.body.classList.remove('has-mobile-cta');
+    }
+  }
+
+  mountCalcBtn();
+  window.addEventListener('resize', mountCalcBtn);
+
+
+  // ─── WARM-UP GAS ─────────────────────────────────────────────────────────────
+  (async () => {
+    const badge = document.getElementById('warmupBadge');
+    if (badge) badge.style.display = 'block';
+    document.querySelectorAll('.btn-search-person').forEach(b => b.disabled = true);
+
+    const hide = () => {
+      if (badge) badge.style.display = 'none';
+      if (desktopShortcut) desktopShortcut.style.display = '';
+    };
+
+    try {
+      await gasPost({ action: '__ping__' });
+      if (badge) {
+        badge.textContent = '✅ Siamo pronti!';
+        badge.classList.add('ready');
+      }
+      setTimeout(hide, 2500);
+    } catch (_) {
+      hide();
+    } finally {
+      document.querySelectorAll('.btn-search-person').forEach(b => b.disabled = false);
+    }
+  })();
+
+
+  // ─── STEPPER ─────────────────────────────────────────────────────────────────
+  function updateStepper() {
+    const steps = document.querySelectorAll('#stepper .step');
+    const loadedN = persone.filter(p => p.loaded).length;
+    const step1Done = loadedN > 0;
+    const step3Done = !!lastCalcResult && !recalcNeeded;
+    const active = step3Done ? 3 : step1Done ? 2 : 1;
+
+    steps.forEach(el => {
+      const n = +el.dataset.step;
+      el.classList.remove('is-active', 'is-done', 'is-stale');
+      if ((n === 1 && step1Done) || (n === 2 && step1Done) || (n === 3 && step3Done))
+        el.classList.add('is-done');
+      if (n === active) el.classList.add('is-active');
+      if (n === 3 && recalcNeeded) el.classList.add('is-stale');
+    });
+
+    const dot3 = document.querySelector('#stepper .step[data-step="3"] .step-dot');
+    if (dot3) dot3.textContent = recalcNeeded ? '!' : (step3Done ? '✓' : '3');
+  }
+
   updateStepper();
-}
 
-function hideRecalcBanner() {
-  recalcNeeded = false;
-  recalcBanner.classList.remove('active');
-  totalBox.classList.remove('stale');
-  updateStepper();
-}
 
-function onOptionsChanged() {
-  if (lastCalcResult) {
-    showRecalcBanner();
-    setGlobalStatus('', '');
-    document.getElementById('saldoDaVersare').textContent = '€ —';
-    breakdownBox.style.display = 'none';
-    summaryBox.innerHTML = '⚠️ Opzioni modificate — premi "Ricalcola" per aggiornare.';
-  } else {
+  // ─── STATUS HELPERS ──────────────────────────────────────────────────────────
+  function setGlobalStatus(type, msg) {
+    globalStatus.innerHTML = msg;
+    globalStatus.className = 'status' + (type ? ` ${type}` : '');
+  }
+
+  function setCardStatus(card, type, msg) {
+    const el = card.querySelector('.person-status');
+    el.innerHTML = msg;
+    el.className = 'status person-status' + (type ? ` ${type}` : '');
+  }
+
+
+  // ─── CALC BUTTONS ────────────────────────────────────────────────────────────
+  function setCalcButtons({ text, display, disabled }) {
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+
+    calcButtons.forEach(btn => {
+      if (text != null) btn.textContent = text;
+      if (display != null) btn.style.display = display;
+      if (disabled != null) btn.disabled = disabled;
+    });
+
+    if (display != null) {
+      const show = display === 'block';
+      if (isMobile && calcBtnContainer) {
+        calcBtnContainer.classList.toggle('active', show);
+        document.body.classList.toggle('has-mobile-cta', show);
+      }
+      if (desktopShortcut) desktopShortcut.style.display = (show && !isMobile) ? 'block' : 'none';
+    }
+  }
+
+
+  // ─── TOTALE PARZIALE PROGRESSIVO ─────────────────────────────────────────────
+  function updatePartialTotal() {
+    if (lastCalcResult) return;
+
+    let partial = 0;
+    let hasLoaded = false;
+
+    const uniqueRooms = new Set();
+    persone.forEach(p => {
+      if (!p.loaded) return;
+      hasLoaded = true;
+      const card = p.cardEl;
+      if (!card) return;
+
+      if (!uniqueRooms.has(p.row)) {
+        partial += (p.costoAlloggio || 0);
+        uniqueRooms.add(p.row);
+      }
+
+      if (p.colazione) partial += COSTI.colazione;
+      if (p.assicurazione) partial += COSTI.assicurazione;
+      if (card.querySelector('.tr-rf')?.checked) partial += COSTI.transfer.rf;
+      if (card.querySelector('.tr-pt')?.checked) partial += COSTI.transfer.pt;
+      if (card.querySelector('.tr-sc')?.checked) partial += COSTI.transfer.sc;
+      if (card.querySelector('.tr-fr')?.checked) partial += COSTI.transfer.fr;
+    });
+
+    const box = document.getElementById('partialTotalBox');
+    if (hasLoaded) {
+      box.style.display = 'block';
+      document.getElementById('partialTotalValue').textContent = formatEuro(partial);
+    } else {
+      box.style.display = 'none';
+    }
+  }
+
+
+  // ─── BANNER RICALCOLO ────────────────────────────────────────────────────────
+  function showRecalcBanner() {
+    recalcNeeded = true;
+    recalcBanner.classList.add('active');
+    setCalcButtons({ display: 'block', text: LABELS.recalc });
+    btnSave.disabled = true;
+    btnPay.disabled = true;
+    totalBox.classList.add('stale');
+    orDivider.style.color = '#a0aec0';
+    _lastSavedHash = null;
+    updateStepper();
+  }
+
+  function hideRecalcBanner() {
+    recalcNeeded = false;
+    recalcBanner.classList.remove('active');
+    totalBox.classList.remove('stale');
+    updateStepper();
+  }
+
+  function onOptionsChanged() {
+    if (lastCalcResult) {
+      showRecalcBanner();
+      setGlobalStatus('', '');
+      document.getElementById('saldoDaVersare').textContent = '€ —';
+      breakdownBox.style.display = 'none';
+      summaryBox.innerHTML = '⚠️ Opzioni modificate — premi "Ricalcola" per aggiornare.';
+    } else {
+      resetCalcState();
+    }
+    updatePartialTotal();
+  }
+
+
+  // ─── MODALI ACCESSIBILI (payPopup, confirmModal, ibanPopup) ──────────────────
+  let _focusBeforeModal = null;
+  let _activeModal = null;
+
+  function getFocusables(el) {
+    return Array.from(el.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )).filter(e => !e.disabled && e.offsetParent !== null);
+  }
+
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    _focusBeforeModal = document.activeElement;
+    _activeModal = modal;
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    (getFocusables(modal)[0] || modal).focus();
+    document.addEventListener('keydown', onModalKey, true);
+  }
+
+  function closeModal() {
+    if (!_activeModal) return;
+    _activeModal.classList.remove('active');
+    _activeModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onModalKey, true);
+    _focusBeforeModal?.focus();
+    _activeModal = null;
+  }
+
+  function onModalKey(e) {
+    if (!_activeModal) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
+    if (e.key !== 'Tab') return;
+    const f = getFocusables(_activeModal);
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) {
+      e.preventDefault(); f[f.length - 1].focus();
+    } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) {
+      e.preventDefault(); f[0].focus();
+    }
+  }
+
+  document.getElementById('popupCloseBtn')?.addEventListener('click', closeModal);
+  document.getElementById('ibanCloseBtn')?.addEventListener('click', closeModal);
+
+  [payPopup, document.getElementById('confirmModal'), document.getElementById('ibanPopup')].forEach(m => {
+    m?.addEventListener('mousedown', e => { if (e.target === m) closeModal(); });
+  });
+
+
+  function showConfirmModal(title, bodyHtml) {
+    return new Promise(resolve => {
+      const titleEl = document.getElementById('confirmTitle');
+      const bodyEl = document.getElementById('confirmBody');
+      const okBtn = document.getElementById('confirmOkBtn');
+      const cancelBtn = document.getElementById('confirmCancelBtn');
+
+      titleEl.textContent = title;
+      bodyEl.innerHTML = bodyHtml;
+
+      okBtn.onclick = () => done(true);
+      cancelBtn.onclick = () => done(false);
+
+      openModal('confirmModal');
+
+      const done = val => {
+        closeModal();
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        resolve(val);
+      };
+    });
+  }
+
+
+  // ─── RICERCA PERSONA ─────────────────────────────────────────────────────────
+  function cancelLookup(index) {
+    clearTimeout(lookupTimers[index]);
+    delete lookupTimers[index];
+    lookupControllers[index]?.abort();
+    delete lookupControllers[index];
+    delete latestLookupToken[index];
+  }
+
+  function debouncedLookup(card, index, delay = 120) {
+    clearTimeout(lookupTimers[index]);
+    lookupTimers[index] = setTimeout(() => {
+      lookupPersona(card, index);
+      delete lookupTimers[index];
+    }, delay);
+  }
+
+  async function lookupPersona(card, index) {
+    const p = persone.find(p => p.index === index);
+    if (!p || p.loaded) return;
+
+    const cognomeRaw = card.querySelector('.person-cognome').value.trim();
+    const nomeRaw = card.querySelector('.person-nome').value.trim();
+    const cognome = normClient(cognomeRaw);
+    const nome = normClient(nomeRaw);
+
+    if (!cognome) return;
+
+    const key = makeCacheKey(nome, cognome);
+    const cached = getFromCache(key);
+    if (cached) {
+      applyResult(card, p, cached, nomeRaw, cognomeRaw);
+      return;
+    }
+
+    cancelLookup(index);
+    const ctrl = new AbortController();
+    lookupControllers[index] = ctrl;
+    const token = Symbol();
+    latestLookupToken[index] = token;
+
+    setCardStatus(card, 'loading', '<span class="spinner"></span>Caricamento…');
+
+    try {
+      const payload = nome
+        ? { action: 'lookupPersona', nome, cognome }
+        : { action: 'lookupByCognome', cognome };
+
+      const data = await gasPost(payload, ctrl.signal);
+
+      if (latestLookupToken[index] !== token) return; // risposta obsoleta
+
+      if (!data.success) {
+        if (data.error === 'duplicate') {
+          let html = '<div style="margin-top:8px;">Ci sono più persone con questo cognome. Quale sei?</div>';
+          html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">';
+          data.candidates.forEach(c => {
+            html += `<button type="button" class="secondary" style="width:auto; font-size:.85rem; padding:4px 10px;" ` +
+              `onclick="selectCandidate(this.closest('.person-card'), ${index}, '${c.nome.replace(/'/g, "\\'")}')">` +
+              `Sono ${capitalize(c.nome)}</button>`;
+          });
+          html += '</div>';
+
+          setCardStatus(card, 'error', html);
+          card.querySelector('.person-nome').removeAttribute('readonly');
+          card.querySelector('.person-nome').classList.add('has-error');
+        } else {
+          setCardStatus(card, 'error',
+            `Prenotazione non trovata per "<strong>${capitalize(cognomeRaw)}</strong>". ` +
+            `Controlla l'ortografia o ` +
+            `<a href="mailto:info@parrocchiasanteugenio.it" style="color:#c53030;">` +
+            `contattaci</a>.`);
+        }
+        return;
+      }
+
+      setInCache(key, data);
+      applyResult(card, p, data, nomeRaw, cognomeRaw);
+
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        if (lookupControllers[index]) {
+          // Timeout (non cancel utente)
+          setCardStatus(card, 'error',
+            'Il server sta impiegando troppo tempo. ' +
+            `<a href="#" onclick="event.preventDefault();cancelLookup(${index});` +
+            `lookupPersona(this.closest('.person-card'),${index});"` +
+            ` style="color:#c53030;">↻ Riprova</a>`);
+        }
+        return;
+      }
+      if (!p.loaded) setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
+    } finally {
+      if (lookupControllers[index] === ctrl) delete lookupControllers[index];
+    }
+  }
+
+  function selectCandidate(card, index, nome) {
+    const nomeInp = card.querySelector('.person-nome');
+    if (nomeInp) {
+      nomeInp.value = capitalize(nome);
+      lookupPersona(card, index);
+    }
+  }
+
+  function applyResult(card, person, data, nomeRaw, cognomeRaw) {
+    person.nome = capitalize(data.persona?.nome || nomeRaw);
+    person.cognome = capitalize(data.persona?.cognome || cognomeRaw);
+    person.row = data.row;
+    person.alloggio = data.persona?.alloggio || '—';
+    person.costoAlloggio = getCostoAlloggio(person.alloggio);
+    person.colazione = !!data.persona?.colazione;
+    person.assicurazione = !!data.persona?.assicurazione;
+    person.loaded = true;
+
+    // Popola UI
+    card.querySelector('.alloggio-box').textContent = formatAlloggioText(person.alloggio);
+    card.querySelector('.colazione').checked = person.colazione;
+    card.querySelector('.assicurazione').checked = person.assicurazione;
+
+    // Mostra/nasconde opzioni bloccate
+    const colLbl = card.querySelector('.label-colazione');
+    const assLbl = card.querySelector('.label-assicurazione');
+    const lockedWrap = card.querySelector('.locked-options-help')?.parentElement;
+    const notaLocked = card.querySelector('.nota-locked');
+    if (colLbl) colLbl.style.display = person.colazione ? '' : 'none';
+    if (assLbl) assLbl.style.display = person.assicurazione ? '' : 'none';
+    if (lockedWrap && !person.colazione && !person.assicurazione) {
+      lockedWrap.style.display = 'none';
+      if (notaLocked) notaLocked.style.display = 'none';
+    }
+
+    // Transfer
+    if (data.persona?.transfer) {
+      const tr = data.persona.transfer;
+      ['rf', 'pt', 'sc', 'fr'].forEach(k => {
+        const chk = card.querySelector(`.tr-${k}`);
+        if (chk) chk.checked = !!tr[k];
+      });
+    }
+
+    // Badge "già incluso"
+    ['rf', 'pt', 'sc', 'fr'].forEach(k => {
+      const chk = card.querySelector(`.tr-${k}`);
+      const lbl = card.querySelector(`.label-tr-${k}`);
+      if (chk?.checked && lbl && !lbl.querySelector('.badge-preselected')) {
+        const b = document.createElement('span');
+        b.className = 'badge-preselected';
+        b.textContent = 'già incluso';
+        lbl.appendChild(b);
+      }
+    });
+
+    // Pre-compila email se il campo è vuoto
+    if (emailInput && data.persona?.email && !emailInput.value.trim())
+      emailInput.value = data.persona.email;
+
+    // Blocca i campi di ricerca
+    card.querySelector('.person-cognome').setAttribute('readonly', true);
+    card.querySelector('.person-nome').setAttribute('readonly', true);
+    card.querySelector('.person-nome').classList.remove('has-error');
+    card.querySelector('.loaded-data-section').style.display = 'block';
+    card.classList.add('locked');
+    setSearchBtnVisible(card, false);
+
+    // Nascondi hint cognome
+    const hint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
+    if (hint) hint.style.visibility = 'hidden';
+
+    // Ripristina la grafia corretta dal foglio (cognome e nome)
+    // Es. "decclesia" → "D'Ecclesia", "rossi" → "Rossi"
+    const cogEl = card.querySelector('.person-cognome');
+    if (cogEl) cogEl.value = person.cognome;
+
+    const nomeEl = card.querySelector('.person-nome');
+    if (nomeEl) nomeEl.value = person.nome;
+
+    setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
+    updateCardTitles();
+    updatePartialTotal();
+
+    // Carica eventuale partner (senza scrollare via dalla card attuale)
+    if (data.partner?.persona) {
+      try { person.partnerIndex = loadPartnerCard(data.partner, false); }
+      catch (e) { console.error('Errore partner:', e); }
+    }
+
+    // Focus al primo transfer utile
+    setTimeout(() => card.querySelector('.tr-rf')?.focus(), 100);
+
     resetCalcState();
   }
-  updatePartialTotal();
-}
 
 
-// ─── MODALI ACCESSIBILI (payPopup, confirmModal, ibanPopup) ──────────────────
-let _focusBeforeModal = null;
-let _activeModal      = null;
-
-function getFocusables(el) {
-  return Array.from(el.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  )).filter(e => !e.disabled && e.offsetParent !== null);
-}
-
-function openModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (!modal) return;
-  _focusBeforeModal = document.activeElement;
-  _activeModal      = modal;
-  modal.classList.add('active');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  (getFocusables(modal)[0] || modal).focus();
-  document.addEventListener('keydown', onModalKey, true);
-}
-
-function closeModal() {
-  if (!_activeModal) return;
-  _activeModal.classList.remove('active');
-  _activeModal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-  document.removeEventListener('keydown', onModalKey, true);
-  _focusBeforeModal?.focus();
-  _activeModal = null;
-}
-
-function onModalKey(e) {
-  if (!_activeModal) return;
-  if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
-  if (e.key !== 'Tab') return;
-  const f = getFocusables(_activeModal);
-  if (!f.length) return;
-  if (e.shiftKey && document.activeElement === f[0]) {
-    e.preventDefault(); f[f.length - 1].focus();
-  } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) {
-    e.preventDefault(); f[0].focus();
-  }
-}
-
-document.getElementById('popupCloseBtn')?.addEventListener('click', closeModal);
-document.getElementById('ibanCloseBtn')?.addEventListener('click', closeModal);
-
-[payPopup, document.getElementById('confirmModal'), document.getElementById('ibanPopup')].forEach(m => {
-  m?.addEventListener('mousedown', e => { if (e.target === m) closeModal(); });
-});
-
-
-function showConfirmModal(title, bodyHtml) {
-  return new Promise(resolve => {
-    const modal     = document.getElementById('confirmModal');
-    const titleEl   = document.getElementById('confirmTitle');
-    const bodyEl    = document.getElementById('confirmBody');
-    const okBtn     = document.getElementById('confirmOkBtn');
-    const cancelBtn = document.getElementById('confirmCancelBtn');
-
-    titleEl.textContent = title;
-    bodyEl.innerHTML    = bodyHtml;
-
-    _focusBeforeModal = document.activeElement;
-    _activeModal      = modal;
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    okBtn.focus();
-    document.addEventListener('keydown', onModalKey, true);
-
-    const onKey = e => {
-      if (!modal.classList.contains('active')) return;
-      if (e.key === 'Escape') { e.preventDefault(); done(false); return; }
-      if (e.key !== 'Tab') return;
-      const f = getFocusables(modal);
-      if (!f.length) return;
-      if (e.shiftKey && document.activeElement === f[0]) {
-        e.preventDefault(); f[f.length - 1].focus();
-      } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) {
-        e.preventDefault(); f[0].focus();
-      }
-    };
-    document.addEventListener('keydown', onKey, true);
-
-    const done = val => {
-      _activeModal = modal; // ensure we close the right one
-      closeModal();
-      okBtn.onclick     = null;
-      cancelBtn.onclick = null;
-      resolve(val);
-    };
-
-    okBtn.onclick     = () => done(true);
-    cancelBtn.onclick = () => done(false);
-  });
-}
-
-
-// ─── RICERCA PERSONA ─────────────────────────────────────────────────────────
-function cancelLookup(index) {
-  clearTimeout(lookupTimers[index]);
-  delete lookupTimers[index];
-  lookupControllers[index]?.abort();
-  delete lookupControllers[index];
-  delete latestLookupToken[index];
-}
-
-function debouncedLookup(card, index, delay = 120) {
-  clearTimeout(lookupTimers[index]);
-  lookupTimers[index] = setTimeout(() => {
-    lookupPersona(card, index);
-    delete lookupTimers[index];
-  }, delay);
-}
-
-async function lookupPersona(card, index) {
-  const p = persone.find(p => p.index === index);
-  if (!p || p.loaded) return;
-
-  const cognomeRaw = card.querySelector('.person-cognome').value.trim();
-  const nomeRaw    = card.querySelector('.person-nome').value.trim();
-  const cognome    = normClient(cognomeRaw);
-  const nome       = normClient(nomeRaw);
-
-  if (!cognome) return;
-
-  const key = makeCacheKey(nome, cognome);
-  const cached = getFromCache(key);
-  if (cached) {
-    applyResult(card, p, cached, nomeRaw, cognomeRaw);
-    return;
+  // ─── GESTIONE CARD ────────────────────────────────────────────────────────────
+  function setSearchBtnVisible(card, visible) {
+    const btn = card.querySelector('.btn-search-person');
+    if (!btn) return;
+    const col = btn.closest('.field-col');
+    btn.style.display = visible ? '' : 'none';
+    if (col) col.style.display = visible ? '' : 'none';
   }
 
-  cancelLookup(index);
-  const ctrl  = new AbortController();
-  lookupControllers[index] = ctrl;
-  const token = Symbol();
-  latestLookupToken[index] = token;
+  function bindLookupEvents(card, index) {
+    if (card.dataset.lookupBound === 'true') return;
 
-  setCardStatus(card, 'loading', '<span class="spinner"></span>Caricamento…');
+    const cognomeInp = card.querySelector('.person-cognome');
+    const nomeInp = card.querySelector('.person-nome');
+    const searchBtn = card.querySelector('.btn-search-person');
 
-  try {
-    const payload = nome
-      ? { action: 'lookupPersona',   nome,    cognome }
-      : { action: 'lookupByCognome',          cognome };
+    const trigger = () => debouncedLookup(card, index, 0);
+    const onEnter = e => { if (e.key === 'Enter') { e.preventDefault(); trigger(); } };
 
-    const data = await gasPost(payload, ctrl.signal);
+    searchBtn?.addEventListener('click', trigger);
+    cognomeInp.addEventListener('keydown', onEnter);
+    nomeInp.addEventListener('keydown', onEnter);
 
-    if (latestLookupToken[index] !== token) return; // risposta obsoleta
-
-    if (!data.success) {
-      if (data.error === 'duplicate') {
-        let html = '<div style="margin-top:8px;">Ci sono più persone con questo cognome. Quale sei?</div>';
-        html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">';
-        data.candidates.forEach(c => {
-          html += `<button type="button" class="secondary" style="width:auto; font-size:.85rem; padding:4px 10px;" ` +
-                  `onclick="selectCandidate(this.closest('.person-card'), ${index}, '${c.nome.replace(/'/g, "\\'")}')">` +
-                  `Sono ${capitalize(c.nome)}</button>`;
-        });
-        html += '</div>';
-        html += '<div style="margin-top:10px; font-size:.8rem; color:#718096;">Oppure inserisci il nome manualmente sopra.</div>';
-        
-        setCardStatus(card, 'error', html);
-        card.querySelector('.person-nome').removeAttribute('readonly');
-        card.querySelector('.person-nome').classList.add('has-error');
-      } else {
-        setCardStatus(card, 'error',
-          `Prenotazione non trovata per "<strong>${capitalize(cognomeRaw)}</strong>". ` +
-          `Controlla l'ortografia o ` +
-          `<a href="mailto:info@parrocchiasanteugenio.it" style="color:#c53030;">` +
-          `contattaci</a>.`);
-      }
-      return;
-    }
-
-    setInCache(key, data);
-    applyResult(card, p, data, nomeRaw, cognomeRaw);
-
-  } catch (err) {
-    if (err.name === 'AbortError') {
-      if (lookupControllers[index]) {
-        // Timeout (non cancel utente)
-        setCardStatus(card, 'error',
-          'Il server sta impiegando troppo tempo. ' +
-          `<a href="#" onclick="event.preventDefault();cancelLookup(${index});` +
-          `lookupPersona(this.closest('.person-card'),${index});"` +
-          ` style="color:#c53030;">↻ Riprova</a>`);
-      }
-      return;
-    }
-    if (!p.loaded) setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
-  } finally {
-    if (lookupControllers[index] === ctrl) delete lookupControllers[index];
-  }
-}
-
-function selectCandidate(card, index, nome) {
-  const nomeInp = card.querySelector('.person-nome');
-  if (nomeInp) {
-    nomeInp.value = capitalize(nome);
-    lookupPersona(card, index);
-  }
-}
-
-function applyResult(card, person, data, nomeRaw, cognomeRaw) {
-  person.nome         = capitalize(data.persona?.nome || nomeRaw);
-  person.cognome      = capitalize(data.persona?.cognome || cognomeRaw);
-  person.row          = data.row;
-  person.alloggio     = data.persona?.alloggio || '—';
-  person.costoAlloggio= getCostoAlloggio(person.alloggio);
-  person.colazione    = !!data.persona?.colazione;
-  person.assicurazione= !!data.persona?.assicurazione;
-  person.loaded       = true;
-
-  // Popola UI
-  card.querySelector('.alloggio-box').textContent   = formatAlloggioText(person.alloggio);
-  card.querySelector('.colazione').checked          = person.colazione;
-  card.querySelector('.assicurazione').checked      = person.assicurazione;
-
-  // Mostra/nasconde opzioni bloccate
-  const colLbl      = card.querySelector('.label-colazione');
-  const assLbl      = card.querySelector('.label-assicurazione');
-  const lockedWrap  = card.querySelector('.locked-options-help')?.parentElement;
-  const notaLocked  = card.querySelector('.nota-locked');
-  if (colLbl) colLbl.style.display = person.colazione    ? '' : 'none';
-  if (assLbl) assLbl.style.display = person.assicurazione? '' : 'none';
-  if (lockedWrap && !person.colazione && !person.assicurazione) {
-    lockedWrap.style.display = 'none';
-    if (notaLocked) notaLocked.style.display = 'none';
-  }
-
-  // Transfer
-  if (data.persona?.transfer) {
-    const tr = data.persona.transfer;
-    ['rf','pt','sc','fr'].forEach(k => {
-      const chk = card.querySelector(`.tr-${k}`);
-      if (chk) chk.checked = !!tr[k];
+    cognomeInp.addEventListener('blur', () => {
+      cognomeInp.value = capitalize(cognomeInp.value);
     });
+    nomeInp.addEventListener('blur', () => {
+      if (!nomeInp.hasAttribute('readonly'))
+        nomeInp.value = capitalize(nomeInp.value);
+    });
+
+    // Modifica cognome → reset se non locked
+    cognomeInp.addEventListener('input', () => {
+      const p = persone.find(p => p.index === index);
+      if (p?.loaded) return;
+      cancelLookup(index);
+      resetCard(card, index);
+    });
+
+    // Modifica nome → solo pulizia errore, non reset completo
+    nomeInp.addEventListener('input', () => {
+      const p = persone.find(p => p.index === index);
+      if (p?.loaded) return;
+      cancelLookup(index);
+      if (p) p.loaded = false;
+      setCardStatus(card, '', '');
+      nomeInp.classList.remove('has-error');
+    });
+
+    card.dataset.lookupBound = 'true';
   }
 
-  // Badge "già incluso"
-  ['rf','pt','sc','fr'].forEach(k => {
-    const chk = card.querySelector(`.tr-${k}`);
-    const lbl = card.querySelector(`.label-tr-${k}`);
-    if (chk?.checked && lbl && !lbl.querySelector('.badge-preselected')) {
-      const b = document.createElement('span');
-      b.className   = 'badge-preselected';
-      b.textContent = 'già incluso';
-      lbl.appendChild(b);
+  function addPersonCard() {
+    const clone = tmpl.content.cloneNode(true);
+    const card = clone.querySelector('.person-card');
+    const index = personCounter++;
+
+    card.dataset.personIndex = index;
+    if (persone.length > 0) card.classList.add('removable');
+
+    // ID univoci accessibilità
+    const cogInp = card.querySelector('.person-cognome');
+    const nomInp = card.querySelector('.person-nome');
+    const cogLbl = card.querySelector('.person-cognome-label');
+    const nomLbl = card.querySelector('.person-nome-label');
+    const statDiv = card.querySelector('.person-status');
+    const lockHelp = card.querySelector('.locked-options-help');
+    const colLock = card.querySelector('.colazione');
+    const assLock = card.querySelector('.assicurazione');
+
+    cogInp.id = `cognome-${index}`;
+    nomInp.id = `nome-${index}`;
+    statDiv.id = `status-${index}`;
+
+    cogLbl?.setAttribute('for', cogInp.id);
+    nomLbl?.setAttribute('for', nomInp.id);
+    cogInp.setAttribute('aria-describedby', statDiv.id);
+    nomInp.setAttribute('aria-describedby', statDiv.id);
+
+    if (lockHelp) {
+      lockHelp.id = `lockedhelp-${index}`;
+      colLock?.setAttribute('aria-describedby', lockHelp.id);
+      assLock?.setAttribute('aria-describedby', lockHelp.id);
     }
-  });
 
-  // Pre-compila email se il campo è vuoto
-  if (emailInput && data.persona?.email && !emailInput.value.trim())
-    emailInput.value = data.persona.email;
+    ['rf', 'pt', 'sc', 'fr'].forEach(k => {
+      const chk = card.querySelector(`.tr-${k}`);
+      const lbl = card.querySelector(`.label-tr-${k}`);
+      if (chk) { chk.id = `p${index}_tr_${k}`; lbl?.setAttribute('for', chk.id); }
+    });
 
-  // Blocca i campi di ricerca
-  card.querySelector('.person-cognome').setAttribute('readonly', true);
-  card.querySelector('.person-nome').setAttribute('readonly', true);
-  card.querySelector('.person-nome').classList.remove('has-error');
-  card.querySelector('.loaded-data-section').style.display = 'block';
-  card.classList.add('locked');
-  setSearchBtnVisible(card, false);
+    // Transfer → opzioni changed
+    card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
+      chk.addEventListener('change', onOptionsChanged);
+    });
 
-  // Nascondi hint cognome
-  const hint = card.querySelector('.person-cognome')?.parentElement?.querySelector('.field-hint');
-  if (hint) hint.style.visibility = 'hidden';
+    card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
+    card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
 
-  // Ripristina la grafia corretta dal foglio (cognome e nome)
-  // Es. "decclesia" → "D'Ecclesia", "rossi" → "Rossi"
-  const cogEl = card.querySelector('.person-cognome');
-  if (cogEl) cogEl.value = person.cognome;
+    bindLookupEvents(card, index);
+    container.appendChild(card);
 
-  const nomeEl = card.querySelector('.person-nome');
-  if (nomeEl) nomeEl.value = person.nome;
+    persone.push({
+      index, nome: '', cognome: '', row: null,
+      alloggio: '', colazione: false, assicurazione: false,
+      loaded: false, cardEl: card,
+    });
 
-  setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
-  updateCardTitles();
-  updatePartialTotal();
+    updateCardTitles();
+    resetCalcState();
 
-  // Carica eventuale partner (senza scrollare via dalla card attuale)
-  if (data.partner?.persona) {
-    try { person.partnerIndex = loadPartnerCard(data.partner, false); }
-    catch (e) { console.error('Errore partner:', e); }
+    // Focus primo input della nuova card
+    if (persone.length > 1) card.querySelector('.person-cognome').focus();
   }
 
-  // Focus al primo transfer utile
-  setTimeout(() => card.querySelector('.tr-rf')?.focus(), 100);
-
-  resetCalcState();
-}
-
-
-// ─── GESTIONE CARD ────────────────────────────────────────────────────────────
-function setSearchBtnVisible(card, visible) {
-  const btn = card.querySelector('.btn-search-person');
-  if (!btn) return;
-  const col = btn.closest('.field-col');
-  btn.style.display = visible ? '' : 'none';
-  if (col) col.style.display = visible ? '' : 'none';
-}
-
-function bindLookupEvents(card, index) {
-  if (card.dataset.lookupBound === 'true') return;
-
-  const cognomeInp = card.querySelector('.person-cognome');
-  const nomeInp    = card.querySelector('.person-nome');
-  const searchBtn  = card.querySelector('.btn-search-person');
-
-  const trigger = () => debouncedLookup(card, index, 0);
-  const onEnter = e => { if (e.key === 'Enter') { e.preventDefault(); trigger(); } };
-
-  searchBtn?.addEventListener('click', trigger);
-  cognomeInp.addEventListener('keydown', onEnter);
-  nomeInp.addEventListener('keydown', onEnter);
-
-  cognomeInp.addEventListener('blur', () => {
-    cognomeInp.value = capitalize(cognomeInp.value);
-  });
-  nomeInp.addEventListener('blur', () => {
-    if (!nomeInp.hasAttribute('readonly'))
-      nomeInp.value = capitalize(nomeInp.value);
-  });
-
-  // Modifica cognome → reset se non locked
-  cognomeInp.addEventListener('input', () => {
-    const p = persone.find(p => p.index === index);
-    if (p?.loaded) return;
+  function removeCard(index) {
+    const i = persone.findIndex(p => p.index === index);
+    if (i === -1) return;
     cancelLookup(index);
-    resetCard(card, index);
-  });
 
-  // Modifica nome → solo pulizia errore, non reset completo
-  nomeInp.addEventListener('input', () => {
+    const partnerIdx = persone[i].partnerIndex;
+    persone[i].cardEl?.remove();
+    persone.splice(i, 1);
+
+    if (partnerIdx != null) {
+      const pi = persone.findIndex(p => p.index === partnerIdx);
+      if (pi !== -1) { persone[pi].cardEl?.remove(); persone.splice(pi, 1); }
+    }
+
+    updateCardTitles();
+    resetCalcState();
+  }
+
+  function resetCard(card, index) {
     const p = persone.find(p => p.index === index);
-    if (p?.loaded) return;
-    cancelLookup(index);
-    if (p) p.loaded = false;
+    if (!p) return;
+
+    Object.assign(p, {
+      nome: '', cognome: '', row: null, alloggio: '',
+      colazione: false, assicurazione: false, loaded: false
+    });
+
+    card.querySelector('.alloggio-box').textContent = '—';
+    card.querySelector('.colazione').checked = false;
+    card.querySelector('.assicurazione').checked = false;
+    card.querySelector('.loaded-data-section').style.display = 'none';
+
     setCardStatus(card, '', '');
-    nomeInp.classList.remove('has-error');
-  });
-
-  card.dataset.lookupBound = 'true';
-}
-
-function addPersonCard() {
-  const clone = tmpl.content.cloneNode(true);
-  const card  = clone.querySelector('.person-card');
-  const index = personCounter++;
-
-  card.dataset.personIndex = index;
-  if (persone.length > 0) card.classList.add('removable');
-
-  // ID univoci accessibilità
-  const cogInp   = card.querySelector('.person-cognome');
-  const nomInp   = card.querySelector('.person-nome');
-  const cogLbl   = card.querySelector('.person-cognome-label');
-  const nomLbl   = card.querySelector('.person-nome-label');
-  const statDiv  = card.querySelector('.person-status');
-  const lockHelp = card.querySelector('.locked-options-help');
-  const colLock  = card.querySelector('.colazione');
-  const assLock  = card.querySelector('.assicurazione');
-
-  cogInp.id = `cognome-${index}`;
-  nomInp.id = `nome-${index}`;
-  statDiv.id= `status-${index}`;
-
-  cogLbl?.setAttribute('for', cogInp.id);
-  nomLbl?.setAttribute('for', nomInp.id);
-  cogInp.setAttribute('aria-describedby', statDiv.id);
-  nomInp.setAttribute('aria-describedby', statDiv.id);
-
-  if (lockHelp) {
-    lockHelp.id = `lockedhelp-${index}`;
-    colLock?.setAttribute('aria-describedby', lockHelp.id);
-    assLock?.setAttribute('aria-describedby', lockHelp.id);
+    updateCardTitles();
+    resetCalcState();
   }
 
-  ['rf','pt','sc','fr'].forEach(k => {
-    const chk = card.querySelector(`.tr-${k}`);
-    const lbl = card.querySelector(`.label-tr-${k}`);
-    if (chk) { chk.id = `p${index}_tr_${k}`; lbl?.setAttribute('for', chk.id); }
-  });
+  function unlockCard(card, index) {
+    const p = persone.find(p => p.index === index);
+    if (!p) return;
 
-  // Transfer → opzioni changed
-  card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
-    chk.addEventListener('change', onOptionsChanged);
-  });
+    lookupCache.delete(makeCacheKey(p.nome, p.cognome));
 
-  card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
-  card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
+    // Rimuovi partner se presente
+    if (p.partnerIndex != null) { removeCard(p.partnerIndex); p.partnerIndex = null; }
 
-  bindLookupEvents(card, index);
-  container.appendChild(card);
+    // Reset campi
+    const cogInp = card.querySelector('.person-cognome');
+    const nomInp = card.querySelector('.person-nome');
+    cogInp.removeAttribute('readonly');
+    nomInp.removeAttribute('readonly');
+    cogInp.value = '';
+    nomInp.value = '';
 
-  persone.push({
-    index, nome: '', cognome: '', row: null,
-    alloggio: '', colazione: false, assicurazione: false,
-    loaded: false, cardEl: card,
-  });
+    card.querySelector('.alloggio-box').textContent = '—';
+    card.querySelector('.colazione').checked = false;
+    card.querySelector('.assicurazione').checked = false;
+    card.querySelector('.loaded-data-section').style.display = 'none';
+    card.querySelectorAll('.badge-preselected').forEach(b => b.remove());
+    card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(c => c.checked = false);
 
-  updateCardTitles();
-  resetCalcState();
+    // Ripristina hint nome
+    const hint = cogInp.parentElement?.querySelector('.field-hint');
+    if (hint) hint.style.visibility = 'visible';
 
-  // Focus primo input della nuova card
-  if (persone.length > 1) card.querySelector('.person-cognome').focus();
-}
+    if (emailInput) emailInput.value = '';
 
-function removeCard(index) {
-  const i = persone.findIndex(p => p.index === index);
-  if (i === -1) return;
-  cancelLookup(index);
+    Object.assign(p, {
+      nome: '', cognome: '', row: null, alloggio: '', costoAlloggio: 0,
+      colazione: false, assicurazione: false, loaded: false
+    });
 
-  const partnerIdx = persone[i].partnerIndex;
-  persone[i].cardEl?.remove();
-  persone.splice(i, 1);
-
-  if (partnerIdx != null) {
-    const pi = persone.findIndex(p => p.index === partnerIdx);
-    if (pi !== -1) { persone[pi].cardEl?.remove(); persone.splice(pi, 1); }
+    card.classList.remove('locked');
+    setSearchBtnVisible(card, true);
+    bindLookupEvents(card, index);
+    setCardStatus(card, '', '');
+    updateCardTitles();
+    resetCalcState();
+    cogInp.focus();
   }
 
-  updateCardTitles();
-  resetCalcState();
-}
+  function updateCardTitles() {
+    persone.forEach((p, i) => {
+      if (!p.cardEl) return;
+      const title = p.cardEl.querySelector('.card-title');
+      if (!title) return;
 
-function resetCard(card, index) {
-  const p = persone.find(p => p.index === index);
-  if (!p) return;
+      const loadedLabel = p.isPartner
+        ? '👥 Partner camera'
+        : (i === 0 ? 'La tua prenotazione' : 'Partecipante aggiuntivo');
+      const unloadedLabel = p.isPartner
+        ? '👥 Partner camera'
+        : 'Cerca la tua prenotazione';
 
-  Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'',
-                     colazione:false, assicurazione:false, loaded:false });
+      title.textContent = p.loaded ? loadedLabel : unloadedLabel;
 
-  card.querySelector('.alloggio-box').textContent            = '—';
-  card.querySelector('.colazione').checked                   = false;
-  card.querySelector('.assicurazione').checked               = false;
-  card.querySelector('.loaded-data-section').style.display   = 'none';
-
-  setCardStatus(card, '', '');
-  updateCardTitles();
-  resetCalcState();
-}
-
-function unlockCard(card, index) {
-  const p = persone.find(p => p.index === index);
-  if (!p) return;
-
-  lookupCache.delete(makeCacheKey(p.nome, p.cognome));
-
-  // Rimuovi partner se presente
-  if (p.partnerIndex != null) { removeCard(p.partnerIndex); p.partnerIndex = null; }
-
-  // Reset campi
-  const cogInp = card.querySelector('.person-cognome');
-  const nomInp = card.querySelector('.person-nome');
-  cogInp.removeAttribute('readonly');
-  nomInp.removeAttribute('readonly');
-  cogInp.value = '';
-  nomInp.value = '';
-
-  card.querySelector('.alloggio-box').textContent          = '—';
-  card.querySelector('.colazione').checked                 = false;
-  card.querySelector('.assicurazione').checked             = false;
-  card.querySelector('.loaded-data-section').style.display = 'none';
-  card.querySelectorAll('.badge-preselected').forEach(b => b.remove());
-  card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(c => c.checked = false);
-
-  // Ripristina hint nome
-  const hint = cogInp.parentElement?.querySelector('.field-hint');
-  if (hint) hint.style.visibility = 'visible';
-
-  if (emailInput) emailInput.value = '';
-
-  Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'', costoAlloggio:0,
-                     colazione:false, assicurazione:false, loaded:false });
-
-  card.classList.remove('locked');
-  setSearchBtnVisible(card, true);
-  bindLookupEvents(card, index);
-  setCardStatus(card, '', '');
-  updateCardTitles();
-  resetCalcState();
-  cogInp.focus();
-}
-
-function updateCardTitles() {
-  persone.forEach((p, i) => {
-    if (!p.cardEl) return;
-    const title = p.cardEl.querySelector('.card-title');
-    if (!title) return;
-
-    const loadedLabel   = p.isPartner
-      ? '👥 Partner camera'
-      : (i === 0 ? 'La tua prenotazione' : 'Partecipante aggiuntivo');
-    const unloadedLabel = p.isPartner
-      ? '👥 Partner camera'
-      : 'Cerca la tua prenotazione';
-
-    title.textContent = p.loaded ? loadedLabel : unloadedLabel;
-
-    p.cardEl.classList.toggle('removable',
-      i === 0 ? persone.length > 1 : true);
-  });
-}
-
-
-// ─── CARICAMENTO PARTNER ──────────────────────────────────────────────────────
-function loadPartnerCard(partnerData, shouldScroll = true) {
-  if (persone.some(p => p.row === partnerData.row)) return null; // già presente
-
-  const clone = tmpl.content.cloneNode(true);
-  const card  = clone.querySelector('.person-card');
-  const index = personCounter++;
-
-  card.dataset.personIndex = index;
-  card.classList.add('removable', 'locked');
-
-  // Accessibilità ID
-  const cogInp  = card.querySelector('.person-cognome');
-  const nomInp  = card.querySelector('.person-nome');
-  const statDiv = card.querySelector('.person-status');
-  const lockHelp= card.querySelector('.locked-options-help');
-
-  cogInp.id  = `cognome-${index}`;
-  nomInp.id  = `nome-${index}`;
-  statDiv.id = `status-${index}`;
-  card.querySelector('.person-cognome-label')?.setAttribute('for', cogInp.id);
-  card.querySelector('.person-nome-label')?.setAttribute('for', nomInp.id);
-  cogInp.setAttribute('aria-describedby', statDiv.id);
-  nomInp.setAttribute('aria-describedby', statDiv.id);
-
-  if (lockHelp) {
-    lockHelp.id = `lockedhelp-${index}`;
-    card.querySelector('.colazione')?.setAttribute('aria-describedby', lockHelp.id);
-    card.querySelector('.assicurazione')?.setAttribute('aria-describedby', lockHelp.id);
+      p.cardEl.classList.toggle('removable',
+        i === 0 ? persone.length > 1 : true);
+    });
   }
 
-  ['rf','pt','sc','fr'].forEach(k => {
-    const chk = card.querySelector(`.tr-${k}`);
-    const lbl = card.querySelector(`.label-tr-${k}`);
-    if (chk) { chk.id = `p${index}_tr_${k}`; lbl?.setAttribute('for', chk.id); }
-  });
 
-  // Popola
-  cogInp.value = partnerData.cognome;
-  nomInp.value = partnerData.nome;
-  cogInp.setAttribute('readonly', true);
-  nomInp.setAttribute('readonly', true);
+  // ─── CARICAMENTO PARTNER ──────────────────────────────────────────────────────
+  function loadPartnerCard(partnerData, shouldScroll = true) {
+    if (persone.some(p => p.row === partnerData.row)) return null; // già presente
 
-  const pp = partnerData.persona;
-  card.querySelector('.alloggio-box').textContent = formatAlloggioText(pp.alloggio) || '—';
-  card.querySelector('.colazione').checked        = !!pp.colazione;
-  card.querySelector('.assicurazione').checked    = !!pp.assicurazione;
+    const clone = tmpl.content.cloneNode(true);
+    const card = clone.querySelector('.person-card');
+    const index = personCounter++;
 
-  const colLbl     = card.querySelector('.label-colazione');
-  const assLbl     = card.querySelector('.label-assicurazione');
-  const lockedWrap = card.querySelector('.locked-options-help')?.parentElement;
-  const notaLocked = card.querySelector('.nota-locked');
-  if (colLbl) colLbl.style.display = pp.colazione    ? '' : 'none';
-  if (assLbl) assLbl.style.display = pp.assicurazione? '' : 'none';
-  if (lockedWrap && !pp.colazione && !pp.assicurazione) {
-    lockedWrap.style.display = 'none';
-    if (notaLocked) notaLocked.style.display = 'none';
-  }
+    card.dataset.personIndex = index;
+    card.classList.add('removable', 'locked');
 
-  if (pp.transfer) {
-    ['rf','pt','sc','fr'].forEach(k => {
+    // Accessibilità ID
+    const cogInp = card.querySelector('.person-cognome');
+    const nomInp = card.querySelector('.person-nome');
+    const statDiv = card.querySelector('.person-status');
+    const lockHelp = card.querySelector('.locked-options-help');
+
+    cogInp.id = `cognome-${index}`;
+    nomInp.id = `nome-${index}`;
+    statDiv.id = `status-${index}`;
+    card.querySelector('.person-cognome-label')?.setAttribute('for', cogInp.id);
+    card.querySelector('.person-nome-label')?.setAttribute('for', nomInp.id);
+    cogInp.setAttribute('aria-describedby', statDiv.id);
+    nomInp.setAttribute('aria-describedby', statDiv.id);
+
+    if (lockHelp) {
+      lockHelp.id = `lockedhelp-${index}`;
+      card.querySelector('.colazione')?.setAttribute('aria-describedby', lockHelp.id);
+      card.querySelector('.assicurazione')?.setAttribute('aria-describedby', lockHelp.id);
+    }
+
+    ['rf', 'pt', 'sc', 'fr'].forEach(k => {
       const chk = card.querySelector(`.tr-${k}`);
-      if (chk) chk.checked = !!pp.transfer[k];
+      const lbl = card.querySelector(`.label-tr-${k}`);
+      if (chk) { chk.id = `p${index}_tr_${k}`; lbl?.setAttribute('for', chk.id); }
     });
+
+    // Popola
+    cogInp.value = partnerData.cognome;
+    nomInp.value = partnerData.nome;
+    cogInp.setAttribute('readonly', true);
+    nomInp.setAttribute('readonly', true);
+
+    const pp = partnerData.persona;
+    card.querySelector('.alloggio-box').textContent = formatAlloggioText(pp.alloggio) || '—';
+    card.querySelector('.colazione').checked = !!pp.colazione;
+    card.querySelector('.assicurazione').checked = !!pp.assicurazione;
+
+    const colLbl = card.querySelector('.label-colazione');
+    const assLbl = card.querySelector('.label-assicurazione');
+    const lockedWrap = card.querySelector('.locked-options-help')?.parentElement;
+    const notaLocked = card.querySelector('.nota-locked');
+    if (colLbl) colLbl.style.display = pp.colazione ? '' : 'none';
+    if (assLbl) assLbl.style.display = pp.assicurazione ? '' : 'none';
+    if (lockedWrap && !pp.colazione && !pp.assicurazione) {
+      lockedWrap.style.display = 'none';
+      if (notaLocked) notaLocked.style.display = 'none';
+    }
+
+    if (pp.transfer) {
+      ['rf', 'pt', 'sc', 'fr'].forEach(k => {
+        const chk = card.querySelector(`.tr-${k}`);
+        if (chk) chk.checked = !!pp.transfer[k];
+      });
+    }
+
+    // Badge pre-selezionati
+    ['rf', 'pt', 'sc', 'fr'].forEach(k => {
+      const chk = card.querySelector(`.tr-${k}`);
+      const lbl = card.querySelector(`.label-tr-${k}`);
+      if (chk?.checked && lbl && !lbl.querySelector('.badge-preselected')) {
+        const b = document.createElement('span');
+        b.className = 'badge-preselected';
+        b.textContent = 'già incluso';
+        lbl.appendChild(b);
+      }
+    });
+
+    card.querySelector('.loaded-data-section').style.display = 'block';
+    setSearchBtnVisible(card, false);
+
+    card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
+      chk.addEventListener('change', onOptionsChanged);
+    });
+
+    card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
+    card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
+    bindLookupEvents(card, index);
+
+    container.appendChild(card);
+
+    persone.push({
+      index,
+      nome: capitalize(partnerData.nome),
+      cognome: capitalize(partnerData.cognome),
+      row: partnerData.row,
+      alloggio: pp.alloggio || '',
+      costoAlloggio: getCostoAlloggio(pp.alloggio),
+      colazione: !!pp.colazione,
+      assicurazione: !!pp.assicurazione,
+      loaded: true,
+      isPartner: true,
+      cardEl: card,
+    });
+
+    setCardStatus(card, 'ok', '👫 Compagno/a di camera aggiunto automaticamente.');
+    setGlobalStatus('ok', '👫 Camera doppia: abbiamo caricato anche il/la tuo/a compagno/a di stanza.');
+    updateCardTitles();
+    updatePartialTotal();
+
+    // Scroll + highlight sulla nuova card (se richiesto)
+    if (shouldScroll) {
+      setTimeout(() => {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.style.outline = '3px solid #48bb78';
+        card.style.transition = 'outline .3s';
+        setTimeout(() => { card.style.outline = ''; }, 2500);
+      }, 200);
+    }
+
+    return index;
   }
 
-  // Badge pre-selezionati
-  ['rf','pt','sc','fr'].forEach(k => {
-    const chk = card.querySelector(`.tr-${k}`);
-    const lbl = card.querySelector(`.label-tr-${k}`);
-    if (chk?.checked && lbl && !lbl.querySelector('.badge-preselected')) {
-      const b = document.createElement('span');
-      b.className   = 'badge-preselected';
-      b.textContent = 'già incluso';
-      lbl.appendChild(b);
-    }
-  });
 
-  card.querySelector('.loaded-data-section').style.display = 'block';
-  setSearchBtnVisible(card, false);
-
-  card.querySelectorAll('.transfer-options input[type="checkbox"]').forEach(chk => {
-    chk.addEventListener('change', onOptionsChanged);
-  });
-
-  card.querySelector('.btn-remove').addEventListener('click', () => removeCard(index));
-  card.querySelector('.btn-change').addEventListener('click', () => unlockCard(card, index));
-  bindLookupEvents(card, index);
-
-  container.appendChild(card);
-
-  persone.push({
-    index,
-    nome:    capitalize(partnerData.nome),
-    cognome: capitalize(partnerData.cognome),
-    row:     partnerData.row,
-    alloggio:    pp.alloggio || '',
-    costoAlloggio: getCostoAlloggio(pp.alloggio),
-    colazione:   !!pp.colazione,
-    assicurazione: !!pp.assicurazione,
-    loaded:    true,
-    isPartner: true,
-    cardEl:    card,
-  });
-
-  setCardStatus(card, 'ok', '👫 Compagno/a di camera aggiunto automaticamente.');
-  setGlobalStatus('ok', '👫 Camera doppia: abbiamo caricato anche il/la tuo/a compagno/a di stanza.');
-  updateCardTitles();
-  updatePartialTotal();
-
-  // Scroll + highlight sulla nuova card (se richiesto)
-  if (shouldScroll) {
-    setTimeout(() => {
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      card.style.outline    = '3px solid #48bb78';
-      card.style.transition = 'outline .3s';
-      setTimeout(() => { card.style.outline = ''; }, 2500);
-    }, 200);
-  }
-
-  return index;
-}
-
-
-// ─── CALCOLO ──────────────────────────────────────────────────────────────────
-function getTransfer(card) {
-  return {
-    rf: !!card.querySelector('.tr-rf')?.checked,
-    pt: !!card.querySelector('.tr-pt')?.checked,
-    sc: !!card.querySelector('.tr-sc')?.checked,
-    fr: !!card.querySelector('.tr-fr')?.checked,
-  };
-}
-
-async function calcolaTotale() {
-  if (_calcInProgress) return;
-  _calcInProgress = true;
-
-  try {
-    const loaded = persone.filter(p => p.loaded);
-    if (loaded.length === 0) {
-      setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
-      return;
-    }
-
-    // Costruisci modale di conferma
-    const nomi = loaded.map(p => `${p.cognome} ${p.nome}`).join(', ');
-    let serviziList = [];
-    loaded.forEach(p => {
-      const tr     = getTransfer(p.cardEl);
-      const prefix = loaded.length > 1 ? `${p.nome}: ` : '';
-      if (tr.rf) serviziList.push(prefix + 'Roma-Fiumicino');
-      if (tr.pt) serviziList.push(prefix + 'Porto-Tui');
-      if (tr.sc) serviziList.push(prefix + 'Santiago-A Coruña');
-      if (tr.fr) serviziList.push(prefix + 'Fiumicino-Roma');
-    });
-
-    let confirmBody = `<p>Confermi la prenotazione di <strong>${nomi}</strong>?</p>`;
-    if (serviziList.length) {
-      confirmBody +=
-        `<div style="background:#f7fafc;padding:12px;border-radius:8px;` +
-        `border-left:4px solid #3182ce;margin-top:10px;">` +
-        `<strong style="font-size:.85rem;color:#2c5282;text-transform:uppercase;` +
-        `display:block;margin-bottom:6px;">Servizi prenotati</strong>` +
-        `<ul style="margin:0;padding-left:20px;font-size:.9rem;">` +
-        `<li>${serviziList.join('</li><li>')}</li></ul></div>`;
-    }
-
-    const confirmed = await showConfirmModal('Riepilogo e registrazione', confirmBody);
-    if (!confirmed) return;  // _calcInProgress viene resettato nel finally
-
-    setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
-    setCalcButtons({ disabled: true });
-
-    // Calcolo importi
-    let totale = 0, totAlloggio = 0, totColazione = 0, totAssic = 0, totTr = 0;
-    const lines = [];
-
-    // Troviamo quanti partecipanti ci sono per ogni riga (per dividere il costo alloggio)
-    const roomCounts = {};
-    loaded.forEach(p => roomCounts[p.row] = (roomCounts[p.row] || 0) + 1);
-
-    loaded.forEach(p => {
-      const card = p.cardEl;
-      const tr   = getTransfer(card);
-
-      // Il costo alloggio viene diviso equamente tra chi condivide la stessa riga
-      const occupants = roomCounts[p.row] || 1;
-      const costoAll  = (p.costoAlloggio || 0) / occupants;
-
-      const costoCol = card.querySelector('.colazione')?.checked  ? COSTI.colazione    : 0;
-      const costoAss = card.querySelector('.assicurazione')?.checked? COSTI.assicurazione: 0;
-      const costoTr  = (tr.rf ? COSTI.transfer.rf : 0)
-                     + (tr.pt ? COSTI.transfer.pt : 0)
-                     + (tr.sc ? COSTI.transfer.sc : 0)
-                     + (tr.fr ? COSTI.transfer.fr : 0);
-
-      const sub = costoAll + costoCol + costoAss + costoTr;
-      totale      += sub;
-      totAlloggio += costoAll;
-      totColazione+= costoCol;
-      totAssic    += costoAss;
-      totTr       += costoTr;
-
-      lines.push(`${p.cognome} ${p.nome}: ${formatEuro(sub - COSTI.caparra)}`);
-    });
-
-    const caparra = COSTI.caparra * loaded.length;
-    const saldo   = totale - caparra;
-
-    if (saldo < 0) {
-      setGlobalStatus('error',
-        'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
-      return;
-    }
-
-    lastCalcResult = {
-      persone: loaded.map(p => ({
-        nome: p.nome, cognome: p.cognome, row: p.row,
-        transfer: getTransfer(p.cardEl),
-      })),
-      totaleOpzioni: totale,
-      caparra,
-      saldo,
+  // ─── CALCOLO ──────────────────────────────────────────────────────────────────
+  function getTransfer(card) {
+    return {
+      rf: !!card.querySelector('.tr-rf')?.checked,
+      pt: !!card.querySelector('.tr-pt')?.checked,
+      sc: !!card.querySelector('.tr-sc')?.checked,
+      fr: !!card.querySelector('.tr-fr')?.checked,
     };
+  }
 
-    // Salva sul foglio (senza email qui — l'email si invia solo con il bottone dedicato)
-    await doSalvaTransfer();
+  async function calcolaTotale() {
+    if (_calcInProgress) return;
+    _calcInProgress = true;
 
-    // Aggiorna UI sidebar
-    summaryBox.innerHTML =
-      `<div style="font-weight:600;margin-bottom:6px;color:#4a5568;">Saldo per:</div>` +
-      lines.map(l => `<div class="summary-line">${l}</div>`).join('');
+    try {
+      const loaded = persone.filter(p => p.loaded);
+      if (loaded.length === 0) {
+        setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
+        return;
+      }
 
-    breakdownBox.style.display = 'block';
-    document.getElementById('totAlloggio').textContent     = formatEuro(totAlloggio);
-    document.getElementById('totColazione').textContent    = formatEuro(totColazione);
-    document.getElementById('totAssicurazione').textContent= formatEuro(totAssic);
-    document.getElementById('totTransfer').textContent     = formatEuro(totTr);
-    document.getElementById('totOpzioni').textContent      = formatEuro(totale);
-    document.getElementById('caparraVersata').textContent  = '−' + formatEuro(caparra);
-    document.getElementById('saldoDaVersare').textContent  = formatEuro(saldo);
-    totalBox.style.display = 'flex';
+      // Costruisci modale di conferma
+      const nomi = loaded.map(p => `${p.cognome} ${p.nome}`).join(', ');
+      let serviziList = [];
+      loaded.forEach(p => {
+        const tr = getTransfer(p.cardEl);
+        const prefix = loaded.length > 1 ? `${p.nome}: ` : '';
+        if (tr.rf) serviziList.push(prefix + 'Roma-Fiumicino');
+        if (tr.pt) serviziList.push(prefix + 'Porto-Tui');
+        if (tr.sc) serviziList.push(prefix + 'Santiago-A Coruña');
+        if (tr.fr) serviziList.push(prefix + 'Fiumicino-Roma');
+      });
 
-    btnSave.disabled        = false;
-    btnSave.textContent     = LABELS.save;
-    btnPay.disabled         = false;
-    actionSection.style.display = 'block';
-    orDivider.style.color   = '#666';
+      let confirmBody = `<p>Confermi la prenotazione di <strong>${nomi}</strong>?</p>`;
+      if (serviziList.length) {
+        confirmBody +=
+          `<div style="background:#f7fafc;padding:12px;border-radius:8px;` +
+          `border-left:4px solid #3182ce;margin-top:10px;">` +
+          `<strong style="font-size:.85rem;color:#2c5282;text-transform:uppercase;` +
+          `display:block;margin-bottom:6px;">Servizi prenotati</strong>` +
+          `<ul style="margin:0;padding-left:20px;font-size:.9rem;">` +
+          `<li>${serviziList.join('</li><li>')}</li></ul></div>`;
+      }
 
-    setGlobalStatus('ok',
-      '<span class="success-check">✅</span> Prenotazione aggiornata');
+      const confirmed = await showConfirmModal('Riepilogo e registrazione', confirmBody);
+      if (!confirmed) return;  // _calcInProgress viene resettato nel finally
 
-    hideRecalcBanner();
-    setCalcButtons({ display: 'none' });
-    document.getElementById('partialTotalBox').style.display = 'none';
+      setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
+      setCalcButtons({ disabled: true });
 
-    setTimeout(() =>
-      summaryBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 120);
+      // Calcolo importi
+      let totale = 0, totAlloggio = 0, totColazione = 0, totAssic = 0, totTr = 0;
+      const lines = [];
 
-  } catch (err) {
-    console.error('Errore calcolo:', err);
-    setGlobalStatus('error',
-      'Impossibile aggiornare la prenotazione: ' + err.message);
+      // Troviamo quanti partecipanti ci sono per ogni riga (per dividere il costo alloggio)
+      const roomCounts = {};
+      loaded.forEach(p => roomCounts[p.row] = (roomCounts[p.row] || 0) + 1);
+
+      loaded.forEach(p => {
+        const card = p.cardEl;
+        const tr = getTransfer(card);
+
+        // Il costo alloggio viene diviso equamente tra chi condivide la stessa riga
+        const occupants = roomCounts[p.row] || 1;
+        const costoAll = (p.costoAlloggio || 0) / occupants;
+
+        const costoCol = card.querySelector('.colazione')?.checked ? COSTI.colazione : 0;
+        const costoAss = card.querySelector('.assicurazione')?.checked ? COSTI.assicurazione : 0;
+        const costoTr = (tr.rf ? COSTI.transfer.rf : 0)
+          + (tr.pt ? COSTI.transfer.pt : 0)
+          + (tr.sc ? COSTI.transfer.sc : 0)
+          + (tr.fr ? COSTI.transfer.fr : 0);
+
+        const sub = costoAll + costoCol + costoAss + costoTr;
+        totale += sub;
+        totAlloggio += costoAll;
+        totColazione += costoCol;
+        totAssic += costoAss;
+        totTr += costoTr;
+
+        lines.push(`${p.cognome} ${p.nome}: ${formatEuro(sub - COSTI.caparra)}`);
+      });
+
+      const caparra = COSTI.caparra * loaded.length;
+      const saldo = totale - caparra;
+
+      if (saldo < 0) {
+        setGlobalStatus('error',
+          'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
+        return;
+      }
+
+      lastCalcResult = {
+        persone: loaded.map(p => ({
+          nome: p.nome, cognome: p.cognome, row: p.row,
+          transfer: getTransfer(p.cardEl),
+        })),
+        totaleOpzioni: totale,
+        caparra,
+        saldo,
+      };
+
+      // Salva sul foglio (senza email qui — l'email si invia solo con il bottone dedicato)
+      await doSalvaTransfer();
+
+      // Aggiorna UI sidebar
+      summaryBox.innerHTML =
+        `<div style="font-weight:600;margin-bottom:6px;color:#4a5568;">Saldo per:</div>` +
+        lines.map(l => `<div class="summary-line">${l}</div>`).join('');
+
+      breakdownBox.style.display = 'block';
+      document.getElementById('totAlloggio').textContent = formatEuro(totAlloggio);
+      document.getElementById('totColazione').textContent = formatEuro(totColazione);
+      document.getElementById('totAssicurazione').textContent = formatEuro(totAssic);
+      document.getElementById('totTransfer').textContent = formatEuro(totTr);
+      document.getElementById('totOpzioni').textContent = formatEuro(totale);
+      document.getElementById('caparraVersata').textContent = '−' + formatEuro(caparra);
+      document.getElementById('saldoDaVersare').textContent = formatEuro(saldo);
+      totalBox.style.display = 'flex';
+
+      btnSave.disabled = false;
+      btnSave.textContent = LABELS.save;
+      btnPay.disabled = false;
+      actionSection.style.display = 'block';
+      orDivider.style.color = '#666';
+
+      setGlobalStatus('ok',
+        '<span class="success-check">✅</span> Prenotazione aggiornata');
+
+      hideRecalcBanner();
+      setCalcButtons({ display: 'none' });
+      document.getElementById('partialTotalBox').style.display = 'none';
+
+      setTimeout(() =>
+        summaryBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 120);
+
+    } catch (err) {
+      console.error('Errore calcolo:', err);
+      setGlobalStatus('error',
+        'Impossibile aggiornare la prenotazione: ' + err.message);
+      lastCalcResult = null;
+    } finally {
+      setCalcButtons({ disabled: false });
+      _calcInProgress = false;   // ← reset SEMPRE, anche dopo Annulla
+    }
+  }
+
+  function resetCalcState() {
     lastCalcResult = null;
-  } finally {
-    setCalcButtons({ disabled: false });
-    _calcInProgress = false;   // ← reset SEMPRE, anche dopo Annulla
-  }
-}
+    _lastSavedHash = null;
+    btnSave.disabled = true;
+    btnPay.disabled = true;
+    btnSave.textContent = LABELS.save;
+    orDivider.style.color = '#a0aec0';
+    breakdownBox.style.display = 'none';
 
-function resetCalcState() {
-  lastCalcResult = null;
-  _lastSavedHash = null;
-  btnSave.disabled    = true;
-  btnPay.disabled     = true;
-  btnSave.textContent = LABELS.save;
-  orDivider.style.color = '#a0aec0';
-  breakdownBox.style.display = 'none';
+    const loadedN = persone.filter(p => p.loaded).length;
+    summaryBox.textContent = loadedN > 0 ? '' : LABELS.lookupHint;
 
-  const loadedN = persone.filter(p => p.loaded).length;
-  summaryBox.textContent = loadedN > 0 ? '' : LABELS.lookupHint;
+    if (loadedN > 0) setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
+    else setCalcButtons({ display: 'none', disabled: false });
 
-  if (loadedN > 0) setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
-  else             setCalcButtons({ display: 'none', disabled: false });
-
-  recalcBanner.classList.remove('active');
-  hideRecalcBanner();
-  setGlobalStatus('', '');
-  updateStepper();
-}
-
-
-// ─── SALVA TRANSFER ──────────────────────────────────────────────────────────
-function _hash(result, email, sendEmail) {
-  return JSON.stringify({ ...result, email: email || '', sendEmail: !!sendEmail });
-}
-
-async function doSalvaTransfer(email, sendEmail = true) {
-  if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
-
-  const hash = _hash(lastCalcResult, email, sendEmail);
-  if (hash === _lastSavedHash) {
-    // Stesso stato già salvato — skip silenzioso
-    return { success: true, skipped: true };
+    recalcBanner.classList.remove('active');
+    hideRecalcBanner();
+    setGlobalStatus('', '');
+    updateStepper();
   }
 
-  const data = await gasPost({
-    action:  'salvaTransfer',
-    email:   email || '',
-    sendEmail: !!sendEmail,
-    persone: lastCalcResult.persone,
-    totale:  lastCalcResult.totaleOpzioni,
-    caparra: lastCalcResult.caparra,
-    saldo:   lastCalcResult.saldo,
-  });
 
-  if (!data.success) throw new Error(data.message || data.error || 'Errore sconosciuto');
-  _lastSavedHash = hash;
-  return data;
-}
-
-async function salvaEInvia() {
-  if (!lastCalcResult) { setGlobalStatus('error', 'Prima calcola il totale.'); return; }
-
-  const email = emailInput.value.trim();
-  if (!email || !email.includes('@')) {
-    setGlobalStatus('error', "Inserisci un'email valida.");
-    emailInput.focus();
-    return;
+  // ─── SALVA TRANSFER ──────────────────────────────────────────────────────────
+  function _hash(result, email, sendEmail) {
+    return JSON.stringify({ ...result, email: email || '', sendEmail: !!sendEmail });
   }
 
-  btnSave.disabled = true;
-  setGlobalStatus('loading', '<span class="spinner"></span>Invio email…');
+  async function doSalvaTransfer(email, sendEmail = true) {
+    if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
 
-  try {
-    await doSalvaTransfer(email);
-    setGlobalStatus('ok', `✅ Email inviata a ${email}`);
-    btnSave.textContent = 'Email inviata ✓';
-    document.getElementById('ibanPopup').classList.add('active');
-  } catch (err) {
-    console.error('Errore email:', err);
-    setGlobalStatus('error', 'Errore: ' + err.message);
-    btnSave.disabled = false;
+    const hash = _hash(lastCalcResult, email, sendEmail);
+    if (hash === _lastSavedHash) {
+      // Stesso stato già salvato — skip silenzioso
+      return { success: true, skipped: true };
+    }
+
+    const data = await gasPost({
+      action: 'salvaTransfer',
+      email: email || '',
+      sendEmail: !!sendEmail,
+      persone: lastCalcResult.persone,
+      totale: lastCalcResult.totaleOpzioni,
+      caparra: lastCalcResult.caparra,
+      saldo: lastCalcResult.saldo,
+    });
+
+    if (!data.success) throw new Error(data.message || data.error || 'Errore sconosciuto');
+    _lastSavedHash = hash;
+    return data;
   }
-}
+
+  async function salvaEInvia() {
+    if (!lastCalcResult) { setGlobalStatus('error', 'Prima calcola il totale.'); return; }
+
+    const email = emailInput.value.trim();
+    if (!email || !email.includes('@')) {
+      setGlobalStatus('error', "Inserisci un'email valida.");
+      emailInput.focus();
+      return;
+    }
+
+    btnSave.disabled = true;
+    setGlobalStatus('loading', '<span class="spinner"></span>Invio email…');
+
+    try {
+      await doSalvaTransfer(email);
+      setGlobalStatus('ok', `✅ Email inviata a ${email}`);
+      btnSave.textContent = 'Email inviata ✓';
+      openModal('ibanPopup');
+    } catch (err) {
+      console.error('Errore email:', err);
+      setGlobalStatus('error', 'Errore: ' + err.message);
+      btnSave.disabled = false;
+    }
+  }
 
 
-// ─── PAGA CON CARTA ──────────────────────────────────────────────────────────
-async function openPayPopup() {
-  if (!lastCalcResult) return;
-  const loaded = persone.filter(p => p.loaded);
-  if (!loaded.length) return;
+  // ─── PAGA CON CARTA ──────────────────────────────────────────────────────────
+  async function openPayPopup() {
+    if (!lastCalcResult) return;
+    const loaded = persone.filter(p => p.loaded);
+    if (!loaded.length) return;
 
-  const causale = 'Saldo Cammino 2026 ' + loaded.map(p => p.cognome).join(' - ');
-  const email   = emailInput.value.trim();
+    const causale = 'Saldo Cammino 2026 ' + loaded.map(p => p.cognome).join(' - ');
+    const email = emailInput.value.trim();
 
-  setGlobalStatus('loading', '<span class="spinner"></span>Attendere…');
-  btnPay.disabled = true;
+    setGlobalStatus('loading', '<span class="spinner"></span>Attendere…');
+    btnPay.disabled = true;
 
-  try {
-    await doSalvaTransfer(email, false);
-  } catch (err) {
-    setGlobalStatus('error', 'Errore: ' + err.message);
+    try {
+      await doSalvaTransfer(email, false);
+    } catch (err) {
+      setGlobalStatus('error', 'Errore: ' + err.message);
+      btnPay.disabled = false;
+      return;
+    }
+
     btnPay.disabled = false;
-    return;
+    setGlobalStatus('', '');
+
+    document.getElementById('popupImporto').textContent = formatEuro(lastCalcResult.saldo);
+    document.getElementById('popupCausale').textContent = causale;
+    document.querySelectorAll('.popup-btn-copy').forEach(b => {
+      b.textContent = '📋'; b.classList.remove('copied');
+    });
+    openModal('payPopup');
   }
 
-  btnPay.disabled = false;
-  setGlobalStatus('', '');
-
-  document.getElementById('popupImporto').textContent = formatEuro(lastCalcResult.saldo);
-  document.getElementById('popupCausale').textContent = causale;
-  document.querySelectorAll('.popup-btn-copy').forEach(b => {
-    b.textContent = '📋'; b.classList.remove('copied');
-  });
-  openModal();
-}
-
-async function copyPopupField(fieldId, btn) {
-  const val = document.getElementById(fieldId).textContent;
-  try {
-    await navigator.clipboard.writeText(val);
-    btn.textContent = '✅';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
-  } catch {
-    prompt('Copia manualmente:', val);
+  async function copyPopupField(fieldId, btn) {
+    const val = document.getElementById(fieldId).textContent;
+    try {
+      await navigator.clipboard.writeText(val);
+      btn.textContent = '✅';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
+    } catch {
+      prompt('Copia manualmente:', val);
+    }
   }
-}
 
-function openTinaba() {
-  window.open(TINABA_URL, '_blank');
-}
+  function openTinaba() {
+    window.open(TINABA_URL, '_blank');
+  }
 
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-addPersonCard();
+  // ─── INIT ─────────────────────────────────────────────────────────────────────
+  addPersonCard();
 
-btnAdd.addEventListener('click', addPersonCard);
-btnCalc.addEventListener('click', calcolaTotale);
-btnCalcDesktop?.addEventListener('click', calcolaTotale);
-btnSave.addEventListener('click', salvaEInvia);
-btnPay.addEventListener('click', openPayPopup);
-document.getElementById('popupOpenBtn')?.addEventListener('click', openTinaba);
+  btnAdd.addEventListener('click', addPersonCard);
+  btnCalc.addEventListener('click', calcolaTotale);
+  btnCalcDesktop?.addEventListener('click', calcolaTotale);
+  btnSave.addEventListener('click', salvaEInvia);
+  btnPay.addEventListener('click', openPayPopup);
+  document.getElementById('popupOpenBtn')?.addEventListener('click', openTinaba);
 </script>
