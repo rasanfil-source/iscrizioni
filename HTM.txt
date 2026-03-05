@@ -784,23 +784,23 @@
       <div class="step-dot" aria-hidden="true">1</div>
       <div class="step-label">
         <div class="step-title">Trova la tua prenotazione</div>
-        <div class="step-desc">Inserisci nome e cognome</div>
+        <div class="step-desc">Inserisci cognome</div>
       </div>
     </div>
     <div class="step-sep" aria-hidden="true"></div>
     <div class="step" data-step="2">
       <div class="step-dot" aria-hidden="true">2</div>
       <div class="step-label">
-        <div class="step-title">Scegli eventuali trasferimenti</div>
-        <div class="step-desc">Aggiungi solo ciò che ti serve</div>
+        <div class="step-title">Scegli opzioni</div>
+        <div class="step-desc">Transfer e servizi</div>
       </div>
     </div>
     <div class="step-sep" aria-hidden="true"></div>
     <div class="step" data-step="3">
       <div class="step-dot" aria-hidden="true">3</div>
       <div class="step-label">
-        <div class="step-title">Verifica e paga il saldo</div>
-        <div class="step-desc">Controlla importo e procedi</div>
+        <div class="step-title">Calcola quanto pagare</div>
+        <div class="step-desc">Importo e riepilogo</div>
       </div>
     </div>
   </nav>
@@ -817,8 +817,7 @@
         <button class="primary" id="calcBtn" type="button" style="display:none;">Calcola quanto pagare</button>
         <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite" aria-atomic="true">
           <span class="recalc-icon" aria-hidden="true">⚠️</span>
-          <span class="recalc-text">Hai modificato alcune opzioni. Clicca “Calcola importo finale” per aggiornare il saldo.</span>
-          <button type="button" onclick="calcolaTotale()">Aggiorna ora</button>
+          <span class="recalc-text">Aggiorna importo per ricalcolare il totale e salvare le modifiche.</span>
         </div>
       </div>
     </div>
@@ -847,77 +846,41 @@
 
       <!-- Breakdown dettaglio opzioni -->
       <div id="breakdownBox">
-        <h4 style="margin:0 0 10px; font-size:.9rem; color:#2d3748;">💰 Importo totale viaggio</h4>
-        <div class="breakdown-row"><span>Alloggio</span><span id="totAlloggio">€ —</span></div>
-        <div class="breakdown-row"><span>Servizi inclusi</span><span id="totColazione">€ —</span><span id="totAssicurazione" style="display:none;">€ —</span></div>
-        <div class="breakdown-row"><span>Transfer aggiunti</span><span id="totTransfer">€ —</span></div>
-        <div class="breakdown-row total" style="display:none;"><span>Totale opzioni</span><span id="totOpzioni">€ —</span></div>
-        
-        <h4 style="margin:15px 0 10px; font-size:.9rem; color:#2d3748; border-top:1px solid #edf2f7; padding-top:10px;">Hai già versato:</h4>
-        <div class="breakdown-row">
-          <span style="color:#718096;">Caparra: €150</span>
-          <span id="caparraVersata" style="color:#38a169;">− € —</span>
-        </div>
+        <div style="font-weight:600; margin-bottom:8px; color:#4a5568;">Dettaglio opzioni</div>
+        <div class="breakdown-row"><span>Alloggio</span><span id="totAlloggio">€ 0,00</span></div>
+        <div class="breakdown-row"><span>Colazione</span><span id="totColazione">€ 0,00</span></div>
+        <div class="breakdown-row"><span>Assicurazione annullamento</span><span id="totAssicurazione">€ 0,00</span></div>
+        <div class="breakdown-row"><span>Transfer opzionali</span><span id="totTransfer">€ 0,00</span></div>
+        <div class="breakdown-row total"><span>Totale opzioni</span><span id="totOpzioni">€ 0,00</span></div>
+        <div class="breakdown-row caparra"><span>Caparra versata</span><span id="caparraVersata">€ 0,00</span></div>
+      </div>
 
-        <div id="totalBox">
-          <span>🔵 Importo da versare ora</span>
-          <span id="saldoDaVersare">€ —</span>
-        </div>
-        <p style="text-align:center; font-size:.8rem; color:#718096; margin-top:8px;">
-          Scadenza pagamento: 15 maggio 2026
-        </p>
+      <!-- Saldo finale -->
+      <div id="totalBox">
+        <span>Importo da pagare</span>
+        <span id="saldoDaVersare">€ —</span>
       </div>
 
       <!-- Status globale -->
       <div id="globalStatus" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
 
       <!-- Azioni post-calcolo -->
-      <div id="actionSection" style="display:none; margin-top:40px; border-top:2px solid #e2e8f0; padding-top:30px;">
-        <h3 style="text-align:center; color:#2d3748; margin-bottom:25px; font-size:1.1rem;">Come vuoi procedere?</h3>
-        
-        <div class="action-grid" style="display:grid; grid-template-columns:1fr; gap:20px;">
-          
-          <!-- OPZIONE 1: CARTA -->
-          <div class="action-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-            <button type="button" class="primary" id="payBtn" style="width:100%; height:54px; font-size:1.1rem; justify-content:center; background:#e67e22; border-color:#e67e22;">
-              💳 Paga con carta
-            </button>
-            <p style="font-size:.85rem; color:#718096; margin-top:10px; margin-bottom:0;">
-              Verrai reindirizzato alla pagina di pagamento sicura.
-            </p>
-            <div style="margin-top:8px; font-size:.8rem; color:#38a169; font-weight:600;">
-              🔒 Pagamento sicuro
-            </div>
+      <div id="actionSection" style="display:none; margin-top:12px;">
+        <button class="secondary" id="payBtn" type="button" disabled
+          style="background:#e67e22; border-color:#e67e22; margin-top:0;">
+          <span class="mobile-hide-icon">💳 </span>Paga con carta
+        </button>
+        <div id="orDivider" style="text-align:center; font-size:.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
+        <button class="secondary" id="saveBtn" type="button" disabled style="margin-top:0;">
+          Invia riepilogo via email
+        </button>
+        <div style="margin-top:16px;">
+          <label for="emailInput">Email per il riepilogo</label>
+          <input type="email" id="emailInput" placeholder="email@esempio.it"
+                 autocomplete="email" inputmode="email">
+          <div style="font-size:.75rem; color:#718096; margin-top:4px;">
+            Riceverai importi, IBAN e causale
           </div>
-
-          <div id="orDivider" style="text-align:center; color:#a0aec0; font-weight:600; text-transform:uppercase; font-size:.8rem;">
-            — oppure —
-          </div>
-
-          <!-- OPZIONE 2: EMAIL -->
-          <div class="action-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-            <div style="text-align:left; margin-bottom:15px;">
-              <label for="emailInput" style="display:block; font-weight:600; font-size:.9rem; color:#4a5568; margin-bottom:6px;">
-                Inserisci la tua email
-              </label>
-              <input type="email" id="emailInput" placeholder="nome@email.it" 
-                     style="width:100%; padding:12px; border:1px solid #cbd5e0; border-radius:6px; font-size:1rem;">
-              <p style="font-size:.8rem; color:#718096; margin-top:6px;">
-                Ti invieremo importo, IBAN e causale del bonifico.
-              </p>
-            </div>
-            <button type="button" class="secondary" id="saveBtn" style="width:100%; height:48px; justify-content:center;">
-              📧 Ricevi istruzioni via email
-            </button>
-          </div>
-
-        </div>
-
-        <div style="margin-top:40px; text-align:center; color:#718096; font-size:.9rem; border-top:1px solid #edf2f7; padding-top:20px;">
-          Per qualsiasi dubbio puoi scrivere a 
-          <a href="mailto:info@parrocchiasanteugenio.it" style="color:#3182ce; text-decoration:none; font-weight:600;">
-            info@parrocchiasanteugenio.it
-          </a>
         </div>
       </div>
 
@@ -930,7 +893,7 @@
   <div class="person-card" data-person-index="">
 
     <div class="card-header">
-      <span class="card-title">Cerca la tua prenotazione</span>
+      <span class="card-title">Trova la tua prenotazione</span>
       <div class="card-header-actions">
         <button type="button" class="btn-change" title="Modifica dati persona">✎ Cambia</button>
         <button type="button" class="btn-remove" title="Rimuovi persona" aria-label="Rimuovi questa persona">✕</button>
@@ -950,7 +913,7 @@
                  autocapitalize="words"
                  spellcheck="false"
                  inputmode="text">
-          <div class="field-hint">Premi Invio oppure clicca “Trova prenotazione”</div>
+          <div class="field-hint">Inserisci per trovare la tua prenotazione</div>
         </div>
 
         <div class="field-col">
@@ -958,19 +921,19 @@
             Nome
           </label>
           <input type="text" class="person-nome"
-                 placeholder="Es. Marco"
+                 placeholder=""
                  autocomplete="given-name"
                  autocorrect="off"
                  autocapitalize="words"
                  spellcheck="false"
                  inputmode="text">
-          <div class="field-hint" aria-hidden="true">&nbsp;</div>
+          <div class="field-hint" aria-hidden="true"> </div>
         </div>
 
         <div class="field-col">
           <label style="visibility:hidden;" aria-hidden="true">Azioni</label>
-          <button type="button" class="primary btn-search-person btn-cerca">🔍 Trova prenotazione</button>
-          <div class="field-hint" aria-hidden="true">&nbsp;</div>
+          <button type="button" class="primary btn-search-person btn-cerca">🔍 Trova</button>
+          <div class="field-hint" aria-hidden="true"> </div>
         </div>
 
       </div>
@@ -979,32 +942,32 @@
     <!-- Status singola card -->
     <div class="status person-status" role="status" aria-live="polite" aria-atomic="true"></div>
 
+    <!-- Sezione dati caricati -->
     <div class="loaded-data-section">
 
-      <div class="section-label">I tuoi dati di prenotazione</div>
+      <div class="section-label">Dati prenotazione</div>
 
       <!-- Box opzioni non modificabili -->
       <div class="promemoria-bozza">
-        <label style="font-size:.9rem; margin-bottom:4px;" class="label-alloggio">Tipologia di alloggio scelta</label>
+        <label style="font-size:.9rem; margin-bottom:4px;" class="label-alloggio">Alloggio</label>
         <div class="readonly-box alloggio-box" style="margin-bottom:12px;">—</div>
 
-        <div style="font-weight:600; font-size:.85rem; color:#718096; margin-bottom:8px;">Servizi già inclusi nella tua prenotazione</div>
         <div class="options readonly">
           <span class="sr-only locked-options-help">
             Opzioni confermate all'iscrizione, non più modificabili.
           </span>
           <label style="cursor:default;" class="label-colazione">
             <input type="checkbox" class="colazione" disabled aria-describedby="">
-            🔒 Colazione 7 giorni (già inclusa) <span class="costo-label" style="color:#718096;">(€70)</span>
+            🔒 Colazione <span class="costo-label" style="color:#718096;">(€70)</span>
           </label>
           <label style="cursor:default;" class="label-assicurazione">
             <input type="checkbox" class="assicurazione" disabled aria-describedby="">
-            🔒 Assicurazione annullamento (già inclusa) <span class="costo-label" style="color:#718096;">(€20)</span>
+            🔒 Assicurazione annullamento <span class="costo-label" style="color:#718096;">(€20)</span>
           </label>
         </div>
         <div class="nota-locked" style="font-size:.8rem; color:#718096; margin-top:8px;
              border-top:1px solid #e2e8f0; padding-top:8px;">
-          Queste opzioni sono state confermate all'iscrizione e non possono più essere modificate.
+          Opzioni non più modificabili
         </div>
       </div>
 
@@ -1013,7 +976,7 @@
         🚌 Vuoi aggiungere un trasferimento?
       </div>
       <div style="font-size:.85rem; color:#718096; margin-bottom:14px;">
-        Seleziona solo i trasferimenti che desideri aggiungere. Il costo verrà incluso nel saldo finale.
+        Seleziona solo i transfer che vuoi aggiungere. Il costo sarà incluso nel saldo.
       </div>
 
       <div class="transfer-grid">
@@ -1037,27 +1000,27 @@
 <div class="popup-overlay" id="payPopup"
      role="dialog" aria-modal="true" aria-labelledby="popupTitle" tabindex="-1">
   <div class="popup-box" role="document">
-    <h3 id="popupTitle">Procedi al pagamento con carta</h3>
+    <h3 id="popupTitle">Completa il pagamento con carta</h3>
     <p class="popup-subtitle">
-      Stai per essere reindirizzato alla pagina sicura della Parrocchia S. Eugenio.
+      Verrai reindirizzato alla pagina sicura di pagamento della Parrocchia S. Eugenio
     </p>
 
     <div class="popup-field">
-      <span class="popup-field-label">Importo da pagare</span>
+      <span class="popup-field-label">Importo</span>
       <span class="popup-field-value importo" id="popupImporto"></span>
       <button type="button" class="popup-btn-copy" onclick="copyPopupField('popupImporto',this)">📋</button>
     </div>
     <div class="popup-field">
-      <span class="popup-field-label">Causale del pagamento</span>
+      <span class="popup-field-label">Causale</span>
       <span class="popup-field-value" id="popupCausale"></span>
       <button type="button" class="popup-btn-copy" onclick="copyPopupField('popupCausale',this)">📋</button>
     </div>
 
     <div class="popup-actions">
-      <button type="button" class="popup-btn-confirm" id="popupOpenBtn">Apri pagina di pagamento</button>
-      <button type="button" class="popup-btn-dismiss" id="popupCloseBtn">Annulla</button>
+      <button type="button" class="popup-btn-confirm" id="popupOpenBtn">Apri pagina pagamento →</button>
+      <button type="button" class="popup-btn-dismiss" id="popupCloseBtn">Chiudi</button>
     </div>
-    <p class="popup-hint">Il popup rimane aperto. Puoi tornare qui dopo aver completato il pagamento.</p>
+    <p class="popup-hint">Il popup resta aperto — passa all'altro tab per incollare i dati.</p>
   </div>
 </div>
 
@@ -1080,11 +1043,10 @@
 <div class="popup-overlay" id="ibanPopup"
      role="dialog" aria-modal="true" aria-labelledby="ibanTitle" tabindex="-1">
   <div class="popup-box" role="document">
-    <h3 id="ibanTitle">Email inviata con successo ✅</h3>
+    <h3 id="ibanTitle">Email inviata! ✅</h3>
     <p style="color:#4a5568; margin-bottom:18px;">
-      Controlla la tua casella di posta per trovare tutte le istruzioni di pagamento.
+      Se vuoi procedere subito con il bonifico, ecco le coordinate:
     </p>
-    <h4 style="margin:20px 0 10px; color:#1a365d;">Coordinate per il bonifico</h4>
 
     <div class="popup-field">
       <span class="popup-field-label">IBAN</span>
@@ -1127,10 +1089,10 @@ const COSTI = {
 };
 
 const LABELS = {
-  calc:        '💶 Calcola importo finale',
+  calc:        'Calcola quanto pagare',
   recalc:      'Aggiorna importo',
-  save:        '📧 Ricevi istruzioni via email',
-  lookupHint:  'Inserisci i tuoi dati per visualizzare il riepilogo.',
+  save:        'Invia riepilogo via email',
+  lookupHint:  'Inserisci cognome per iniziare',
 };
 
 
@@ -1465,7 +1427,7 @@ function onOptionsChanged() {
     setGlobalStatus('', '');
     document.getElementById('saldoDaVersare').textContent = '€ —';
     breakdownBox.style.display = 'none';
-    summaryBox.innerHTML = '⚠️ Hai modificato alcune opzioni. Clicca “Calcola importo finale” per aggiornare il saldo.';
+    summaryBox.innerHTML = '⚠️ Opzioni modificate — premi "Aggiorna importo" per ricalcolare.';
   } else {
     resetCalcState();
   }
@@ -1592,7 +1554,7 @@ async function lookupPersona(card, index) {
   const token = Symbol();
   latestLookupToken[index] = token;
 
-  setCardStatus(card, 'loading', '<span class="spinner"></span>Stiamo cercando la tua prenotazione…');
+  setCardStatus(card, 'loading', '<span class="spinner"></span>Caricamento…');
 
   try {
     const payload = nome
@@ -1605,7 +1567,7 @@ async function lookupPersona(card, index) {
 
     if (!data.success) {
       if (data.error === 'duplicate') {
-        let html = '<div style="margin-top:8px;">Abbiamo trovato più persone con questi dati. Seleziona quella corretta.</div>';
+        let html = '<div style="margin-top:8px;">Ci sono più persone con questo cognome. Quale sei?</div>';
         html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">';
         data.candidates.forEach(c => {
           html += `<button type="button" class="secondary" style="width:auto; font-size:.85rem; padding:4px 10px;" ` +
@@ -1619,7 +1581,10 @@ async function lookupPersona(card, index) {
         card.querySelector('.person-nome').classList.add('has-error');
       } else {
         setCardStatus(card, 'error',
-          `Non troviamo una prenotazione con questi dati. Controlla eventuali errori di digitazione.`);
+          `Prenotazione non trovata per "<strong>${capitalize(cognomeRaw)}</strong>". ` +
+          `Controlla l'ortografia o ` +
+          `<a href="mailto:info@parrocchiasanteugenio.it" style="color:#c53030;">` +
+          `contattaci</a>.`);
       }
       return;
     }
@@ -1725,7 +1690,7 @@ function applyResult(card, person, data, nomeRaw, cognomeRaw) {
   const nomeEl = card.querySelector('.person-nome');
   if (nomeEl) nomeEl.value = person.nome;
 
-  setCardStatus(card, 'ok', '✅ Prenotazione trovata');
+  setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
   updateCardTitles();
   updatePartialTotal();
 
@@ -2186,7 +2151,7 @@ async function calcolaTotale() {
 
     // Aggiorna UI sidebar
     summaryBox.innerHTML =
-      `<div style="font-weight:600;margin-bottom:6px;color:#4a5568;">📋 La tua prenotazione:</div>` +
+      `<div style="font-weight:600;margin-bottom:6px;color:#4a5568;">Importo per:</div>` +
       lines.map(l => `<div class="summary-line">${l}</div>`).join('');
 
     breakdownBox.style.display = 'block';
