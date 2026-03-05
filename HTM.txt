@@ -815,7 +815,7 @@
       <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
 
       <div id="calcBtnContainer">
-        <button class="primary" id="calcBtn" type="button" style="display:none;">Calcola saldo</button>
+        <button class="primary" id="calcBtn" type="button" style="display:none;">Aggiorna saldo</button>
         <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite" aria-atomic="true">
           <span class="recalc-icon" aria-hidden="true">⚠️</span>
           <span class="recalc-text">Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
@@ -833,12 +833,12 @@
           <span class="partial-label">Costo totale stimato:</span>
           <span class="partial-value" id="partialTotalValue">€ 0,00</span>
         </div>
-        <div style="font-size:0.75rem; color:#718096; margin-top:4px;">(caparra inclusa — clicca Calcola per confermare)</div>
+        <div style="font-size:0.75rem; color:#718096; margin-top:4px;">(caparra inclusa)</div>
       </div>
 
       <!-- Shortcut calcola desktop -->
       <div id="desktopCalcShortcut">
-        <button class="primary" id="calcBtnDesktop" type="button">Calcola saldo</button>
+        <button class="primary" id="calcBtnDesktop" type="button">Aggiorna saldo</button>
       </div>
 
       <h2>Riepilogo</h2>
