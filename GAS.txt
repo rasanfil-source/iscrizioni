@@ -336,7 +336,7 @@ function doPost(e) {
         try {
           GmailApp.sendEmail(
             email,
-            'Cammino 2026 – Riepilogo e saldo da versare',
+            'Cammino 2026 – Ecco il tuo saldo e le istruzioni di pagamento',
             buildEmailPlain_(persone, totale, caparra, saldo),
             {
               name: 'Parrocchia S. Eugenio',
