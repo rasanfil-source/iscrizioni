@@ -972,10 +972,9 @@
         </div>
       </div>
 
-      <!-- Transfer -->
       <div class="section-label" style="margin-top:20px; font-size:1rem; font-weight:600;
            color:#2d3748; text-transform:none;">
-        🚌 Indicaci i trasferimenti di cui hai bisogno
+        🚌 Vuoi aggiungere un trasferimento?
       </div>
       <div style="font-size:.85rem; color:#718096; margin-bottom:14px;">
         Seleziona solo i transfer che vuoi aggiungere. Il costo sarà incluso nel saldo.
@@ -1064,8 +1063,7 @@
     </div>
 
     <div class="popup-actions" style="margin-top:20px;">
-      <button type="button" class="popup-btn-dismiss" style="width:100%;"
-              onclick="document.getElementById('ibanPopup').classList.remove('active')">
+      <button type="button" class="popup-btn-dismiss" style="width:100%;" id="ibanCloseBtn">
         Chiudi
       </button>
     </div>
@@ -1092,7 +1090,7 @@ const COSTI = {
 };
 
 const LABELS = {
-  calc:        'Calcola saldo',
+  calc:        'Aggiorna saldo',
   recalc:      'Ricalcola',
   save:        'Invia riepilogo via email',
   lookupHint:  'Inserisci cognome per iniziare',
@@ -1106,6 +1104,7 @@ const LABELS = {
  */
 function normClient(s) {
   return String(s || '')
+    .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[''`ʼ\u2018\u2019\u02bc]/g, '')
@@ -1217,6 +1216,21 @@ const lookupTimers      = {};
 const lookupControllers = {};
 const latestLookupToken = {};
 const lookupCache       = new Map();
+const CACHE_TTL_MS      = 300000; // 5 minuti
+
+function getFromCache(key) {
+  const entry = lookupCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    lookupCache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setInCache(key, data) {
+  lookupCache.set(key, { data, timestamp: Date.now() });
+}
 
 function makeCacheKey(nome, cognome) {
   return `${normClient(nome)}|${normClient(cognome)}`;
@@ -1270,23 +1284,20 @@ window.addEventListener('resize', mountCalcBtn);
 // ─── WARM-UP GAS ─────────────────────────────────────────────────────────────
 (async () => {
   const badge = document.getElementById('warmupBadge');
-  badge.style.display = 'block';
+  if (badge) badge.style.display = 'block';
   document.querySelectorAll('.btn-search-person').forEach(b => b.disabled = true);
 
   const hide = () => {
-    badge.style.display = 'none';
-    // Mostra shortcut calcola desktop se disponibile
+    if (badge) badge.style.display = 'none';
     if (desktopShortcut) desktopShortcut.style.display = '';
   };
 
   try {
-    await fetch(GAS_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: '__ping__' }),
-    });
-    badge.textContent = '✅ Siamo pronti!';
-    badge.classList.add('ready');
+    await gasPost({ action: '__ping__' });
+    if (badge) {
+      badge.textContent = '✅ Siamo pronti!';
+      badge.classList.add('ready');
+    }
     setTimeout(hide, 2500);
   } catch (_) {
     hide();
@@ -1366,7 +1377,7 @@ function updatePartialTotal() {
     hasLoaded = true;
     const card = p.cardEl;
     if (!card) return;
-    partial += getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
+    partial += (p.costoAlloggio || 0);
     if (p.colazione)    partial += COSTI.colazione;
     if (p.assicurazione)partial += COSTI.assicurazione;
     if (card.querySelector('.tr-rf')?.checked) partial += COSTI.transfer.rf;
@@ -1419,8 +1430,9 @@ function onOptionsChanged() {
 }
 
 
-// ─── MODAL ACCESSIBILE (payPopup) ────────────────────────────────────────────
+// ─── MODALI ACCESSIBILI (payPopup, confirmModal, ibanPopup) ──────────────────
 let _focusBeforeModal = null;
+let _activeModal      = null;
 
 function getFocusables(el) {
   return Array.from(el.querySelectorAll(
@@ -1428,26 +1440,33 @@ function getFocusables(el) {
   )).filter(e => !e.disabled && e.offsetParent !== null);
 }
 
-function openModal() {
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
   _focusBeforeModal = document.activeElement;
-  payPopup.classList.add('active');
-  payPopup.setAttribute('aria-hidden', 'false');
-  (getFocusables(payPopup)[0] || payPopup).focus();
+  _activeModal      = modal;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  (getFocusables(modal)[0] || modal).focus();
   document.addEventListener('keydown', onModalKey, true);
 }
 
 function closeModal() {
-  payPopup.classList.remove('active');
-  payPopup.setAttribute('aria-hidden', 'true');
+  if (!_activeModal) return;
+  _activeModal.classList.remove('active');
+  _activeModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
   document.removeEventListener('keydown', onModalKey, true);
   _focusBeforeModal?.focus();
+  _activeModal = null;
 }
 
 function onModalKey(e) {
-  if (!payPopup.classList.contains('active')) return;
+  if (!_activeModal) return;
   if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
   if (e.key !== 'Tab') return;
-  const f = getFocusables(payPopup);
+  const f = getFocusables(_activeModal);
   if (!f.length) return;
   if (e.shiftKey && document.activeElement === f[0]) {
     e.preventDefault(); f[f.length - 1].focus();
@@ -1457,10 +1476,13 @@ function onModalKey(e) {
 }
 
 document.getElementById('popupCloseBtn')?.addEventListener('click', closeModal);
-payPopup?.addEventListener('mousedown', e => { if (e.target === payPopup) closeModal(); });
+document.getElementById('ibanCloseBtn')?.addEventListener('click', closeModal);
+
+[payPopup, document.getElementById('confirmModal'), document.getElementById('ibanPopup')].forEach(m => {
+  m?.addEventListener('mousedown', e => { if (e.target === m) closeModal(); });
+});
 
 
-// ─── MODALE CONFERMA CUSTOM ──────────────────────────────────────────────────
 function showConfirmModal(title, bodyHtml) {
   return new Promise(resolve => {
     const modal     = document.getElementById('confirmModal');
@@ -1471,9 +1493,13 @@ function showConfirmModal(title, bodyHtml) {
 
     titleEl.textContent = title;
     bodyEl.innerHTML    = bodyHtml;
+
+    _focusBeforeModal = document.activeElement;
+    _activeModal      = modal;
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     okBtn.focus();
+    document.addEventListener('keydown', onModalKey, true);
 
     const onKey = e => {
       if (!modal.classList.contains('active')) return;
@@ -1490,11 +1516,10 @@ function showConfirmModal(title, bodyHtml) {
     document.addEventListener('keydown', onKey, true);
 
     const done = val => {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
+      _activeModal = modal; // ensure we close the right one
+      closeModal();
       okBtn.onclick     = null;
       cancelBtn.onclick = null;
-      document.removeEventListener('keydown', onKey, true);
       resolve(val);
     };
 
@@ -1533,8 +1558,9 @@ async function lookupPersona(card, index) {
   if (!cognome) return;
 
   const key = makeCacheKey(nome, cognome);
-  if (lookupCache.has(key)) {
-    applyResult(card, p, lookupCache.get(key), nomeRaw, cognomeRaw);
+  const cached = getFromCache(key);
+  if (cached) {
+    applyResult(card, p, cached, nomeRaw, cognomeRaw);
     return;
   }
 
@@ -1557,11 +1583,19 @@ async function lookupPersona(card, index) {
 
     if (!data.success) {
       if (data.error === 'duplicate') {
-        setCardStatus(card, 'error',
-          'Cognome presente più volte – inserisci anche il nome.');
+        let html = '<div style="margin-top:8px;">Ci sono più persone con questo cognome. Quale sei?</div>';
+        html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">';
+        data.candidates.forEach(c => {
+          html += `<button type="button" class="secondary" style="width:auto; font-size:.85rem; padding:4px 10px;" ` +
+                  `onclick="selectCandidate(this.closest('.person-card'), ${index}, '${c.nome.replace(/'/g, "\\'")}')">` +
+                  `Sono ${capitalize(c.nome)}</button>`;
+        });
+        html += '</div>';
+        html += '<div style="margin-top:10px; font-size:.8rem; color:#718096;">Oppure inserisci il nome manualmente sopra.</div>';
+        
+        setCardStatus(card, 'error', html);
         card.querySelector('.person-nome').removeAttribute('readonly');
         card.querySelector('.person-nome').classList.add('has-error');
-        card.querySelector('.person-nome').focus();
       } else {
         setCardStatus(card, 'error',
           `Prenotazione non trovata per "<strong>${capitalize(cognomeRaw)}</strong>". ` +
@@ -1572,7 +1606,7 @@ async function lookupPersona(card, index) {
       return;
     }
 
-    lookupCache.set(key, data);
+    setInCache(key, data);
     applyResult(card, p, data, nomeRaw, cognomeRaw);
 
   } catch (err) {
@@ -1593,11 +1627,20 @@ async function lookupPersona(card, index) {
   }
 }
 
+function selectCandidate(card, index, nome) {
+  const nomeInp = card.querySelector('.person-nome');
+  if (nomeInp) {
+    nomeInp.value = capitalize(nome);
+    lookupPersona(card, index);
+  }
+}
+
 function applyResult(card, person, data, nomeRaw, cognomeRaw) {
   person.nome         = capitalize(data.persona?.nome || nomeRaw);
   person.cognome      = capitalize(data.persona?.cognome || cognomeRaw);
   person.row          = data.row;
   person.alloggio     = data.persona?.alloggio || '—';
+  person.costoAlloggio= getCostoAlloggio(person.alloggio);
   person.colazione    = !!data.persona?.colazione;
   person.assicurazione= !!data.persona?.assicurazione;
   person.loaded       = true;
@@ -1861,7 +1904,7 @@ function unlockCard(card, index) {
 
   if (emailInput) emailInput.value = '';
 
-  Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'',
+  Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'', costoAlloggio:0,
                      colazione:false, assicurazione:false, loaded:false });
 
   card.classList.remove('locked');
@@ -2073,7 +2116,7 @@ async function calcolaTotale() {
       const card = p.cardEl;
       const tr   = getTransfer(card);
 
-      const costoAll = getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
+      const costoAll = p.costoAlloggio || 0;
       const costoCol = card.querySelector('.colazione')?.checked  ? COSTI.colazione    : 0;
       const costoAss = card.querySelector('.assicurazione')?.checked? COSTI.assicurazione: 0;
       const costoTr  = (tr.rf ? COSTI.transfer.rf : 0)
@@ -2178,14 +2221,14 @@ function resetCalcState() {
 
 
 // ─── SALVA TRANSFER ──────────────────────────────────────────────────────────
-function _hash(result, email) {
-  return JSON.stringify({ ...result, email: email || '' });
+function _hash(result, email, sendEmail) {
+  return JSON.stringify({ ...result, email: email || '', sendEmail: !!sendEmail });
 }
 
-async function doSalvaTransfer(email) {
+async function doSalvaTransfer(email, sendEmail = true) {
   if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
 
-  const hash = _hash(lastCalcResult, email);
+  const hash = _hash(lastCalcResult, email, sendEmail);
   if (hash === _lastSavedHash) {
     // Stesso stato già salvato — skip silenzioso
     return { success: true, skipped: true };
@@ -2194,6 +2237,7 @@ async function doSalvaTransfer(email) {
   const data = await gasPost({
     action:  'salvaTransfer',
     email:   email || '',
+    sendEmail: !!sendEmail,
     persone: lastCalcResult.persone,
     totale:  lastCalcResult.totaleOpzioni,
     caparra: lastCalcResult.caparra,
@@ -2244,7 +2288,7 @@ async function openPayPopup() {
   btnPay.disabled = true;
 
   try {
-    await doSalvaTransfer(email);
+    await doSalvaTransfer(email, false);
   } catch (err) {
     setGlobalStatus('error', 'Errore: ' + err.message);
     btnPay.disabled = false;

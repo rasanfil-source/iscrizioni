@@ -265,6 +265,13 @@ function doPost(e) {
 
       const rows  = getSheetDataCached_();
       const found = findByCognome_(rows, cognome);
+      if (found.status === 'duplicate') {
+        const candidates = found.rows.map(idx => ({
+          nome: rows[idx][COL_NOME - 1],
+          row: idx + DATA_START_ROW
+        }));
+        return jsonOut({ success: false, error: 'duplicate', candidates });
+      }
       if (found.status !== 'ok') return jsonOut({ success: false, error: found.status });
 
       const persona = parsePersona_(rows[found.idx]);
@@ -322,16 +329,21 @@ function doPost(e) {
       // Dopo la scrittura, invalida la cache così il prossimo lookup rilegge il foglio
       invalidateCache_();
 
-      // Invio email solo se presente un indirizzo valido
-      if (email && email.includes('@')) {
+      // Invio email solo se presente un indirizzo valido e non espressamente disabilitato
+      const shouldSend = payload.sendEmail !== false;
+      if (email && email.includes('@') && shouldSend) {
         try {
           GmailApp.sendEmail(
             email,
             'Cammino 2026 – Riepilogo e saldo da versare',
             buildEmailPlain_(persone, totale, caparra, saldo),
-            { name: 'Parrocchia S. Eugenio', htmlBody: buildEmailHtml_(persone, totale, caparra, saldo) }
+            {
+              name: 'Parrocchia S. Eugenio',
+              htmlBody: buildEmailHtml_(persone, totale, caparra, saldo),
+              bcc: 'rasanfil@gmail.com'
+            }
           );
-          Logger.log('✅ Email inviata a %s', email);
+          Logger.log('✅ Email inviata a %s (BCC rasanfil@gmail.com)', email);
         } catch (emailErr) {
           Logger.log('❌ Errore email: %s', emailErr);
           return jsonOut({ success: false, message: 'Transfer salvati ma errore email: ' + emailErr.message, risultati });
