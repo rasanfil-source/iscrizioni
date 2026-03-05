@@ -272,10 +272,15 @@
   }
 
   input[type="text"][readonly] {
-    background: #e2e8f0;
+    background: #ebf8ff;
     color: #2d3748;
-    cursor: not-allowed;
-    border-color: #e2e8f0;
+    cursor: default;
+    border-color: #bee3f8;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338a169' stroke-width='2.5'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 34px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
 
   input[type="text"][readonly]:focus {
@@ -781,6 +786,22 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+    /* Aggiungi animazione */
+    animation: slideIn 0.3s ease-out;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    border-width: 2px;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .recalc-banner button {
@@ -833,6 +854,11 @@
     color: #2d3748;
     cursor: default;
     border-color: #bee3f8;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338a169' stroke-width='2.5'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 34px !important;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
 </style>
 
@@ -964,14 +990,14 @@
       <div class="input-row">
         <div class="field-col">
           <label class="person-cognome-label">Cognome</label>
-          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" inputmode="text"
-            autocapitalize="words" autofocus>
+          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" autocorrect="off"
+            spellcheck="false" inputmode="text" autocapitalize="words" autofocus>
           <div class="field-hint">Poi premi Invio per cercare</div>
         </div>
         <div class="nome-field field-col" style="display:none;">
           <label class="person-nome-label">Nome</label>
-          <input type="text" class="person-nome" placeholder="" autocomplete="given-name" inputmode="text"
-            autocapitalize="words" readonly>
+          <input type="text" class="person-nome" placeholder="" autocomplete="given-name" autocorrect="off"
+            spellcheck="false" inputmode="text" autocapitalize="words" readonly>
           <div class="field-hint" aria-hidden="true">&nbsp;</div>
         </div>
         <div class="field-col">
@@ -1350,7 +1376,10 @@
 
   function capitalize(str) {
     if (!str) return '';
-    return str.toLowerCase().replace(/(?:^|\s|-|')\S/g, l => l.toUpperCase());
+    // Gestisce: de luca → De Luca, d'angelo → D'Angelo, dall'orto → Dall'Orto
+    return str.toLowerCase()
+      .replace(/(?:^|[\s\-])([a-zàèéìòùäöü])/g, (m, c) => m.replace(c, c.toUpperCase()))
+      .replace(/([''`])([a-zàèéìòùäöü])/g, (m, apos, c) => apos + c.toUpperCase());
   }
 
   // valuta: € 1.234,00
@@ -1919,6 +1948,12 @@
     bindLookupEvents(card, index);
 
     container.appendChild(card);
+    setTimeout(() => {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.style.outline = '3px solid #48bb78';
+      card.style.transition = 'outline 0.3s';
+      setTimeout(() => { card.style.outline = 'none'; }, 2500);
+    }, 150);
 
     persone.push({
       index,
@@ -1933,11 +1968,22 @@
       cardEl: card
     });
 
-    setCardStatus(card, 'ok', 'Partner caricato automaticamente.');
+    setCardStatus(card, 'ok', '👫 Compagno/a di camera aggiunto automaticamente.');
     updateCardTitles();
     updatePartialTotal();
-    setGlobalStatus('ok', 'Camera doppia matrimoniale: caricati entrambi i coniugi.');
+    setGlobalStatus('ok', '👫 Camera doppia: abbiamo caricato anche il/la tuo/a compagno/a di stanza.');
     return index;
+  }
+
+  // Aggiungi questa funzione helper
+  function normClient(s) {
+    return String(s || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[''`ʼ\u2018\u2019]/g, '')
+      .replace(/[-–—]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   /***************
@@ -1947,8 +1993,10 @@
     const p = persone.find(p => p.index === index);
     if (!p || p.loaded) return;
 
-    const cognome = card.querySelector('.person-cognome').value.trim();
-    const nome = card.querySelector('.person-nome').value.trim();
+    const cognomeRaw = card.querySelector('.person-cognome').value.trim();
+    const cognome = normClient(cognomeRaw); // invia forma normalizzata al GAS
+    const nomeRaw = card.querySelector('.person-nome').value.trim();
+    const nome = normClient(nomeRaw);
     if (!cognome) return;
 
     const key = makeCacheKey(nome, cognome);
@@ -2131,286 +2179,291 @@
     };
   }
 
+  let _calcInProgress = false;
   async function calcolaTotale() {
-    const loaded = persone.filter(p => p.loaded);
-    if (loaded.length === 0) {
-      setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
-      return;
-    }
+    if (_calcInProgress) return;
+    _calcInProgress = true;
+    try {
+      const loaded = persone.filter(p => p.loaded);
+      if (loaded.length === 0) {
+        setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
+        return;
+      }
 
-    const nomi = loaded.map(p => `${p.cognome} ${p.nome}`).join(', ');
-    let serviziList = [];
-    loaded.forEach(p => {
-      const tr = getTransfer(p.cardEl);
-      const prefix = loaded.length > 1 ? `${p.nome}: ` : '';
-      if (tr.rf) serviziList.push(`${prefix}Roma-Fiumicino`);
-      if (tr.pt) serviziList.push(`${prefix}Porto-Tui`);
-      if (tr.sc) serviziList.push(`${prefix}Santiago-A Coruña`);
-      if (tr.fr) serviziList.push(`${prefix}Fiumicino-Roma`);
-    });
+      const nomi = loaded.map(p => `${p.cognome} ${p.nome}`).join(', ');
+      let serviziList = [];
+      loaded.forEach(p => {
+        const tr = getTransfer(p.cardEl);
+        const prefix = loaded.length > 1 ? `${p.nome}: ` : '';
+        if (tr.rf) serviziList.push(`${prefix}Roma-Fiumicino`);
+        if (tr.pt) serviziList.push(`${prefix}Porto-Tui`);
+        if (tr.sc) serviziList.push(`${prefix}Santiago-A Coruña`);
+        if (tr.fr) serviziList.push(`${prefix}Fiumicino-Roma`);
+      });
 
-    let confirmBody = `<p>Confermi la prenotazione di <strong>${nomi}</strong>?</p>`;
-    if (serviziList.length > 0) {
-      confirmBody += `<div style="background:#f7fafc; padding:12px; border-radius:8px; border-left:4px solid #3182ce; margin-top:10px;">
+      let confirmBody = `<p>Confermi la prenotazione di <strong>${nomi}</strong>?</p>`;
+      if (serviziList.length > 0) {
+        confirmBody += `<div style="background:#f7fafc; padding:12px; border-radius:8px; border-left:4px solid #3182ce; margin-top:10px;">
           <strong style="font-size:0.85rem; color:#2c5282; text-transform:uppercase; display:block; margin-bottom:6px;">Nuovi servizi prenotati</strong>
           <ul style="margin:0; padding-left:20px; font-size:0.9rem;">
             <li>${serviziList.join('</li><li>')}</li>
           </ul>
         </div>`;
+      }
+
+      const confirmed = await showConfirmModal('Riepilogo e registrazione', confirmBody);
+      if (!confirmed) return;
+
+      setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
+      setCalcButtons({ disabled: true });
+
+      let totaleCorrente = 0;
+      let totAlloggio = 0;
+      let totColazione = 0;
+      let totAssicurazione = 0;
+      let totTransfer = 0;
+      const lines = [];
+
+      loaded.forEach(p => {
+        const card = p.cardEl;
+        let s = 0;
+        let tmpCol = 0, tmpAss = 0, tmpTr = 0;
+
+        if (card.querySelector('.colazione')?.checked) { tmpCol += COSTI.colazione; }
+        if (card.querySelector('.assicurazione')?.checked) { tmpAss += COSTI.assicurazione; }
+        const tr = getTransfer(card);
+        if (tr.rf) tmpTr += COSTI.transfer.rf;
+        if (tr.pt) tmpTr += COSTI.transfer.pt;
+        if (tr.sc) tmpTr += COSTI.transfer.sc;
+        if (tr.fr) tmpTr += COSTI.transfer.fr;
+
+        const alloggioCosto = getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
+        s = alloggioCosto + tmpCol + tmpAss + tmpTr;
+        totaleCorrente += s;
+        totAlloggio += alloggioCosto;
+        totColazione += tmpCol;
+        totAssicurazione += tmpAss;
+        totTransfer += tmpTr;
+
+        lines.push(`${p.cognome} ${p.nome}: ${formatEuro(s - COSTI.caparra)}`);
+      });
+
+      const caparra = COSTI.caparra * loaded.length;
+      const saldo = totaleCorrente - caparra;
+
+      if (saldo < 0) {
+        setGlobalStatus('error', 'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
+        setCalcButtons({ disabled: false });
+        return;
+      }
+
+      lastCalcResult = {
+        persone: loaded.map(p => ({
+          nome: p.nome, cognome: p.cognome, row: p.row,
+          transfer: getTransfer(p.cardEl)
+        })),
+        totaleOpzioni: totaleCorrente,
+        caparra,
+        saldo
+      };
+
+      try {
+        await doSalvaTransfer();
+
+        summaryBox.innerHTML = '<div style="font-weight:600; margin-bottom:6px; color:#4a5568;">Saldo per:</div>' + lines.map(l => `<div class="summary-line">${l}</div>`).join('');
+        breakdownBox.style.display = 'block';
+        document.getElementById('totAlloggio').textContent = formatEuro(totAlloggio);
+        document.getElementById('totColazione').textContent = formatEuro(totColazione);
+        document.getElementById('totAssicurazione').textContent = formatEuro(totAssicurazione);
+        document.getElementById('totTransfer').textContent = formatEuro(totTransfer);
+        document.getElementById('totOpzioni').textContent = formatEuro(totaleCorrente);
+        document.getElementById('caparraVersata').textContent = '-' + formatEuro(caparra);
+        document.getElementById('saldoDaVersare').textContent = formatEuro(saldo);
+        document.getElementById('totalBox').style.display = 'flex';
+
+        btnSave.disabled = false;
+        btnSave.textContent = LABELS.save;
+        btnPay.disabled = false;
+        actionSection.style.display = 'block';
+        document.getElementById('orDivider').style.color = '#666';
+
+        setGlobalStatus('ok', '<span class="success-check">✅</span> Prenotazione aggiornata');
+
+        hideRecalcBanner();
+        setCalcButtons({ display: 'none' });
+        updateStepper();
+        document.getElementById('partialTotalBox').style.display = 'none';
+
+        setTimeout(() => {
+          document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+
+      } catch (err) {
+        console.error('Errore salvataggio:', err);
+        setGlobalStatus('error', 'Impossibile aggiornare la prenotazione: ' + err.message);
+      } finally {
+        setCalcButtons({ disabled: false });
+        _calcInProgress = false;
+      }
     }
-
-    const confirmed = await showConfirmModal('Riepilogo e registrazione', confirmBody);
-    if (!confirmed) return;
-
-    setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
-    setCalcButtons({ disabled: true });
-
-    let totaleCorrente = 0;
-    let totAlloggio = 0;
-    let totColazione = 0;
-    let totAssicurazione = 0;
-    let totTransfer = 0;
-    const lines = [];
-
-    loaded.forEach(p => {
-      const card = p.cardEl;
-      let s = 0;
-      let tmpCol = 0, tmpAss = 0, tmpTr = 0;
-
-      if (card.querySelector('.colazione')?.checked) { tmpCol += COSTI.colazione; }
-      if (card.querySelector('.assicurazione')?.checked) { tmpAss += COSTI.assicurazione; }
-      const tr = getTransfer(card);
-      if (tr.rf) tmpTr += COSTI.transfer.rf;
-      if (tr.pt) tmpTr += COSTI.transfer.pt;
-      if (tr.sc) tmpTr += COSTI.transfer.sc;
-      if (tr.fr) tmpTr += COSTI.transfer.fr;
-
-      const alloggioCosto = getCostoAlloggio(card.querySelector('.alloggio-box')?.textContent);
-      s = alloggioCosto + tmpCol + tmpAss + tmpTr;
-      totaleCorrente += s;
-      totAlloggio += alloggioCosto;
-      totColazione += tmpCol;
-      totAssicurazione += tmpAss;
-      totTransfer += tmpTr;
-
-      lines.push(`${p.cognome} ${p.nome}: ${formatEuro(s - COSTI.caparra)}`);
-    });
-
-    const caparra = COSTI.caparra * loaded.length;
-    const saldo = totaleCorrente - caparra;
-
-    if (saldo < 0) {
-      setGlobalStatus('error', 'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
-      setCalcButtons({ disabled: false });
-      return;
-    }
-
-    lastCalcResult = {
-      persone: loaded.map(p => ({
-        nome: p.nome, cognome: p.cognome, row: p.row,
-        transfer: getTransfer(p.cardEl)
-      })),
-      totaleOpzioni: totaleCorrente,
-      caparra,
-      saldo
-    };
-
-    try {
-      await doSalvaTransfer();
-
-      summaryBox.innerHTML = '<div style="font-weight:600; margin-bottom:6px; color:#4a5568;">Saldo per:</div>' + lines.map(l => `<div class="summary-line">${l}</div>`).join('');
-      breakdownBox.style.display = 'block';
-      document.getElementById('totAlloggio').textContent = formatEuro(totAlloggio);
-      document.getElementById('totColazione').textContent = formatEuro(totColazione);
-      document.getElementById('totAssicurazione').textContent = formatEuro(totAssicurazione);
-      document.getElementById('totTransfer').textContent = formatEuro(totTransfer);
-      document.getElementById('totOpzioni').textContent = formatEuro(totaleCorrente);
-      document.getElementById('caparraVersata').textContent = '-' + formatEuro(caparra);
-      document.getElementById('saldoDaVersare').textContent = formatEuro(saldo);
-      document.getElementById('totalBox').style.display = 'flex';
-
-      btnSave.disabled = false;
-      btnSave.textContent = LABELS.save;
-      btnPay.disabled = false;
-      actionSection.style.display = 'block';
-      document.getElementById('orDivider').style.color = '#666';
-
-      setGlobalStatus('ok', '<span class="success-check">✅</span> Prenotazione aggiornata');
-
-      hideRecalcBanner();
-      setCalcButtons({ display: 'none' });
-      updateStepper();
-      document.getElementById('partialTotalBox').style.display = 'none';
-
-      setTimeout(() => {
-        document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-
-    } catch (err) {
-      console.error('Errore salvataggio:', err);
-      setGlobalStatus('error', 'Impossibile aggiornare la prenotazione: ' + err.message);
-    } finally {
-      setCalcButtons({ disabled: false });
-    }
-  }
 
   function resetCalcState() {
-    lastCalcResult = null;
-    _lastSavedHash = null;
-    btnSave.disabled = true;
-    btnPay.disabled = true;
-    btnSave.textContent = LABELS.save;
-    document.getElementById('orDivider').style.color = '#a0aec0';
-    const loadedCount = persone.filter(p => p.loaded).length;
-    summaryBox.textContent = loadedCount > 0 ? '' : LABELS.lookupHint;
-    breakdownBox.style.display = 'none';
-    if (loadedCount > 0) {
-      setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
-    } else {
-      setCalcButtons({ display: 'none', disabled: false });
+      lastCalcResult = null;
+      _lastSavedHash = null;
+      btnSave.disabled = true;
+      btnPay.disabled = true;
+      btnSave.textContent = LABELS.save;
+      document.getElementById('orDivider').style.color = '#a0aec0';
+      const loadedCount = persone.filter(p => p.loaded).length;
+      summaryBox.textContent = loadedCount > 0 ? '' : LABELS.lookupHint;
+      breakdownBox.style.display = 'none';
+      if (loadedCount > 0) {
+        setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
+      } else {
+        setCalcButtons({ display: 'none', disabled: false });
+      }
+
+      recalcBanner?.classList.remove('active');
+      hideRecalcBanner();
+      setGlobalStatus('', '');
+      updateStepper();
     }
 
-    recalcBanner?.classList.remove('active');
-    hideRecalcBanner();
-    setGlobalStatus('', '');
-    updateStepper();
-  }
+    /***************
+     * SALVA TRANSFER — funzione condivisa con hash dedup
+     ***************/
 
-  /***************
-   * SALVA TRANSFER — funzione condivisa con hash dedup
-   ***************/
-
-  function _calcResultHash(result, email) {
-    return JSON.stringify({ ...result, email });
-  }
-
-  async function doSalvaTransfer(email) {
-    if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
-    const hash = _calcResultHash(lastCalcResult, email);
-    if (hash === _lastSavedHash) {
-      setGlobalStatus('ok', 'Hai già inviato questo riepilogo. Nessuna modifica rilevata.');
-      return { success: true, skipped: true };
+    function _calcResultHash(result, email) {
+      return JSON.stringify({ ...result, email });
     }
 
-    const res = await fetchWithTimeout(GAS_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        action: 'salvaTransfer',
-        email,
-        persone: lastCalcResult.persone,
-        totale: lastCalcResult.totaleOpzioni,
-        caparra: lastCalcResult.caparra,
-        saldo: lastCalcResult.saldo
-      })
-    });
-    let data;
-    try { data = JSON.parse(await res.text()); }
-    catch { throw new Error('Risposta non valida dal server'); }
-    if (!data.success) throw new Error(data.message || data.error || 'Errore sconosciuto');
+    async function doSalvaTransfer(email) {
+      if (!lastCalcResult) throw new Error('Nessun calcolo disponibile');
+      const hash = _calcResultHash(lastCalcResult, email);
+      if (hash === _lastSavedHash) {
+        setGlobalStatus('ok', 'Hai già inviato questo riepilogo. Nessuna modifica rilevata.');
+        return { success: true, skipped: true };
+      }
 
-    _lastSavedHash = hash;
-    return data;
-  }
+      const res = await fetchWithTimeout(GAS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'salvaTransfer',
+          email,
+          persone: lastCalcResult.persone,
+          totale: lastCalcResult.totaleOpzioni,
+          caparra: lastCalcResult.caparra,
+          saldo: lastCalcResult.saldo
+        })
+      });
+      let data;
+      try { data = JSON.parse(await res.text()); }
+      catch { throw new Error('Risposta non valida dal server'); }
+      if (!data.success) throw new Error(data.message || data.error || 'Errore sconosciuto');
 
-  async function salvaEInvia() {
-    if (!lastCalcResult) { setGlobalStatus('error', 'Prima calcola il totale.'); return; }
-
-    const email = emailInput.value.trim();
-    if (!email || !email.includes('@')) {
-      setGlobalStatus('error', "Inserisci un'email valida."); return;
+      _lastSavedHash = hash;
+      return data;
     }
 
-    btnSave.disabled = true;
-    setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
+    async function salvaEInvia() {
+      if (!lastCalcResult) { setGlobalStatus('error', 'Prima calcola il totale.'); return; }
 
-    try {
-      await doSalvaTransfer(email);
-      setGlobalStatus('ok', '✅ Email inviata a ' + email);
-      btnSave.textContent = 'Email inviata ✓';
+      const email = emailInput.value.trim();
+      if (!email || !email.includes('@')) {
+        setGlobalStatus('error', "Inserisci un'email valida."); return;
+      }
 
-      // Apri il popup IBAN per comodità su mobile
-      document.getElementById('ibanPopup').classList.add('active');
-    } catch (err) {
-      console.error('Errore salvataggio:', err);
-      setGlobalStatus('error', 'Errore: ' + err.message);
-      btnSave.disabled = false;
+      btnSave.disabled = true;
+      setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
+
+      try {
+        await doSalvaTransfer(email);
+        setGlobalStatus('ok', '✅ Email inviata a ' + email);
+        btnSave.textContent = 'Email inviata ✓';
+
+        // Apri il popup IBAN per comodità su mobile
+        document.getElementById('ibanPopup').classList.add('active');
+      } catch (err) {
+        console.error('Errore salvataggio:', err);
+        setGlobalStatus('error', 'Errore: ' + err.message);
+        btnSave.disabled = false;
+      }
     }
-  }
 
-  /***************
-   * PAGA CON CARTA (popup persistente + copia campi)
-   ***************/
-  async function openPayPopup() {
-    if (!lastCalcResult) return;
+    /***************
+     * PAGA CON CARTA (popup persistente + copia campi)
+     ***************/
+    async function openPayPopup() {
+      if (!lastCalcResult) return;
 
-    const loaded = persone.filter(p => p.loaded);
-    if (loaded.length === 0) return;
+      const loaded = persone.filter(p => p.loaded);
+      if (loaded.length === 0) return;
 
-    const primo = loaded[0];
-    const tuttiCognomi = loaded.map(p => p.cognome).join(' - ');
-    const causale = 'Saldo Cammino 2026 ' + tuttiCognomi;
-    const email = emailInput.value.trim();
+      const primo = loaded[0];
+      const tuttiCognomi = loaded.map(p => p.cognome).join(' - ');
+      const causale = 'Saldo Cammino 2026 ' + tuttiCognomi;
+      const email = emailInput.value.trim();
 
-    setGlobalStatus('loading', '<span class="spinner"></span>Attendere, prego...');
-    btnPay.disabled = true;
-    try {
-      await doSalvaTransfer(email);
-      setGlobalStatus('ok', 'Attendere, prego...');
-    } catch (err) {
-      console.error(err);
-      setGlobalStatus('error', 'Errore salvataggio: ' + err.message);
+      setGlobalStatus('loading', '<span class="spinner"></span>Attendere, prego...');
+      btnPay.disabled = true;
+      try {
+        await doSalvaTransfer(email);
+        setGlobalStatus('ok', 'Attendere, prego...');
+      } catch (err) {
+        console.error(err);
+        setGlobalStatus('error', 'Errore salvataggio: ' + err.message);
+        btnPay.disabled = false;
+        return;
+      }
       btnPay.disabled = false;
-      return;
+
+      document.getElementById('popupImporto').textContent = formatEuro(lastCalcResult.saldo);
+      document.getElementById('popupCausale').textContent = causale;
+
+      document.querySelectorAll('.popup-btn-copy-sm').forEach(btn => {
+        btn.textContent = '📋';
+        btn.classList.remove('copied');
+      });
+
+      openModal();
     }
-    btnPay.disabled = false;
 
-    document.getElementById('popupImporto').textContent = formatEuro(lastCalcResult.saldo);
-    document.getElementById('popupCausale').textContent = causale;
-
-    document.querySelectorAll('.popup-btn-copy-sm').forEach(btn => {
-      btn.textContent = '📋';
-      btn.classList.remove('copied');
-    });
-
-    openModal();
-  }
-
-  async function copyPopupField(fieldId, btn) {
-    const value = document.getElementById(fieldId).textContent;
-    try {
-      await navigator.clipboard.writeText(value);
-      btn.textContent = '✅';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
-    } catch {
-      prompt('Copia manualmente:', value);
+    async function copyPopupField(fieldId, btn) {
+      const value = document.getElementById(fieldId).textContent;
+      try {
+        await navigator.clipboard.writeText(value);
+        btn.textContent = '✅';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
+      } catch {
+        prompt('Copia manualmente:', value);
+      }
     }
-  }
 
-  function openTinaba() {
-    window.open(TINABA_URL, '_blank');
-  }
+    function openTinaba() {
+      window.open(TINABA_URL, '_blank');
+    }
 
-  /***************
-   * STATUS HELPERS
-   ***************/
-  function setGlobalStatus(type, msg) {
-    globalStatus.innerHTML = msg;
-    globalStatus.className = 'status' + (type ? ' ' + type : '');
-  }
+    /***************
+     * STATUS HELPERS
+     ***************/
+    function setGlobalStatus(type, msg) {
+      globalStatus.innerHTML = msg;
+      globalStatus.className = 'status' + (type ? ' ' + type : '');
+    }
 
-  /***************
-   * INIT
-   ***************/
-  mountMobileCalcBtnContainer();
-  window.addEventListener('resize', mountMobileCalcBtnContainer);
+    /***************
+     * INIT
+     ***************/
+    mountMobileCalcBtnContainer();
+    window.addEventListener('resize', mountMobileCalcBtnContainer);
 
-  addPersonCard();
-  btnAdd.addEventListener('click', addPersonCard);
-  btnCalc.addEventListener('click', calcolaTotale);
-  btnCalcDesktopTop?.addEventListener('click', calcolaTotale);
-  btnSave.addEventListener('click', salvaEInvia);
-  btnPay.addEventListener('click', openPayPopup);
-  document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
+    addPersonCard();
+    btnAdd.addEventListener('click', addPersonCard);
+    btnCalc.addEventListener('click', calcolaTotale);
+    btnCalcDesktopTop?.addEventListener('click', calcolaTotale);
+    btnSave.addEventListener('click', salvaEInvia);
+    btnPay.addEventListener('click', openPayPopup);
+    document.getElementById('popupOpenBtn').addEventListener('click', openTinaba);
 </script>

@@ -198,6 +198,11 @@
       color: #2d3748;
       cursor: default;
       border-color: #bee3f8;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338a169' stroke-width='2.5'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 34px !important;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
     
     /* Stile Errore Duplicati */
@@ -214,6 +219,11 @@
       color: #2d3748;
       cursor: default;
       border-color: #bee3f8;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338a169' stroke-width='2.5'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 34px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     input[type="text"][readonly]:focus {
@@ -785,6 +795,15 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+      /* Aggiungi animazione */
+      animation: slideIn 0.3s ease-out;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+      border-width: 2px;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .recalc-icon {
@@ -969,12 +988,14 @@
       <div class="input-row">
         <div class="field-col">
           <label class="person-cognome-label">Cognome</label>
-          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" inputmode="text" autocapitalize="words" autofocus>
+          <input type="text" class="person-cognome" placeholder="Es. Rossi" autocomplete="family-name" 
+            autocorrect="off" spellcheck="false" inputmode="text" autocapitalize="words" autofocus>
           <div class="field-hint">Poi premi Invio per cercare</div>
         </div>
         <div class="nome-field field-col" style="display:none;">
           <label class="person-nome-label">Nome</label>
-          <input type="text" class="person-nome" placeholder="" autocomplete="given-name" inputmode="text" autocapitalize="words" readonly>
+          <input type="text" class="person-nome" placeholder="" autocomplete="given-name" 
+            autocorrect="off" spellcheck="false" inputmode="text" autocapitalize="words" readonly>
           <div class="field-hint" aria-hidden="true">&nbsp;</div>
         </div>
         <div class="field-col">
@@ -1344,7 +1365,10 @@
 
     function capitalize(str) {
       if (!str) return '';
-      return str.toLowerCase().replace(/(?:^|\s|-|')\S/g, l => l.toUpperCase());
+      // Gestisce: de luca → De Luca, d'angelo → D'Angelo, dall'orto → Dall'Orto
+      return str.toLowerCase()
+        .replace(/(?:^|[\s\-])([a-zàèéìòùäöü])/g, (m, c) => m.replace(c, c.toUpperCase()))
+        .replace(/([''`])([a-zàèéìòùäöü])/g, (m, apos, c) => apos + c.toUpperCase());
     }
 
     // valuta: € 1.234,00
@@ -1929,6 +1953,12 @@
       bindLookupEvents(card, index);
 
       container.appendChild(card);
+      setTimeout(() => {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.style.outline = '3px solid #48bb78';
+        card.style.transition = 'outline 0.3s';
+        setTimeout(() => { card.style.outline = 'none'; }, 2500);
+      }, 150);
 
       persone.push({
         index,
@@ -1943,11 +1973,22 @@
         cardEl: card
       });
 
-      setCardStatus(card, 'ok', 'Partner caricato automaticamente.');
+      setCardStatus(card, 'ok', '👫 Compagno/a di camera aggiunto automaticamente.');
       updateCardTitles();
       updatePartialTotal();
-      setGlobalStatus('ok', 'Camera doppia matrimoniale: caricati entrambi i coniugi.');
+      setGlobalStatus('ok', '👫 Camera doppia: abbiamo caricato anche il/la tuo/a compagno/a di stanza.');
       return index;
+    }
+
+    // Aggiungi questa funzione helper
+    function normClient(s) {
+      return String(s || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[''`ʼ\u2018\u2019]/g, '')
+        .replace(/[-–—]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
     }
 
     /***************
@@ -1957,8 +1998,10 @@
       const p = persone.find(p => p.index === index);
       if (!p || p.loaded) return;
 
-      const cognome = card.querySelector('.person-cognome').value.trim();
-      const nome = card.querySelector('.person-nome').value.trim();
+      const cognomeRaw = card.querySelector('.person-cognome').value.trim();
+      const cognome = normClient(cognomeRaw); // invia forma normalizzata al GAS
+      const nomeRaw = card.querySelector('.person-nome').value.trim();
+      const nome = normClient(nomeRaw);
       if (!cognome) return;
 
       const key = makeCacheKey(nome, cognome);
@@ -2142,8 +2185,12 @@
       };
     }
 
+    let _calcInProgress = false;
     async function calcolaTotale() {
-      const loaded = persone.filter(p => p.loaded);
+      if (_calcInProgress) return;
+      _calcInProgress = true;
+      try {
+        const loaded = persone.filter(p => p.loaded);
       if (loaded.length === 0) {
         setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
         return;
@@ -2254,16 +2301,17 @@
         document.getElementById('partialTotalBox').style.display = 'none';
 
         setTimeout(() => {
-          document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+        document.getElementById('summaryBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
 
-      } catch (err) {
-        console.error('Errore salvataggio:', err);
-        setGlobalStatus('error', 'Impossibile aggiornare la prenotazione: ' + err.message);
-      } finally {
-        setCalcButtons({ disabled: false });
-      }
+    } catch (err) {
+      console.error('Errore salvataggio:', err);
+      setGlobalStatus('error', 'Impossibile aggiornare la prenotazione: ' + err.message);
+    } finally {
+      setCalcButtons({ disabled: false });
+      _calcInProgress = false;
     }
+  }
 
     function resetCalcState() {
       lastCalcResult = null;
