@@ -579,9 +579,8 @@
   .step-sep { width: 22px; height: 1px; background: #e2e8f0; flex-shrink: 0; }
 
   @media (max-width: 600px) {
-    .stepper { padding: 8px 10px; gap: 6px; }
-    .step-desc { display: none; }
-    .step-title { font-size: .8rem; }
+    /* Rimosso stepper su mobile (nascondeva le didascalie rendendolo inutile/confuso) */
+    .stepper { display: none !important; }
     .mobile-hide-icon { display: none; }
   }
 
