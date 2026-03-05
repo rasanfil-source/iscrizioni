@@ -1372,12 +1372,18 @@ function updatePartialTotal() {
   let partial   = 0;
   let hasLoaded = false;
 
+  const uniqueRooms = new Set();
   persone.forEach(p => {
     if (!p.loaded) return;
     hasLoaded = true;
     const card = p.cardEl;
     if (!card) return;
-    partial += (p.costoAlloggio || 0);
+    
+    if (!uniqueRooms.has(p.row)) {
+      partial += (p.costoAlloggio || 0);
+      uniqueRooms.add(p.row);
+    }
+    
     if (p.colazione)    partial += COSTI.colazione;
     if (p.assicurazione)partial += COSTI.assicurazione;
     if (card.querySelector('.tr-rf')?.checked) partial += COSTI.transfer.rf;
@@ -2034,6 +2040,7 @@ function loadPartnerCard(partnerData, shouldScroll = true) {
     cognome: capitalize(partnerData.cognome),
     row:     partnerData.row,
     alloggio:    pp.alloggio || '',
+    costoAlloggio: getCostoAlloggio(pp.alloggio),
     colazione:   !!pp.colazione,
     assicurazione: !!pp.assicurazione,
     loaded:    true,
@@ -2114,11 +2121,18 @@ async function calcolaTotale() {
     let totale = 0, totAlloggio = 0, totColazione = 0, totAssic = 0, totTr = 0;
     const lines = [];
 
+    // Troviamo quanti partecipanti ci sono per ogni riga (per dividere il costo alloggio)
+    const roomCounts = {};
+    loaded.forEach(p => roomCounts[p.row] = (roomCounts[p.row] || 0) + 1);
+
     loaded.forEach(p => {
       const card = p.cardEl;
       const tr   = getTransfer(card);
 
-      const costoAll = p.costoAlloggio || 0;
+      // Il costo alloggio viene diviso equamente tra chi condivide la stessa riga
+      const occupants = roomCounts[p.row] || 1;
+      const costoAll  = (p.costoAlloggio || 0) / occupants;
+
       const costoCol = card.querySelector('.colazione')?.checked  ? COSTI.colazione    : 0;
       const costoAss = card.querySelector('.assicurazione')?.checked? COSTI.assicurazione: 0;
       const costoTr  = (tr.rf ? COSTI.transfer.rf : 0)
