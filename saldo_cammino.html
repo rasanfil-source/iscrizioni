@@ -959,8 +959,8 @@
     <div class="step" data-step="3">
       <div class="step-dot" aria-hidden="true">3</div>
       <div class="step-label">
-        <div class="step-title">Calcola e invia/paga</div>
-        <div class="step-desc">Saldo e riepilogo</div>
+        <div class="step-title">Calcola quanto pagare</div>
+        <div class="step-desc">Importo e riepilogo</div>
       </div>
     </div>
   </nav>
@@ -974,10 +974,10 @@
       <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
 
       <div id="calcBtnContainer">
-        <button class="primary" id="calcBtn" type="button" style="display:none;">Aggiorna saldo</button>
+        <button class="primary" id="calcBtn" type="button" style="display:none;">Calcola quanto pagare</button>
         <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite" aria-atomic="true">
           <span class="recalc-icon" aria-hidden="true">⚠️</span>
-          <span class="recalc-text">Ricalcola per aggiornare il saldo e salvare le modifiche.</span>
+          <span class="recalc-text">Aggiorna importo per ricalcolare il totale e salvare le modifiche.</span>
         </div>
       </div>
     </div>
@@ -997,7 +997,7 @@
 
       <!-- Shortcut calcola desktop -->
       <div id="desktopCalcShortcut">
-        <button class="primary" id="calcBtnDesktop" type="button">Aggiorna saldo</button>
+        <button class="primary" id="calcBtnDesktop" type="button">Calcola quanto pagare</button>
       </div>
 
       <h2>Riepilogo</h2>
@@ -1018,7 +1018,7 @@
 
       <!-- Saldo finale -->
       <div id="totalBox">
-        <span>Saldo da versare</span>
+        <span>Importo da pagare</span>
         <span id="saldoDaVersare">€ —</span>
       </div>
 
@@ -1237,8 +1237,8 @@
   };
 
   const LABELS = {
-    calc: 'Aggiorna saldo',
-    recalc: 'Ricalcola',
+    calc: 'Calcola quanto pagare',
+    recalc: 'Aggiorna importo',
     save: 'Invia riepilogo via email',
     lookupHint: 'Inserisci cognome per iniziare',
   };
@@ -1575,7 +1575,7 @@
       setGlobalStatus('', '');
       document.getElementById('saldoDaVersare').textContent = '€ —';
       breakdownBox.style.display = 'none';
-      summaryBox.innerHTML = '⚠️ Opzioni modificate — premi "Ricalcola" per aggiornare.';
+      summaryBox.innerHTML = '⚠️ Opzioni modificate — premi "Aggiorna importo" per ricalcolare.';
     } else {
       resetCalcState();
     }
@@ -2303,7 +2303,7 @@
 
       // Aggiorna UI sidebar
       summaryBox.innerHTML =
-        `<div style="font-weight:600;margin-bottom:6px;color:#4a5568;">Saldo per:</div>` +
+        `<div style="font-weight:600;margin-bottom:6px;color:#4a5568;">Importo per:</div>` +
         lines.map(l => `<div class="summary-line">${l}</div>`).join('');
 
       breakdownBox.style.display = 'block';
