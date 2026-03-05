@@ -1360,7 +1360,7 @@ function setCalcButtons({ text, display, disabled }) {
       calcBtnContainer.classList.toggle('active', show);
       document.body.classList.toggle('has-mobile-cta', show);
     }
-    if (desktopShortcut) desktopShortcut.style.display = show ? '' : 'none';
+    if (desktopShortcut) desktopShortcut.style.display = (show && !isMobile) ? 'block' : 'none';
   }
 }
 
