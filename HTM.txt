@@ -913,7 +913,7 @@
                  autocapitalize="words"
                  spellcheck="false"
                  inputmode="text">
-          <div class="field-hint">Inserisci cognome e nome per trovare la tua prenotazione.</div>
+          <div class="field-hint">Inserisci il cognome per trovare la tua prenotazione.</div>
         </div>
 
         <div class="field-col">
