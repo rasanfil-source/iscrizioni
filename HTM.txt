@@ -1711,9 +1711,9 @@ function applyResult(card, person, data, nomeRaw, cognomeRaw) {
   updateCardTitles();
   updatePartialTotal();
 
-  // Carica eventuale partner
+  // Carica eventuale partner (senza scrollare via dalla card attuale)
   if (data.partner?.persona) {
-    try { person.partnerIndex = loadPartnerCard(data.partner); }
+    try { person.partnerIndex = loadPartnerCard(data.partner, false); }
     catch (e) { console.error('Errore partner:', e); }
   }
 
@@ -1938,7 +1938,7 @@ function updateCardTitles() {
 
 
 // ─── CARICAMENTO PARTNER ──────────────────────────────────────────────────────
-function loadPartnerCard(partnerData) {
+function loadPartnerCard(partnerData, shouldScroll = true) {
   if (persone.some(p => p.row === partnerData.row)) return null; // già presente
 
   const clone = tmpl.content.cloneNode(true);
@@ -2046,13 +2046,15 @@ function loadPartnerCard(partnerData) {
   updateCardTitles();
   updatePartialTotal();
 
-  // Scroll + highlight sulla nuova card
-  setTimeout(() => {
-    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    card.style.outline    = '3px solid #48bb78';
-    card.style.transition = 'outline .3s';
-    setTimeout(() => { card.style.outline = ''; }, 2500);
-  }, 200);
+  // Scroll + highlight sulla nuova card (se richiesto)
+  if (shouldScroll) {
+    setTimeout(() => {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.style.outline    = '3px solid #48bb78';
+      card.style.transition = 'outline .3s';
+      setTimeout(() => { card.style.outline = ''; }, 2500);
+    }, 200);
+  }
 
   return index;
 }
