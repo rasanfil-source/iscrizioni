@@ -952,12 +952,14 @@
             Nome
           </label>
           <input type="text" class="person-nome"
-                 placeholder=""
+                 placeholder="Es. Marco"
                  autocomplete="given-name"
                  autocorrect="off"
                  autocapitalize="words"
                  spellcheck="false"
-                 inputmode="text">
+                 inputmode="text"
+                 aria-label="Nome partecipante"
+                 enterkeyhint="search">
           <div class="field-hint" aria-hidden="true"> </div>
         </div>
 
