@@ -1331,6 +1331,7 @@
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[''`ʼ\u2018\u2019\u02bc]/g, '')
       .replace(/[-–—]/g, ' ')
+      .replace(/\u00a0/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
   }
@@ -1340,6 +1341,15 @@
     return str.toLowerCase()
       .replace(/(?:^|[\s\-])([a-zàèéìòùäöü])/g, (m, c) => m.replace(c, c.toUpperCase()))
       .replace(/([''`])([a-zàèéìòùäöü])/g, (_, apos, c) => apos + c.toUpperCase());
+  }
+
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
 
@@ -1851,8 +1861,8 @@
           html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">';
           data.candidates.forEach(c => {
             html += `<button type="button" class="secondary" style="width:auto; font-size:.85rem; padding:4px 10px;" ` +
-              `onclick="selectCandidate(this.closest('.person-card'), ${index}, '${c.nome.replace(/'/g, "\\'")}')">` +
-              `Sono ${capitalize(c.nome)}</button>`;
+              `onclick="selectCandidate(this.closest('.person-card'), ${index}, decodeURIComponent('${encodeURIComponent(String(c.nome || ''))}'))">` +
+              `Sono ${escapeHtml(capitalize(c.nome))}</button>`;
           });
           html += '</div>';
 
@@ -2131,7 +2141,8 @@
 
     Object.assign(p, {
       nome: '', cognome: '', row: null, alloggio: '', siglaAlloggio: '',
-      colazione: false, assicurazione: false, loaded: false
+      colazione: false, assicurazione: false, loaded: false,
+      partnerIndex: null, isPartner: false
     });
 
     card.querySelector('.alloggio-box').textContent = '—';
