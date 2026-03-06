@@ -789,6 +789,18 @@
     outline: 3px solid rgba(49,130,206,.5);
     outline-offset: 2px;
   }
+
+  @keyframes partnerPulse {
+    0%   { box-shadow: 0 0 0 0   rgba(72,187,120,.7), 0 2px 8px rgba(0,0,0,.08); background: #f0fff4; }
+    40%  { box-shadow: 0 0 0 10px rgba(72,187,120,.15), 0 2px 8px rgba(0,0,0,.08); background: #f0fff4; }
+    70%  { box-shadow: 0 0 0 6px  rgba(72,187,120,.08), 0 2px 8px rgba(0,0,0,.08); background: #f0fff4; }
+    100% { box-shadow: 0 2px 8px rgba(0,0,0,.08);       background: #fff; }
+  }
+
+  .partner-highlight {
+    animation: partnerPulse 2.2s ease-out forwards;
+    border: 1px solid #68d391 !important;
+  }
 </style>
 
 <!-- ═══════════════════════════════════════════ HTML ═══════════════════════════════════════════ -->
@@ -2197,9 +2209,11 @@ function loadPartnerCard(partnerData, shouldScroll = true) {
   if (shouldScroll) {
     setTimeout(() => {
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      card.style.outline    = '3px solid #48bb78';
-      card.style.transition = 'outline .3s';
-      setTimeout(() => { card.style.outline = ''; }, 2500);
+      card.classList.add('partner-highlight');
+      card.addEventListener('animationend', () => {
+        card.classList.remove('partner-highlight');
+        card.style.border = '';
+      }, { once: true });
     }, 200);
   }
 
