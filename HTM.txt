@@ -871,7 +871,7 @@
 
       <!-- Saldo finale -->
       <div id="totalBox">
-        <span>Saldo stimato da versare</span>
+        <span id="totalBoxLabel">Saldo stimato da versare</span>
         <span id="saldoDaVersare">€ —</span>
       </div>
 
@@ -1798,8 +1798,12 @@ function applyResult(card, person, data, nomeRaw, cognomeRaw) {
     catch (e) { console.error('Errore partner:', e); }
   }
 
-  // Focus al primo transfer utile
-  setTimeout(() => card.querySelector('.tr-rf')?.focus(), 100);
+  // Scroll verso i transfer + focus al primo
+  setTimeout(() => {
+    const trSection = card.querySelector('.transfer-grid') || card.querySelector('.tr-rf');
+    trSection?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    card.querySelector('.tr-rf')?.focus();
+  }, 120);
 
   resetCalcState();
 }
@@ -2264,6 +2268,8 @@ async function confermaEInvia() {
 
     // Stato → confermato
     setBookingStatus('confirmed');
+    const lbl = document.getElementById('totalBoxLabel');
+    if (lbl) lbl.textContent = 'Saldo da versare';
 
     // Post-conferma: bottone diventa "✔ Scelte confermate" (disabilitato) → poi sparisce
     setCalcButtons({ text: LABELS.confirmed, disabled: true });
@@ -2299,6 +2305,8 @@ function resetAll() {
   while (persone.length > 1) removeCard(persone[persone.length - 1].index);
   if (persone.length === 1) unlockCard(persone[0].cardEl, persone[0].index);
   document.getElementById('resetLink').style.display = 'none';
+  const lbl = document.getElementById('totalBoxLabel');
+  if (lbl) lbl.textContent = 'Saldo stimato da versare';
   setBookingStatus(null);
 }
 
