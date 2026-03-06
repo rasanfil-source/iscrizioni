@@ -1384,9 +1384,13 @@
   function getRoomKey(person) {
     const sigla = String(person?.siglaAlloggio || '').trim().toUpperCase()
       || getSiglaAlloggio(person?.alloggio || '');
-    // Le doppie matrimoniali (DM1, DM2, ...) rappresentano una camera condivisa:
-    // per evitare doppi conteggi usiamo la sigla stanza come chiave univoca.
-    if (sigla && /^DM\d+$/.test(sigla)) return `room:${sigla}`;
+    // ⚠️ REGOLA BUSINESS (anti-regressione): le camere doppie sono prezzi "a stanza",
+    // non "a persona". Quindi il totale stanza va ripartito tra gli occupanti caricati.
+    // - DM/DM1/DM2... = doppia matrimoniale
+    // - DS            = doppia letti separati
+    // Per entrambe usiamo una room-key condivisa, così in conferma si divide per occupanti.
+    if (sigla && /^DM\d*$/.test(sigla)) return `room:${sigla || 'DM'}`;
+    if (sigla === 'DS') return `room:DS`;
     // Fallback sicuro: usa la riga del foglio per camere non condivise.
     return `row:${person?.row ?? ''}`;
   }
@@ -1634,6 +1638,8 @@
     ).join('');
 
     // ── Calcolo importi live ──
+    // ⚠️ REGOLA BUSINESS (anti-regressione): alloggio doppio = costo stanza,
+    // quindi va contato una volta per roomKey e non per ogni persona caricata.
     let totAlloggio = 0, totColazione = 0, totAssic = 0, totTransfer = 0;
     const uniqueRooms = new Set();
     let hasColazione = false, hasAssic = false;
@@ -2405,6 +2411,8 @@
       setCalcButtons({ disabled: true });
 
       // Calcolo importi
+      // ⚠️ REGOLA BUSINESS (anti-regressione): per le camere doppie si divide il costo
+      // stanza per numero occupanti della stessa roomKey (es. 950/2 = 475 a testa).
       let totale = 0, totAlloggio = 0, totColazione = 0, totAssic = 0, totTr = 0;
       const roomCounts = {};
       loaded.forEach(p => {
