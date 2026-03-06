@@ -936,116 +936,75 @@
 
 <!-- ═══════════════════════════════════════════ HTML ═══════════════════════════════════════════ -->
 <div class="page">
-  <h1>Saldo prenotazioni</h1>
-
-  <!-- Stepper 3 passi -->
-  <nav id="stepper" class="stepper" aria-label="Stato procedura">
-    <div class="step is-active" data-step="1">
-      <div class="step-dot" aria-hidden="true">1</div>
-      <div class="step-label">
-        <div class="step-title">Trova la tua prenotazione</div>
-        <div class="step-desc">Inserisci cognome</div>
-      </div>
-    </div>
-    <div class="step-sep" aria-hidden="true"></div>
-    <div class="step" data-step="2">
-      <div class="step-dot" aria-hidden="true">2</div>
-      <div class="step-label">
-        <div class="step-title">Scegli opzioni</div>
-        <div class="step-desc">Transfer e servizi</div>
-      </div>
-    </div>
-    <div class="step-sep" aria-hidden="true"></div>
-    <div class="step" data-step="3">
-      <div class="step-dot" aria-hidden="true">3</div>
-      <div class="step-label">
-        <div class="step-title">Calcola quanto pagare</div>
-        <div class="step-desc">Importo e riepilogo</div>
-      </div>
-    </div>
-  </nav>
-
   <div class="layout">
 
-    <!-- COLONNA SINISTRA -->
-    <div>
-      <div id="personsContainer"></div>
+    <main>
 
-      <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
+      <h1>Cammino Portoghese 2026 – Modifica prenotazione</h1>
 
-      <div id="calcBtnContainer">
-        <button class="primary" id="calcBtn" type="button" style="display:none;">Calcola quanto pagare</button>
-        <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite" aria-atomic="true">
-          <span class="recalc-icon" aria-hidden="true">⚠️</span>
-          <span class="recalc-text">Aggiorna importo per ricalcolare il totale e salvare le modifiche.</span>
-        </div>
-      </div>
-    </div>
+      <section class="options-section">
 
-    <!-- COLONNA DESTRA (sidebar) -->
+        <h2>Transfer opzionali</h2>
+
+        <label>
+          <input type="checkbox" data-price="40"> Transfer aeroporto (+40 €)
+        </label>
+
+        <label>
+          <input type="checkbox" data-price="40"> Transfer ritorno aeroporto (+40 €)
+        </label>
+
+      </section>
+
+      <button id="recalc" class="primary">Ricalcola</button>
+
+    </main>
+
     <aside>
-      <div id="warmupBadge" role="status" aria-live="polite">⏳ Un momento...</div>
 
-      <!-- Totale parziale progressivo -->
-      <div id="partialTotalBox" aria-live="polite">
-        <div class="ref-row">
-          <span class="partial-label">Costo totale stimato:</span>
-          <span class="partial-value" id="partialTotalValue">€ 0,00</span>
+      <h2>Stato prenotazione</h2>
+      <div id="status">Modifica delle opzioni</div>
+
+      <h2>Riepilogo prenotazione</h2>
+
+      <div class="summary">
+
+        <div class="block">
+          <strong>Prenotazione</strong>
+          <div>Alloggio <span id="price-alloggio">850 €</span></div>
+          <div>Colazioni <span id="price-colazioni">90 €</span></div>
+          <div>Assicurazione annullamento <span id="price-assicurazione">60 €</span></div>
         </div>
-        <div style="font-size:0.75rem; color:#718096; margin-top:4px;">(caparra inclusa)</div>
-      </div>
 
-      <!-- Shortcut calcola desktop -->
-      <div id="desktopCalcShortcut">
-        <button class="primary" id="calcBtnDesktop" type="button">Calcola quanto pagare</button>
-      </div>
-
-      <h2>Riepilogo</h2>
-
-      <div id="summaryBox" aria-live="polite">Inserisci cognome per iniziare</div>
-
-      <!-- Breakdown dettaglio opzioni -->
-      <div id="breakdownBox">
-        <div style="font-weight:600; margin-bottom:8px; color:#4a5568;">Dettaglio opzioni</div>
-        <div class="breakdown-row"><span>Alloggio</span><span id="totAlloggio">€ 0,00</span></div>
-        <div class="breakdown-row"><span>Colazione</span><span id="totColazione">€ 0,00</span></div>
-        <div class="breakdown-row"><span>Assicurazione annullamento</span><span id="totAssicurazione">€ 0,00</span>
+        <div class="block">
+          <strong>Opzioni aggiunte</strong>
+          <div id="extra-options">Nessuna opzione selezionata</div>
         </div>
-        <div class="breakdown-row"><span>Transfer opzionali</span><span id="totTransfer">€ 0,00</span></div>
-        <div class="breakdown-row total"><span>Totale opzioni</span><span id="totOpzioni">€ 0,00</span></div>
-        <div class="breakdown-row caparra"><span>Caparra versata</span><span id="caparraVersata">€ 0,00</span></div>
-      </div>
 
-      <!-- Saldo finale -->
-      <div id="totalBox">
-        <span>Importo da pagare</span>
-        <span id="saldoDaVersare">€ —</span>
-      </div>
+        <hr>
 
-      <!-- Status globale -->
-      <div id="globalStatus" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
-
-      <!-- Azioni post-calcolo -->
-      <div id="actionSection" style="display:none; margin-top:12px;">
-        <button class="secondary" id="payBtn" type="button" disabled
-          style="background:#e67e22; border-color:#e67e22; margin-top:0;">
-          <span class="mobile-hide-icon">💳 </span>Paga con carta
-        </button>
-        <div id="orDivider" style="text-align:center; font-size:.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
-        <button class="secondary" id="saveBtn" type="button" disabled style="margin-top:0;">
-          Invia riepilogo via email
-        </button>
-        <div style="margin-top:16px;">
-          <label for="emailInput">Email per il riepilogo</label>
-          <input type="email" id="emailInput" placeholder="email@esempio.it" autocomplete="email" inputmode="email">
-          <div style="font-size:.75rem; color:#718096; margin-top:4px;">
-            Riceverai importi, IBAN e causale
-          </div>
+        <div class="total">
+          <strong>Totale stimato</strong>
+          <div id="total">1000 €</div>
+          <div class="note">La caparra versata è già inclusa nel totale.</div>
         </div>
+
       </div>
+
+      <button id="confirm" class="primary">Conferma le tue scelte</button>
+
+      <button id="pay" class="secondary" style="display:none">Paga ora</button>
 
     </aside>
+
   </div>
+</div>
+
+<!-- Popup -->
+
+<div id="popup" style="display:none">
+  <h3>Richieste registrate</h3>
+  <p>Abbiamo registrato le tue scelte. Ti abbiamo inviato un’email con il riepilogo della prenotazione e le istruzioni per il pagamento.</p>
 </div>
 
 <!-- ═══════════════════ TEMPLATE CARD PERSONA ═══════════════════ -->
@@ -2327,7 +2286,7 @@
 
       hideRecalcBanner();
       setCalcButtons({ display: 'none' });
-      document.getElementById('partialTotalBox').style.display = 'none';
+      const ptb = document.getElementById('partialTotalBox'); if(ptb) ptb.style.display = 'none';
 
       setTimeout(() =>
         summaryBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 120);

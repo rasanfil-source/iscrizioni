@@ -359,24 +359,6 @@
   }
 
   /* ── Sidebar: Totale parziale ── */
-  #partialTotalBox {
-    background: #edf2f7;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    display: none;
-  }
-
-  .ref-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-  }
-
-  .partial-label { font-weight: 600; color: #2d3748; }
-  .partial-value { font-weight: 700; color: #3182ce; font-size: 1.1rem; }
-
   /* ── Sidebar: Desktop shortcut calcola ── */
   #desktopCalcShortcut {
     display: none;
@@ -402,6 +384,27 @@
 
   #summaryBox .summary-line:last-child { border-bottom: none; }
 
+  /* ── Flash valore cambiato ── */
+  @keyframes flashValue {
+    0%   { background: #bee3f8; border-radius: 4px; }
+    100% { background: transparent; }
+  }
+  .value-flash { animation: flashValue .35s ease-out; }
+
+  /* ── Stato prenotazione badge ── */
+  #bookingStatus {
+    display: none;
+    font-size: .8rem;
+    font-weight: 600;
+    padding: 7px 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    letter-spacing: .2px;
+    line-height: 1.4;
+  }
+  #bookingStatus.editing  { background: #fefcbf; color: #744210; border-left: 3px solid #f6ad55; }
+  #bookingStatus.confirmed{ background: #c6f6d5; color: #22543d; border-left: 3px solid #48bb78; }
+
   /* ── Sidebar: Breakdown ── */
   #breakdownBox {
     display: none;
@@ -424,7 +427,14 @@
     font-weight: 600;
   }
 
-  .breakdown-row.caparra { margin-top: 16px; color: #718096; }
+  .breakdown-row.caparra {
+    margin-top: 4px;
+    color: #38a169;
+    font-size: .88rem;
+  }
+
+  .breakdown-row.caparra span:first-child { color: #718096; }
+  .breakdown-row.caparra span:last-child  { color: #38a169; font-weight: 600; }
 
   /* ── Sidebar: Saldo totale ── */
   #totalBox {
@@ -646,11 +656,11 @@
     max-width: 440px;
     width: 92%;
     box-shadow: 0 8px 30px rgba(0,0,0,.22);
-    margin: 100px auto 40px;
+    margin: 160px auto 40px;
   }
 
   @media (max-width: 500px) {
-    .popup-box { padding: 20px 18px; margin: 60px auto 30px; }
+    .popup-box { padding: 20px 18px; margin: 100px auto 30px; }
   }
 
   .popup-box h3 {
@@ -799,8 +809,8 @@
     <div class="step" data-step="3">
       <div class="step-dot" aria-hidden="true">3</div>
       <div class="step-label">
-        <div class="step-title">Calcola quanto pagare</div>
-        <div class="step-desc">Importo e riepilogo</div>
+        <div class="step-title">Conferma e ricevi il riepilogo</div>
+        <div class="step-desc">Invia email e paga</div>
       </div>
     </div>
   </nav>
@@ -814,7 +824,7 @@
       <button id="btnAddPerson" type="button">+ Aggiungi un'altra persona</button>
 
       <div id="calcBtnContainer">
-        <button class="primary" id="calcBtn" type="button" style="display:none;">Calcola quanto pagare</button>
+        <button class="primary" id="calcBtn" type="button" style="display:none;">Conferma le tue scelte</button>
         <div id="recalcBanner" class="recalc-banner" role="status" aria-live="polite" aria-atomic="true">
           <span class="recalc-icon" aria-hidden="true">⚠️</span>
           <span class="recalc-text">Aggiorna importo per ricalcolare il totale e salvare le modifiche.</span>
@@ -826,62 +836,64 @@
     <aside>
       <div id="warmupBadge" role="status" aria-live="polite">⏳ Un momento...</div>
 
-      <!-- Totale parziale progressivo -->
-      <div id="partialTotalBox" aria-live="polite">
-        <div class="ref-row">
-          <span class="partial-label">Costo totale stimato:</span>
-          <span class="partial-value" id="partialTotalValue">€ 0,00</span>
-        </div>
-        <div style="font-size:0.75rem; color:#718096; margin-top:4px;">(caparra inclusa)</div>
-      </div>
-
       <!-- Shortcut calcola desktop -->
       <div id="desktopCalcShortcut">
-        <button class="primary" id="calcBtnDesktop" type="button">Calcola quanto pagare</button>
+        <button class="primary" id="calcBtnDesktop" type="button">Conferma le tue scelte</button>
+        <div id="resetLink" style="display:none; text-align:center; margin-top:8px; font-size:.8rem; color:#a0aec0;">
+          Vuoi ricominciare?
+          <a href="#" id="btnResetAll"
+             style="color:#718096; text-decoration:underline; text-decoration-style:dotted;"
+             onclick="event.preventDefault(); resetAll();">Reimposta tutto</a>
+        </div>
       </div>
 
-      <h2>Riepilogo</h2>
+      <!-- Stato prenotazione -->
+      <div id="bookingStatus" role="status" aria-live="polite"></div>
+
+      <h2 style="margin-top:0;">Riepilogo</h2>
 
       <div id="summaryBox" aria-live="polite">Inserisci cognome per iniziare</div>
 
-      <!-- Breakdown dettaglio opzioni -->
+      <!-- Breakdown dettaglio costi — visibile live appena caricata la prenotazione -->
       <div id="breakdownBox">
-        <div style="font-weight:600; margin-bottom:8px; color:#4a5568;">Dettaglio opzioni</div>
-        <div class="breakdown-row"><span>Alloggio</span><span id="totAlloggio">€ 0,00</span></div>
-        <div class="breakdown-row"><span>Colazione</span><span id="totColazione">€ 0,00</span></div>
-        <div class="breakdown-row"><span>Assicurazione annullamento</span><span id="totAssicurazione">€ 0,00</span></div>
-        <div class="breakdown-row"><span>Transfer opzionali</span><span id="totTransfer">€ 0,00</span></div>
-        <div class="breakdown-row total"><span>Totale opzioni</span><span id="totOpzioni">€ 0,00</span></div>
-        <div class="breakdown-row caparra"><span>Caparra versata</span><span id="caparraVersata">€ 0,00</span></div>
+        <div style="font-size:.75rem;font-weight:600;color:#718096;text-transform:uppercase;
+                    letter-spacing:.5px;margin-bottom:8px;">Dettaglio costi</div>
+        <div class="breakdown-row"><span>Alloggio</span><span id="totAlloggio">—</span></div>
+        <div class="breakdown-row" id="rowColazione" style="display:none;"><span>Colazioni</span><span id="totColazione">—</span></div>
+        <div class="breakdown-row" id="rowAssic" style="display:none;"><span>Assicurazione annullamento</span><span id="totAssicurazione">—</span></div>
+        <div class="breakdown-row" id="rowTransfer"><span>Transfer opzionali</span><span id="totTransfer">—</span></div>
+        <div class="breakdown-row total"><span>Subtotale</span><span id="totOpzioni">—</span></div>
+        <div class="breakdown-row caparra" id="rowCaparra">
+          <span>Caparra già versata</span>
+          <span id="caparraVersata">—</span>
+        </div>
       </div>
 
       <!-- Saldo finale -->
       <div id="totalBox">
-        <span>Importo da pagare</span>
+        <span>Saldo stimato da versare</span>
         <span id="saldoDaVersare">€ —</span>
+      </div>
+
+      <!-- Email per il riepilogo — visibile appena caricata una prenotazione -->
+      <div id="emailSection" style="display:none; margin-top:14px;">
+        <label for="emailInput">La tua email</label>
+        <input type="email" id="emailInput" placeholder="email@esempio.it"
+               autocomplete="email" inputmode="email">
+        <div style="font-size:.75rem; color:#718096; margin-top:4px;">
+          Riceverai importi, IBAN e causale
+        </div>
       </div>
 
       <!-- Status globale -->
       <div id="globalStatus" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
 
-      <!-- Azioni post-calcolo -->
+      <!-- Azioni post-conferma: Paga con carta -->
       <div id="actionSection" style="display:none; margin-top:12px;">
         <button class="secondary" id="payBtn" type="button" disabled
           style="background:#e67e22; border-color:#e67e22; margin-top:0;">
-          <span class="mobile-hide-icon">💳 </span>Paga con carta
+          💳 Paga con carta
         </button>
-        <div id="orDivider" style="text-align:center; font-size:.85rem; color:#a0aec0; margin:8px 0;">— oppure —</div>
-        <button class="secondary" id="saveBtn" type="button" disabled style="margin-top:0;">
-          Invia riepilogo via email
-        </button>
-        <div style="margin-top:16px;">
-          <label for="emailInput">Email per il riepilogo</label>
-          <input type="email" id="emailInput" placeholder="email@esempio.it"
-                 autocomplete="email" inputmode="email">
-          <div style="font-size:.75rem; color:#718096; margin-top:4px;">
-            Riceverai importi, IBAN e causale
-          </div>
-        </div>
       </div>
 
     </aside>
@@ -1043,26 +1055,34 @@
 <div class="popup-overlay" id="ibanPopup"
      role="dialog" aria-modal="true" aria-labelledby="ibanTitle" tabindex="-1">
   <div class="popup-box" role="document">
-    <h3 id="ibanTitle">Email inviata! ✅</h3>
-    <p style="color:#4a5568; margin-bottom:18px;">
-      Se vuoi procedere subito con il bonifico, ecco le coordinate:
+    <h3 id="ibanTitle">✅ Prenotazione aggiornata</h3>
+    <p style="color:#4a5568; margin-bottom:18px; line-height:1.55;">
+      Le tue scelte sono state registrate.<br>
+      Tra pochi secondi riceverai una email con il riepilogo della prenotazione
+      e le istruzioni per il pagamento.
     </p>
 
-    <div class="popup-field">
-      <span class="popup-field-label">IBAN</span>
-      <span class="popup-field-value" id="ibanValue"
-            style="font-family:monospace; font-size:14px; letter-spacing:.3px;">
-        IT77U0306909606100000125525
-      </span>
-      <button type="button" class="popup-btn-copy" onclick="copyPopupField('ibanValue',this)">📋</button>
-    </div>
-    <div class="popup-field">
-      <span class="popup-field-label">Intestatario</span>
-      <span class="popup-field-value">PARROCCHIA S. EUGENIO</span>
+    <div style="background:#f7fafc; border-radius:8px; padding:14px; margin-bottom:16px;">
+      <div style="font-size:.8rem; font-weight:600; color:#718096; text-transform:uppercase;
+                  letter-spacing:.4px; margin-bottom:10px;">Coordinate per il bonifico</div>
+      <div class="popup-field">
+        <span class="popup-field-label">IBAN</span>
+        <span class="popup-field-value" id="ibanValue"
+              style="font-family:monospace; font-size:14px; letter-spacing:.3px;">
+          IT77U0306909606100000125525
+        </span>
+        <button type="button" class="popup-btn-copy" onclick="copyPopupField('ibanValue',this)">📋</button>
+      </div>
+      <div class="popup-field">
+        <span class="popup-field-label">Intestatario</span>
+        <span class="popup-field-value">PARROCCHIA S. EUGENIO</span>
+      </div>
     </div>
 
-    <div class="popup-actions" style="margin-top:20px;">
-      <button type="button" class="popup-btn-dismiss" style="width:100%;" id="ibanCloseBtn">
+    <div class="popup-actions" style="margin-top:16px;">
+      <button type="button" class="popup-btn-dismiss" id="ibanCloseBtn"
+              style="width:100%; background:#3182ce; color:#fff; border-color:#3182ce;
+                     font-weight:600; font-size:1rem;">
         Chiudi
       </button>
     </div>
@@ -1089,11 +1109,45 @@ const COSTI = {
 };
 
 const LABELS = {
-  calc:        'Calcola quanto pagare',
-  recalc:      'Aggiorna importo',
-  save:        'Invia riepilogo via email',
+  calc:        'Conferma le tue scelte',
+  recalc:      '↻ Aggiorna e re-invia email',
+  confirmed:   '✔ Scelte confermate',
   lookupHint:  'Inserisci cognome per iniziare',
 };
+
+
+// ─── FLASH VALORE ─────────────────────────────────────────────────────────────
+function flashValue(el) {
+  if (!el) return;
+  el.classList.remove('value-flash');
+  // reflow per re-triggerare l'animazione
+  void el.offsetWidth;
+  el.classList.add('value-flash');
+}
+
+function setTextFlash(id, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const changed = el.textContent !== text;
+  el.textContent = text;
+  if (changed) flashValue(el);
+}
+
+// ─── STATO PRENOTAZIONE ───────────────────────────────────────────────────────
+function setBookingStatus(state) {
+  const el = document.getElementById('bookingStatus');
+  if (!el) return;
+  if (!state) { el.style.display = 'none'; el.textContent = ''; return; }
+  el.style.display = 'block';
+  el.className = '';
+  if (state === 'editing') {
+    el.classList.add('editing');
+    el.innerHTML = '● Modifica delle opzioni';
+  } else if (state === 'confirmed') {
+    el.classList.add('confirmed');
+    el.innerHTML = '✔ Scelte registrate<br><span style="font-weight:400;font-size:.78rem;">In attesa di pagamento</span>';
+  }
+}
 
 
 // ─── NORMALIZZAZIONE CLIENT-SIDE ─────────────────────────────────────────────
@@ -1244,7 +1298,6 @@ const btnCalc           = document.getElementById('calcBtn');
 const btnCalcDesktop    = document.getElementById('calcBtnDesktop');
 const desktopShortcut   = document.getElementById('desktopCalcShortcut');
 const calcButtons       = [btnCalc, btnCalcDesktop].filter(Boolean);
-const btnSave           = document.getElementById('saveBtn');
 const btnPay            = document.getElementById('payBtn');
 const summaryBox        = document.getElementById('summaryBox');
 const breakdownBox      = document.getElementById('breakdownBox');
@@ -1254,8 +1307,8 @@ const totalBox          = document.getElementById('totalBox');
 const globalStatus      = document.getElementById('globalStatus');
 const emailInput        = document.getElementById('emailInput');
 const actionSection     = document.getElementById('actionSection');
+const emailSection      = document.getElementById('emailSection');
 const payPopup          = document.getElementById('payPopup');
-const orDivider         = document.getElementById('orDivider');
 
 
 // ─── MOBILE: STICKY CALC BUTTON ──────────────────────────────────────────────
@@ -1364,41 +1417,88 @@ function setCalcButtons({ text, display, disabled }) {
 }
 
 
-// ─── TOTALE PARZIALE PROGRESSIVO ─────────────────────────────────────────────
-function updatePartialTotal() {
-  if (lastCalcResult) return;
+// ─── BREAKDOWN LIVE ──────────────────────────────────────────────────────────
+/**
+ * Aggiorna il riepilogo costi in tempo reale ogni volta che:
+ * - viene caricata una prenotazione
+ * - viene spuntato/tolto un transfer
+ * Sostituisce il vecchio #partialTotalBox: il totale cresce LIVE nel Riepilogo.
+ */
+function updateLiveBreakdown() {
+  const loaded = persone.filter(p => p.loaded);
 
-  let partial   = 0;
-  let hasLoaded = false;
+  if (loaded.length === 0) {
+    breakdownBox.style.display = 'none';
+    totalBox.style.display     = 'none';
+    if (emailSection) emailSection.style.display = 'none';
+    summaryBox.textContent = LABELS.lookupHint;
+    setBookingStatus(null);
+    const rl = document.getElementById('resetLink');
+    if (rl) rl.style.display = 'none';
+    return;
+  }
 
+  // ── Nomi nel summaryBox ──
+  summaryBox.innerHTML = loaded.map(p =>
+    `<div class="summary-line">👤 ${p.cognome} ${p.nome}</div>`
+  ).join('');
+
+  // ── Calcolo importi live ──
+  let totAlloggio = 0, totColazione = 0, totAssic = 0, totTransfer = 0;
   const uniqueRooms = new Set();
-  persone.forEach(p => {
-    if (!p.loaded) return;
-    hasLoaded = true;
+  let hasColazione = false, hasAssic = false;
+
+  loaded.forEach(p => {
     const card = p.cardEl;
     if (!card) return;
-    
+
     if (!uniqueRooms.has(p.row)) {
-      partial += (p.costoAlloggio || 0);
+      totAlloggio += (p.costoAlloggio || 0);
       uniqueRooms.add(p.row);
     }
-    
-    if (p.colazione)    partial += COSTI.colazione;
-    if (p.assicurazione)partial += COSTI.assicurazione;
-    if (card.querySelector('.tr-rf')?.checked) partial += COSTI.transfer.rf;
-    if (card.querySelector('.tr-pt')?.checked) partial += COSTI.transfer.pt;
-    if (card.querySelector('.tr-sc')?.checked) partial += COSTI.transfer.sc;
-    if (card.querySelector('.tr-fr')?.checked) partial += COSTI.transfer.fr;
+
+    if (p.colazione)    { totColazione += COSTI.colazione;     hasColazione = true; }
+    if (p.assicurazione){ totAssic     += COSTI.assicurazione; hasAssic     = true; }
+
+    if (card.querySelector('.tr-rf')?.checked) totTransfer += COSTI.transfer.rf;
+    if (card.querySelector('.tr-pt')?.checked) totTransfer += COSTI.transfer.pt;
+    if (card.querySelector('.tr-sc')?.checked) totTransfer += COSTI.transfer.sc;
+    if (card.querySelector('.tr-fr')?.checked) totTransfer += COSTI.transfer.fr;
   });
 
-  const box = document.getElementById('partialTotalBox');
-  if (hasLoaded) {
-    box.style.display = 'block';
-    document.getElementById('partialTotalValue').textContent = formatEuro(partial);
-  } else {
-    box.style.display = 'none';
-  }
+  const totale  = totAlloggio + totColazione + totAssic + totTransfer;
+  const caparra = COSTI.caparra * loaded.length;
+  const saldo   = Math.max(0, totale - caparra);
+
+  // ── Aggiorna campi con flash se cambiano ──
+  setTextFlash('totAlloggio',      formatEuro(totAlloggio));
+  setTextFlash('totColazione',     formatEuro(totColazione));
+  setTextFlash('totAssicurazione', formatEuro(totAssic));
+  setTextFlash('totTransfer',      formatEuro(totTransfer));
+  setTextFlash('totOpzioni',       formatEuro(totale));
+  setTextFlash('caparraVersata',   '−' + formatEuro(caparra));
+  setTextFlash('saldoDaVersare',   formatEuro(saldo));
+
+  // Mostra/nascondi righe opzionali
+  document.getElementById('rowColazione').style.display = hasColazione ? '' : 'none';
+  document.getElementById('rowAssic').style.display     = hasAssic     ? '' : 'none';
+  // La caparra è SEMPRE visibile appena c'è una prenotazione
+  document.getElementById('rowCaparra').style.display   = '';
+
+  breakdownBox.style.display = 'block';
+  totalBox.style.display     = 'flex';
+  if (emailSection) emailSection.style.display = 'block';
+
+  // Mostra il link "Reimposta tutto" solo su desktop quando c'è una prenotazione caricata
+  const rl = document.getElementById('resetLink');
+  if (rl) rl.style.display = '';
+
+  // Stato prenotazione: "in modifica" finché non confermato
+  if (!lastCalcResult) setBookingStatus('editing');
 }
+
+// Alias per retrocompatibilità con loadPartnerCard() e altri punti
+function updatePartialTotal() { updateLiveBreakdown(); }
 
 
 // ─── BANNER RICALCOLO ────────────────────────────────────────────────────────
@@ -1406,10 +1506,8 @@ function showRecalcBanner() {
   recalcNeeded = true;
   recalcBanner.classList.add('active');
   setCalcButtons({ display: 'block', text: LABELS.recalc });
-  btnSave.disabled = true;
   btnPay.disabled  = true;
   totalBox.classList.add('stale');
-  orDivider.style.color = '#a0aec0';
   _lastSavedHash = null;
   updateStepper();
 }
@@ -1427,11 +1525,11 @@ function onOptionsChanged() {
     setGlobalStatus('', '');
     document.getElementById('saldoDaVersare').textContent = '€ —';
     breakdownBox.style.display = 'none';
-    summaryBox.innerHTML = '⚠️ Opzioni modificate — premi "Aggiorna importo" per ricalcolare.';
+    summaryBox.innerHTML = '⚠️ Opzioni modificate — premi "' + LABELS.recalc + '" per aggiornare.';
   } else {
     resetCalcState();
   }
-  updatePartialTotal();
+  updateLiveBreakdown();
 }
 
 
@@ -2054,7 +2152,8 @@ function getTransfer(card) {
   };
 }
 
-async function calcolaTotale() {
+// ─── CONFERMA E INVIA (sostituisce calcolaTotale + salvaEInvia) ───────────────
+async function confermaEInvia() {
   if (_calcInProgress) return;
   _calcInProgress = true;
 
@@ -2062,6 +2161,13 @@ async function calcolaTotale() {
     const loaded = persone.filter(p => p.loaded);
     if (loaded.length === 0) {
       setGlobalStatus('error', 'Carica almeno una prenotazione valida.');
+      return;
+    }
+
+    const email = emailInput?.value.trim() || '';
+    if (!email || !email.includes('@')) {
+      setGlobalStatus('error', "Inserisci un'email valida prima di confermare.");
+      emailInput?.focus();
       return;
     }
 
@@ -2083,62 +2189,57 @@ async function calcolaTotale() {
         `<div style="background:#f7fafc;padding:12px;border-radius:8px;` +
         `border-left:4px solid #3182ce;margin-top:10px;">` +
         `<strong style="font-size:.85rem;color:#2c5282;text-transform:uppercase;` +
-        `display:block;margin-bottom:6px;">Servizi prenotati</strong>` +
+        `display:block;margin-bottom:6px;">Transfer prenotati</strong>` +
         `<ul style="margin:0;padding-left:20px;font-size:.9rem;">` +
         `<li>${serviziList.join('</li><li>')}</li></ul></div>`;
     }
+    confirmBody += `<p style="margin-top:12px;font-size:.9rem;color:#718096;">
+      Verrà inviata un'email di riepilogo a <strong>${email}</strong>.
+    </p>`;
 
-    const confirmed = await showConfirmModal('Riepilogo e registrazione', confirmBody);
-    if (!confirmed) return;  // _calcInProgress viene resettato nel finally
+    const confirmed = await showConfirmModal('Riepilogo e conferma', confirmBody);
+    if (!confirmed) return;
 
     setGlobalStatus('loading', '<span class="spinner"></span>Attendere prego…');
     setCalcButtons({ disabled: true });
 
     // Calcolo importi
     let totale = 0, totAlloggio = 0, totColazione = 0, totAssic = 0, totTr = 0;
-    const lines = [];
-
-    // Troviamo quanti partecipanti ci sono per ogni riga (per dividere il costo alloggio)
     const roomCounts = {};
     loaded.forEach(p => roomCounts[p.row] = (roomCounts[p.row] || 0) + 1);
 
     loaded.forEach(p => {
       const card = p.cardEl;
       const tr   = getTransfer(card);
-
-      // Il costo alloggio viene diviso equamente tra chi condivide la stessa riga
       const occupants = roomCounts[p.row] || 1;
       const costoAll  = (p.costoAlloggio || 0) / occupants;
 
-      const costoCol = card.querySelector('.colazione')?.checked  ? COSTI.colazione    : 0;
+      const costoCol = card.querySelector('.colazione')?.checked   ? COSTI.colazione    : 0;
       const costoAss = card.querySelector('.assicurazione')?.checked? COSTI.assicurazione: 0;
       const costoTr  = (tr.rf ? COSTI.transfer.rf : 0)
                      + (tr.pt ? COSTI.transfer.pt : 0)
                      + (tr.sc ? COSTI.transfer.sc : 0)
                      + (tr.fr ? COSTI.transfer.fr : 0);
 
-      const sub = costoAll + costoCol + costoAss + costoTr;
-      totale      += sub;
+      totale      += costoAll + costoCol + costoAss + costoTr;
       totAlloggio += costoAll;
       totColazione+= costoCol;
       totAssic    += costoAss;
       totTr       += costoTr;
-
-      lines.push(`${p.cognome} ${p.nome}: ${formatEuro(sub - COSTI.caparra)}`);
     });
 
     const caparra = COSTI.caparra * loaded.length;
     const saldo   = totale - caparra;
 
     if (saldo < 0) {
-      setGlobalStatus('error',
-        'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
+      setGlobalStatus('error', 'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
       return;
     }
 
     lastCalcResult = {
       persone: loaded.map(p => ({
         nome: p.nome, cognome: p.cognome, row: p.row,
+        alloggio: getSiglaAlloggio(p.alloggio) || '',
         transfer: getTransfer(p.cardEl),
       })),
       totaleOpzioni: totale,
@@ -2146,65 +2247,78 @@ async function calcolaTotale() {
       saldo,
     };
 
-    // Salva sul foglio (senza email qui — l'email si invia solo con il bottone dedicato)
-    await doSalvaTransfer();
+    // Salva SUL FOGLIO + invia EMAIL in un solo passaggio
+    await doSalvaTransfer(email, true);
 
-    // Aggiorna UI sidebar
-    summaryBox.innerHTML =
-      `<div style="font-weight:600;margin-bottom:6px;color:#4a5568;">Importo per:</div>` +
-      lines.map(l => `<div class="summary-line">${l}</div>`).join('');
-
+    // Aggiorna sidebar con dati definitivi (flash sui valori che cambiano)
+    setTextFlash('totAlloggio',      formatEuro(totAlloggio));
+    setTextFlash('totColazione',     formatEuro(totColazione));
+    setTextFlash('totAssicurazione', formatEuro(totAssic));
+    setTextFlash('totTransfer',      formatEuro(totTr));
+    setTextFlash('totOpzioni',       formatEuro(totale));
+    setTextFlash('caparraVersata',   '−' + formatEuro(caparra));
+    setTextFlash('saldoDaVersare',   formatEuro(saldo));
+    document.getElementById('rowCaparra').style.display = '';
     breakdownBox.style.display = 'block';
-    document.getElementById('totAlloggio').textContent     = formatEuro(totAlloggio);
-    document.getElementById('totColazione').textContent    = formatEuro(totColazione);
-    document.getElementById('totAssicurazione').textContent= formatEuro(totAssic);
-    document.getElementById('totTransfer').textContent     = formatEuro(totTr);
-    document.getElementById('totOpzioni').textContent      = formatEuro(totale);
-    document.getElementById('caparraVersata').textContent  = '−' + formatEuro(caparra);
-    document.getElementById('saldoDaVersare').textContent  = formatEuro(saldo);
-    totalBox.style.display = 'flex';
+    totalBox.style.display     = 'flex';
 
-    btnSave.disabled        = false;
-    btnSave.textContent     = LABELS.save;
-    btnPay.disabled         = false;
+    // Stato → confermato
+    setBookingStatus('confirmed');
+
+    // Post-conferma: bottone diventa "✔ Scelte confermate" (disabilitato) → poi sparisce
+    setCalcButtons({ text: LABELS.confirmed, disabled: true });
+    // Piccolo delay, poi nascondi del tutto i bottoni conferma
+    setTimeout(() => setCalcButtons({ display: 'none' }), 1200);
+
+    btnPay.disabled = false;
     actionSection.style.display = 'block';
-    orDivider.style.color   = '#666';
+    if (emailSection) emailSection.style.display = 'none';
 
-    setGlobalStatus('ok',
-      '<span class="success-check">✅</span> Prenotazione aggiornata');
-
+    setGlobalStatus('ok', '<span class="success-check">✅</span> Scelte confermate — email inviata');
     hideRecalcBanner();
-    setCalcButtons({ display: 'none' });
-    document.getElementById('partialTotalBox').style.display = 'none';
+
+    // Apri popup di conferma con IBAN e istruzioni pagamento
+    openModal('ibanPopup');
 
     setTimeout(() =>
       summaryBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 120);
 
   } catch (err) {
-    console.error('Errore calcolo:', err);
-    setGlobalStatus('error',
-      'Impossibile aggiornare la prenotazione: ' + err.message);
+    console.error('Errore conferma:', err);
+    setGlobalStatus('error', 'Impossibile confermare: ' + err.message);
     lastCalcResult = null;
   } finally {
     setCalcButtons({ disabled: false });
-    _calcInProgress = false;   // ← reset SEMPRE, anche dopo Annulla
+    _calcInProgress = false;
   }
+}
+
+// ─── REIMPOSTA TUTTO ─────────────────────────────────────────────────────────
+function resetAll() {
+  // Rimuove tutte le card tranne la prima, poi resetta quella
+  while (persone.length > 1) removeCard(persone[persone.length - 1].index);
+  if (persone.length === 1) unlockCard(persone[0].cardEl, persone[0].index);
+  document.getElementById('resetLink').style.display = 'none';
+  setBookingStatus(null);
 }
 
 function resetCalcState() {
   lastCalcResult = null;
   _lastSavedHash = null;
-  btnSave.disabled    = true;
   btnPay.disabled     = true;
-  btnSave.textContent = LABELS.save;
-  orDivider.style.color = '#a0aec0';
   breakdownBox.style.display = 'none';
 
   const loadedN = persone.filter(p => p.loaded).length;
   summaryBox.textContent = loadedN > 0 ? '' : LABELS.lookupHint;
 
-  if (loadedN > 0) setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
-  else             setCalcButtons({ display: 'none', disabled: false });
+  if (loadedN > 0) {
+    setCalcButtons({ text: LABELS.calc, display: 'block', disabled: false });
+    updateLiveBreakdown();
+    setBookingStatus('editing');
+  } else {
+    setCalcButtons({ display: 'none', disabled: false });
+    setBookingStatus(null);
+  }
 
   recalcBanner.classList.remove('active');
   hideRecalcBanner();
@@ -2242,30 +2356,8 @@ async function doSalvaTransfer(email, sendEmail = true) {
   return data;
 }
 
-async function salvaEInvia() {
-  if (!lastCalcResult) { setGlobalStatus('error', 'Prima calcola il totale.'); return; }
-
-  const email = emailInput.value.trim();
-  if (!email || !email.includes('@')) {
-    setGlobalStatus('error', "Inserisci un'email valida.");
-    emailInput.focus();
-    return;
-  }
-
-  btnSave.disabled = true;
-  setGlobalStatus('loading', '<span class="spinner"></span>Invio email…');
-
-  try {
-    await doSalvaTransfer(email);
-    setGlobalStatus('ok', `✅ Email inviata a ${email}`);
-    btnSave.textContent = 'Email inviata ✓';
-    openModal('ibanPopup');
-  } catch (err) {
-    console.error('Errore email:', err);
-    setGlobalStatus('error', 'Errore: ' + err.message);
-    btnSave.disabled = false;
-  }
-}
+// salvaEInvia() rimossa — il flusso è ora gestito da confermaEInvia()
+// che calcola, salva e invia email in un unico passaggio.
 
 
 // ─── PAGA CON CARTA ──────────────────────────────────────────────────────────
@@ -2320,9 +2412,10 @@ function openTinaba() {
 addPersonCard();
 
 btnAdd.addEventListener('click', addPersonCard);
-btnCalc.addEventListener('click', calcolaTotale);
-btnCalcDesktop?.addEventListener('click', calcolaTotale);
-btnSave.addEventListener('click', salvaEInvia);
+btnCalc.addEventListener('click', confermaEInvia);
+btnCalcDesktop?.addEventListener('click', confermaEInvia);
 btnPay.addEventListener('click', openPayPopup);
 document.getElementById('popupOpenBtn')?.addEventListener('click', openTinaba);
+document.getElementById('ibanCloseBtn')?.addEventListener('click', closeModal);
+document.getElementById('ibanPayBtn')?.addEventListener('click', () => { closeModal(); openPayPopup(); });
 </script>

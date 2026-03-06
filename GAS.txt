@@ -382,6 +382,26 @@ function formatEuroIt_(value) {
   return n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+/**
+ * Restituisce l'etichetta semplificata del tipo di alloggio.
+ * Input: sigla (es. DM1, DS, S, M, T) oppure stringa descrittiva.
+ */
+function semplificaAlloggio_(sigla) {
+  if (!sigla) return '';
+  const s = String(sigla).trim().toUpperCase().replace(/\d+$/, '');
+  if (/^DM/.test(s) || s === 'DS') return 'Doppia';
+  if (s === 'S')  return 'Singola';
+  if (s === 'M')  return 'Multipla';
+  if (s === 'T')  return 'Tripla';
+  // Fallback: stringa descrittiva
+  const low = sigla.toLowerCase();
+  if (low.includes('singola'))  return 'Singola';
+  if (low.includes('multipla')) return 'Multipla';
+  if (low.includes('tripla'))   return 'Tripla';
+  if (low.includes('doppia') || low.includes('matrimoniale') || low.includes('separati')) return 'Doppia';
+  return '';
+}
+
 function buildEmailPlain_(persone, totale, caparra, saldo) {
   const tot = Number(totale)  || 0;
   const cap = Number(caparra) || 0;
@@ -394,7 +414,9 @@ function buildEmailPlain_(persone, totale, caparra, saldo) {
     'Persone:'
   ];
   persone.forEach(p => {
+    const alloggio = semplificaAlloggio_(p.alloggio || p.siglaAlloggio);
     let s = '- ' + (p.nome || '') + ' ' + (p.cognome || '');
+    if (alloggio) s += ' – ' + alloggio;
     const tr = [];
     if (p.transfer?.rf) tr.push('Roma-Fiumicino');
     if (p.transfer?.pt) tr.push('Porto-Tui');
@@ -409,7 +431,7 @@ function buildEmailPlain_(persone, totale, caparra, saldo) {
     'Scadenza: 15 maggio 2026', '',
     'Pagamento:', 'PARROCCHIA S. EUGENIO',
     'IBAN: IT77U0306909606100000125525',
-    'Causale: "Saldo Cammino 2026 ' + (persone[0]?.nome || '') + ' ' + (persone[0]?.cognome || '') + '"', '',
+    'Causale: "Saldo Cammino 2026 ' + persone.map(p => p.cognome).filter(Boolean).join(' - ') + '"', '',
     'Contatti: info@parrocchiasanteugenio.it',
     'Grazie e buon cammino!');
   return righe.join('\n');
@@ -420,14 +442,20 @@ function buildEmailHtml_(persone, totale, caparra, saldo) {
   const cap = Number(caparra) || 0;
   const sal = Number(saldo)   || 0;
   const personeHtml = persone.map(p => {
+    const alloggio = semplificaAlloggio_(p.alloggio || p.siglaAlloggio);
     const tr = [];
     if (p.transfer?.rf) tr.push('Roma-Fiumicino');
     if (p.transfer?.pt) tr.push('Porto-Tui');
     if (p.transfer?.sc) tr.push('Santiago-A Coruña');
     if (p.transfer?.fr) tr.push('Fiumicino-Roma');
-    const trStr = tr.length > 0 ? '<br><small style="color:#718096;">Transfer: ' + tr.join(', ') + '</small>' : '';
+    const alloggioStr = alloggio
+      ? '<br><small style="color:#718096;">Alloggio: ' + alloggio + '</small>'
+      : '';
+    const trStr = tr.length > 0
+      ? '<br><small style="color:#718096;">Transfer: ' + tr.join(', ') + '</small>'
+      : '';
     return '<tr><td style="padding:12px;border-bottom:1px solid #eee;"><strong>' +
-           (p.nome || '') + ' ' + (p.cognome || '') + '</strong>' + trStr + '</td></tr>';
+           (p.nome || '') + ' ' + (p.cognome || '') + '</strong>' + alloggioStr + trStr + '</td></tr>';
   }).join('');
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
@@ -458,7 +486,7 @@ function buildEmailHtml_(persone, totale, caparra, saldo) {
     <div style="background:#ebf8ff;border-radius:8px;padding:20px;">
       <p style="margin:0 0 10px;color:#2c5282;"><strong>Intestatario:</strong> PARROCCHIA S. EUGENIO</p>
       <p style="margin:0 0 10px;color:#2c5282;"><strong>IBAN:</strong> <code style="background:#fff;padding:4px 11px;border-radius:4px;font-family:monospace;font-size:16px;letter-spacing:.4px;user-select:all;-webkit-user-select:all;-moz-user-select:all;ms-user-select:all;border:1px solid #d1e9ff;">IT77U0306909606100000125525</code></p>
-      <p style="margin:0;color:#2c5282;"><strong>Causale:</strong> "Saldo Cammino 2026 ${(persone[0]?.nome || '')} ${(persone[0]?.cognome || '')}"</p>
+      <p style="margin:0;color:#2c5282;"><strong>Causale:</strong> "Saldo Cammino 2026 ${persone.map(p => p.cognome).filter(Boolean).join(' - ')}"</p>
     </div>
   </div>
   <div style="background:#f7fafc;padding:20px;text-align:center;border-top:1px solid #e2e8f0;">
