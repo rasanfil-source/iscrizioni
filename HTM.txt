@@ -1198,15 +1198,20 @@ function getSiglaAlloggio(text) {
 
 function getCostoAlloggio(text) {
   if (!text || text === '—') return 0;
-  const fix = text.match(/€\s*(\d+)/);
-  if (fix) return parseInt(fix[1], 10);
+  const fix = text.match(/€\s*([\d.,]+)/);
+  if (fix) {
+    const normalized = fix[1].replace(/\./g, '').replace(',', '.');
+    const amount = Number(normalized);
+    if (Number.isFinite(amount)) return Math.round(amount);
+  }
   const s = getSiglaAlloggio(text);
   if (!s) return 0;
   return COSTI.alloggio[/^DM/.test(s) ? 'DM' : s] || 0;
 }
 
 function getRoomKey(person) {
-  const sigla = getSiglaAlloggio(person?.alloggio || '');
+  const sigla = String(person?.siglaAlloggio || '').trim().toUpperCase()
+      || getSiglaAlloggio(person?.alloggio || '');
   // Le doppie matrimoniali (DM1, DM2, ...) rappresentano una camera condivisa:
   // per evitare doppi conteggi usiamo la sigla stanza come chiave univoca.
   if (sigla && /^DM\d+$/.test(sigla)) return `room:${sigla}`;
@@ -1241,8 +1246,7 @@ function formatEuro(v) {
 // ─── FETCH CON TIMEOUT ────────────────────────────────────────────────────────
 async function fetchWithTimeout(url, options = {}, ms = FETCH_TIMEOUT_MS) {
   const ac     = new AbortController();
-  let timedOut = false;
-  const timer  = setTimeout(() => { timedOut = true; ac.abort(); }, ms);
+  const timer  = setTimeout(() => { ac.abort(); }, ms);
 
   const caller = options.signal;
   if (caller) {
@@ -1255,14 +1259,13 @@ async function fetchWithTimeout(url, options = {}, ms = FETCH_TIMEOUT_MS) {
     return await fetch(url, { ...rest, signal: ac.signal });
   } finally {
     clearTimeout(timer);
-    ac.signal._timedOut = timedOut;
   }
 }
 
 async function gasPost(payload, signal) {
   const res = await fetchWithTimeout(GAS_ENDPOINT, {
     method:  'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(payload),
     signal,
   });
@@ -1738,6 +1741,7 @@ function applyResult(card, person, data, nomeRaw, cognomeRaw) {
   person.cognome      = capitalize(data.persona?.cognome || cognomeRaw);
   person.row          = data.row;
   person.alloggio     = data.persona?.alloggio || '—';
+  person.siglaAlloggio = data.persona?.siglaAlloggio || getSiglaAlloggio(person.alloggio) || '';
   person.costoAlloggio= getCostoAlloggio(person.alloggio);
   person.colazione    = !!data.persona?.colazione;
   person.assicurazione= !!data.persona?.assicurazione;
@@ -1930,7 +1934,7 @@ function addPersonCard() {
 
   persone.push({
     index, nome: '', cognome: '', row: null,
-    alloggio: '', colazione: false, assicurazione: false,
+    alloggio: '', siglaAlloggio: '', colazione: false, assicurazione: false,
     loaded: false, cardEl: card,
   });
 
@@ -1963,7 +1967,7 @@ function resetCard(card, index) {
   const p = persone.find(p => p.index === index);
   if (!p) return;
 
-  Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'',
+  Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'', siglaAlloggio:'',
                      colazione:false, assicurazione:false, loaded:false });
 
   card.querySelector('.alloggio-box').textContent            = '—';
@@ -2004,7 +2008,7 @@ function unlockCard(card, index) {
   const hint = cogInp.parentElement?.querySelector('.field-hint');
   if (hint) hint.style.visibility = 'visible';
 
-  Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'', costoAlloggio:0,
+  Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'', siglaAlloggio:'', costoAlloggio:0,
                      colazione:false, assicurazione:false, loaded:false });
 
   card.classList.remove('locked');
@@ -2134,6 +2138,7 @@ function loadPartnerCard(partnerData, shouldScroll = true) {
     cognome: capitalize(partnerData.cognome),
     row:     partnerData.row,
     alloggio:    pp.alloggio || '',
+    siglaAlloggio: pp.siglaAlloggio || getSiglaAlloggio(pp.alloggio) || '',
     costoAlloggio: getCostoAlloggio(pp.alloggio),
     colazione:   !!pp.colazione,
     assicurazione: !!pp.assicurazione,
@@ -2261,7 +2266,7 @@ async function confermaEInvia() {
     lastCalcResult = {
       persone: loaded.map(p => ({
         nome: p.nome, cognome: p.cognome, row: p.row,
-        alloggio: getSiglaAlloggio(p.alloggio) || '',
+        alloggio: p.siglaAlloggio || getSiglaAlloggio(p.alloggio) || '',
         transfer: getTransfer(p.cardEl),
       })),
       totaleOpzioni: totale,

@@ -1360,15 +1360,20 @@
 
   function getCostoAlloggio(text) {
     if (!text || text === '—') return 0;
-    const fix = text.match(/€\s*(\d+)/);
-    if (fix) return parseInt(fix[1], 10);
+    const fix = text.match(/€\s*([\d.,]+)/);
+    if (fix) {
+      const normalized = fix[1].replace(/\./g, '').replace(',', '.');
+      const amount = Number(normalized);
+      if (Number.isFinite(amount)) return Math.round(amount);
+    }
     const s = getSiglaAlloggio(text);
     if (!s) return 0;
     return COSTI.alloggio[/^DM/.test(s) ? 'DM' : s] || 0;
   }
 
   function getRoomKey(person) {
-    const sigla = getSiglaAlloggio(person?.alloggio || '');
+    const sigla = String(person?.siglaAlloggio || '').trim().toUpperCase()
+      || getSiglaAlloggio(person?.alloggio || '');
     // Le doppie matrimoniali (DM1, DM2, ...) rappresentano una camera condivisa:
     // per evitare doppi conteggi usiamo la sigla stanza come chiave univoca.
     if (sigla && /^DM\d+$/.test(sigla)) return `room:${sigla}`;
@@ -1403,8 +1408,7 @@
   // ─── FETCH CON TIMEOUT ────────────────────────────────────────────────────────
   async function fetchWithTimeout(url, options = {}, ms = FETCH_TIMEOUT_MS) {
     const ac = new AbortController();
-    let timedOut = false;
-    const timer = setTimeout(() => { timedOut = true; ac.abort(); }, ms);
+    const timer = setTimeout(() => { ac.abort(); }, ms);
 
     const caller = options.signal;
     if (caller) {
@@ -1417,14 +1421,13 @@
       return await fetch(url, { ...rest, signal: ac.signal });
     } finally {
       clearTimeout(timer);
-      ac.signal._timedOut = timedOut;
     }
   }
 
   async function gasPost(payload, signal) {
     const res = await fetchWithTimeout(GAS_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       signal,
     });
@@ -1900,6 +1903,7 @@
     person.cognome = capitalize(data.persona?.cognome || cognomeRaw);
     person.row = data.row;
     person.alloggio = data.persona?.alloggio || '—';
+    person.siglaAlloggio = data.persona?.siglaAlloggio || getSiglaAlloggio(person.alloggio) || '';
     person.costoAlloggio = getCostoAlloggio(person.alloggio);
     person.colazione = !!data.persona?.colazione;
     person.assicurazione = !!data.persona?.assicurazione;
@@ -2092,7 +2096,7 @@
 
     persone.push({
       index, nome: '', cognome: '', row: null,
-      alloggio: '', colazione: false, assicurazione: false,
+      alloggio: '', siglaAlloggio: '', colazione: false, assicurazione: false,
       loaded: false, cardEl: card,
     });
 
@@ -2126,7 +2130,7 @@
     if (!p) return;
 
     Object.assign(p, {
-      nome: '', cognome: '', row: null, alloggio: '',
+      nome: '', cognome: '', row: null, alloggio: '', siglaAlloggio: '',
       colazione: false, assicurazione: false, loaded: false
     });
 
@@ -2169,7 +2173,7 @@
     if (hint) hint.style.visibility = 'visible';
 
     Object.assign(p, {
-      nome: '', cognome: '', row: null, alloggio: '', costoAlloggio: 0,
+      nome: '', cognome: '', row: null, alloggio: '', siglaAlloggio: '', costoAlloggio: 0,
       colazione: false, assicurazione: false, loaded: false
     });
 
@@ -2300,6 +2304,7 @@
       cognome: capitalize(partnerData.cognome),
       row: partnerData.row,
       alloggio: pp.alloggio || '',
+      siglaAlloggio: pp.siglaAlloggio || getSiglaAlloggio(pp.alloggio) || '',
       costoAlloggio: getCostoAlloggio(pp.alloggio),
       colazione: !!pp.colazione,
       assicurazione: !!pp.assicurazione,
@@ -2427,7 +2432,7 @@
       lastCalcResult = {
         persone: loaded.map(p => ({
           nome: p.nome, cognome: p.cognome, row: p.row,
-          alloggio: getSiglaAlloggio(p.alloggio) || '',
+          alloggio: p.siglaAlloggio || getSiglaAlloggio(p.alloggio) || '',
           transfer: getTransfer(p.cardEl),
         })),
         totaleOpzioni: totale,

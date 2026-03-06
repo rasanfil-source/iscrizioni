@@ -325,6 +325,7 @@ function doPost(e) {
           risultati.push({ nome: p.nome, cognome: p.cognome, status: p.error });
           continue;
         }
+        if (!sh) throw new Error('Sheet non disponibile');
         writeTransfer_(sh, p.rowNum, { rf: !!p.transfer?.rf, pt: !!p.transfer?.pt, sc: !!p.transfer?.sc, fr: !!p.transfer?.fr });
         risultati.push({ nome: p.nome, cognome: p.cognome, status: 'updated', row: p.rowNum });
       }
