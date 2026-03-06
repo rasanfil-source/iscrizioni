@@ -1745,6 +1745,19 @@ function selectCandidate(card, index, nome) {
   }
 }
 
+
+function resetLockedOptionsUI(card) {
+  const colLbl = card.querySelector('.label-colazione');
+  const assLbl = card.querySelector('.label-assicurazione');
+  const lockedWrap = card.querySelector('.locked-options-help')?.parentElement;
+  const notaLocked = card.querySelector('.nota-locked');
+
+  if (colLbl) colLbl.style.display = '';
+  if (assLbl) assLbl.style.display = '';
+  if (lockedWrap) lockedWrap.style.display = '';
+  if (notaLocked) notaLocked.style.display = '';
+}
+
 function applyResult(card, person, data, nomeRaw, cognomeRaw) {
   person.nome         = capitalize(data.persona?.nome || nomeRaw);
   person.cognome      = capitalize(data.persona?.cognome || cognomeRaw);
@@ -1762,6 +1775,7 @@ function applyResult(card, person, data, nomeRaw, cognomeRaw) {
   card.querySelector('.assicurazione').checked      = person.assicurazione;
 
   // Mostra/nasconde opzioni bloccate
+  resetLockedOptionsUI(card);
   const colLbl      = card.querySelector('.label-colazione');
   const assLbl      = card.querySelector('.label-assicurazione');
   const lockedWrap  = card.querySelector('.locked-options-help')?.parentElement;
@@ -1981,6 +1995,7 @@ function resetCard(card, index) {
                      partnerIndex:null, isPartner:false });
 
   card.querySelector('.alloggio-box').textContent            = '—';
+  resetLockedOptionsUI(card);
   card.querySelector('.colazione').checked                   = false;
   card.querySelector('.assicurazione').checked               = false;
   card.querySelector('.loaded-data-section').style.display   = 'none';
@@ -2008,6 +2023,7 @@ function unlockCard(card, index) {
   nomInp.value = '';
 
   card.querySelector('.alloggio-box').textContent          = '—';
+  resetLockedOptionsUI(card);
   card.querySelector('.colazione').checked                 = false;
   card.querySelector('.assicurazione').checked             = false;
   card.querySelector('.loaded-data-section').style.display = 'none';
@@ -2099,6 +2115,7 @@ function loadPartnerCard(partnerData, shouldScroll = true) {
   card.querySelector('.colazione').checked        = !!pp.colazione;
   card.querySelector('.assicurazione').checked    = !!pp.assicurazione;
 
+  resetLockedOptionsUI(card);
   const colLbl     = card.querySelector('.label-colazione');
   const assLbl     = card.querySelector('.label-assicurazione');
   const lockedWrap = card.querySelector('.locked-options-help')?.parentElement;
