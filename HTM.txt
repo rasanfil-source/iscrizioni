@@ -801,6 +801,13 @@
     animation: partnerPulse 2.2s ease-out forwards;
     border: 1px solid #68d391 !important;
   }
+
+  /* Focus ring esplicito sul primo transfer dopo caricamento */
+  .tr-rf-focus-hint {
+    outline: 3px solid rgba(49,130,206,.55) !important;
+    outline-offset: 3px;
+    transition: outline .15s;
+  }
 </style>
 
 <!-- ═══════════════════════════════════════════ HTML ═══════════════════════════════════════════ -->
@@ -1864,11 +1871,21 @@ function applyResult(card, person, data, nomeRaw, cognomeRaw) {
   }
 
   // Scroll verso i transfer + focus al primo
+  // ⚠️ delay >200ms per attendere il reflow post-partner-card
   setTimeout(() => {
-    const trSection = card.querySelector('.transfer-grid') || card.querySelector('.tr-rf');
-    trSection?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    card.querySelector('.tr-rf')?.focus();
-  }, 120);
+    const trSection = card.querySelector('.transfer-grid');
+    if (trSection) {
+      trSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const firstCheck = card.querySelector('.tr-rf');
+    if (firstCheck) {
+      firstCheck.focus({ preventScroll: true });
+      // ":focus-visible" viene soppresso dopo click con mouse →
+      // forziamo l'alone visivo con una classe temporanea
+      firstCheck.classList.add('tr-rf-focus-hint');
+      setTimeout(() => firstCheck.classList.remove('tr-rf-focus-hint'), 1600);
+    }
+  }, 350);
 
   resetCalcState();
 }
