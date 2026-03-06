@@ -335,7 +335,8 @@ function doPost(e) {
 
       // Invio email solo se presente un indirizzo valido e non espressamente disabilitato
       const shouldSend = payload.sendEmail !== false;
-      if (email && email.includes('@') && shouldSend) {
+      const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (isValidEmail && shouldSend) {
         try {
           GmailApp.sendEmail(
             email,
@@ -356,7 +357,7 @@ function doPost(e) {
         Logger.log('ℹ️ Nessuna email fornita, transfer salvati senza invio email');
       }
 
-      const emailSent = !!(email && email.includes('@') && shouldSend);
+      const emailSent = !!(isValidEmail && shouldSend);
       return jsonOut({ success: true, emailSent, risultati });
       } finally {
         if (hasLock) lock.releaseLock();
