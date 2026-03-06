@@ -1384,13 +1384,11 @@
   function getRoomKey(person) {
     const sigla = String(person?.siglaAlloggio || '').trim().toUpperCase()
       || getSiglaAlloggio(person?.alloggio || '');
-    // ⚠️ REGOLA BUSINESS (anti-regressione): le camere doppie sono prezzi "a stanza",
-    // non "a persona". Quindi il totale stanza va ripartito tra gli occupanti caricati.
-    // - DM/DM1/DM2... = doppia matrimoniale
-    // - DS            = doppia letti separati
-    // Per entrambe usiamo una room-key condivisa, così in conferma si divide per occupanti.
+    // ⚠️ REGOLA BUSINESS (anti-regressione): in UI il costo alloggio è già quota PER-PERSONA
+    // (es. doppia 950 => 475+475). Quindi nel totale economico non si divide più per occupanti.
+    // Manteniamo comunque una room-key condivisa per riconoscere camere doppie correlate.
     if (sigla && /^DM\d*$/.test(sigla)) return `room:${sigla || 'DM'}`;
-    if (sigla === 'DS') return `room:DS`;
+    if (sigla === 'DS') return 'room:DS';
     // Fallback sicuro: usa la riga del foglio per camere non condivise.
     return `row:${person?.row ?? ''}`;
   }
@@ -1638,21 +1636,16 @@
     ).join('');
 
     // ── Calcolo importi live ──
-    // ⚠️ REGOLA BUSINESS (anti-regressione): alloggio doppio = costo stanza,
-    // quindi va contato una volta per roomKey e non per ogni persona caricata.
+    // ⚠️ REGOLA BUSINESS (anti-regressione): alloggio sempre sommato per persona caricata.
+    // Nelle doppie la quota è già pro-capite (es. 475 + 475 = 950).
     let totAlloggio = 0, totColazione = 0, totAssic = 0, totTransfer = 0;
-    const uniqueRooms = new Set();
     let hasColazione = false, hasAssic = false;
 
     loaded.forEach(p => {
       const card = p.cardEl;
       if (!card) return;
 
-      const roomKey = getRoomKey(p);
-      if (!uniqueRooms.has(roomKey)) {
-        totAlloggio += (p.costoAlloggio || 0);
-        uniqueRooms.add(roomKey);
-      }
+      totAlloggio += (p.costoAlloggio || 0);
 
       if (p.colazione) { totColazione += COSTI.colazione; hasColazione = true; }
       if (p.assicurazione) { totAssic += COSTI.assicurazione; hasAssic = true; }
@@ -2411,20 +2404,14 @@
       setCalcButtons({ disabled: true });
 
       // Calcolo importi
-      // ⚠️ REGOLA BUSINESS (anti-regressione): per le camere doppie si divide il costo
-      // stanza per numero occupanti della stessa roomKey (es. 950/2 = 475 a testa).
+      // ⚠️ REGOLA BUSINESS (anti-regressione): costo alloggio già pro-capite sul partecipante.
+      // Non dividere per occupanti: in doppia si sommano due quote (475+475).
       let totale = 0, totAlloggio = 0, totColazione = 0, totAssic = 0, totTr = 0;
-      const roomCounts = {};
-      loaded.forEach(p => {
-        const roomKey = getRoomKey(p);
-        roomCounts[roomKey] = (roomCounts[roomKey] || 0) + 1;
-      });
 
       loaded.forEach(p => {
         const card = p.cardEl;
         const tr = getTransfer(card);
-        const occupants = roomCounts[getRoomKey(p)] || 1;
-        const costoAll = (p.costoAlloggio || 0) / occupants;
+        const costoAll = (p.costoAlloggio || 0);
 
         const costoCol = card.querySelector('.colazione')?.checked ? COSTI.colazione : 0;
         const costoAss = card.querySelector('.assicurazione')?.checked ? COSTI.assicurazione : 0;
