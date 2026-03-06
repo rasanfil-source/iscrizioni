@@ -1205,6 +1205,15 @@ function getCostoAlloggio(text) {
   return COSTI.alloggio[/^DM/.test(s) ? 'DM' : s] || 0;
 }
 
+function getRoomKey(person) {
+  const sigla = getSiglaAlloggio(person?.alloggio || '');
+  // Le doppie matrimoniali (DM1, DM2, ...) rappresentano una camera condivisa:
+  // per evitare doppi conteggi usiamo la sigla stanza come chiave univoca.
+  if (sigla && /^DM\d+$/.test(sigla)) return `room:${sigla}`;
+  // Fallback sicuro: usa la riga del foglio per camere non condivise.
+  return `row:${person?.row ?? ''}`;
+}
+
 function formatAlloggioText(text) {
   const costo = getCostoAlloggio(text);
   if (costo === 0) return text || '—';
@@ -1458,9 +1467,10 @@ function updateLiveBreakdown() {
     const card = p.cardEl;
     if (!card) return;
 
-    if (!uniqueRooms.has(p.row)) {
+    const roomKey = getRoomKey(p);
+    if (!uniqueRooms.has(roomKey)) {
       totAlloggio += (p.costoAlloggio || 0);
-      uniqueRooms.add(p.row);
+      uniqueRooms.add(roomKey);
     }
 
     if (p.colazione)    { totColazione += COSTI.colazione;     hasColazione = true; }
@@ -1994,8 +2004,6 @@ function unlockCard(card, index) {
   const hint = cogInp.parentElement?.querySelector('.field-hint');
   if (hint) hint.style.visibility = 'visible';
 
-  if (emailInput) emailInput.value = '';
-
   Object.assign(p, { nome:'', cognome:'', row:null, alloggio:'', costoAlloggio:0,
                      colazione:false, assicurazione:false, loaded:false });
 
@@ -2217,12 +2225,15 @@ async function confermaEInvia() {
     // Calcolo importi
     let totale = 0, totAlloggio = 0, totColazione = 0, totAssic = 0, totTr = 0;
     const roomCounts = {};
-    loaded.forEach(p => roomCounts[p.row] = (roomCounts[p.row] || 0) + 1);
+    loaded.forEach(p => {
+      const roomKey = getRoomKey(p);
+      roomCounts[roomKey] = (roomCounts[roomKey] || 0) + 1;
+    });
 
     loaded.forEach(p => {
       const card = p.cardEl;
       const tr   = getTransfer(card);
-      const occupants = roomCounts[p.row] || 1;
+      const occupants = roomCounts[getRoomKey(p)] || 1;
       const costoAll  = (p.costoAlloggio || 0) / occupants;
 
       const costoCol = card.querySelector('.colazione')?.checked   ? COSTI.colazione    : 0;
@@ -2312,6 +2323,7 @@ function resetAll() {
   // Rimuove tutte le card tranne la prima, poi resetta quella
   while (persone.length > 1) removeCard(persone[persone.length - 1].index);
   if (persone.length === 1) unlockCard(persone[0].cardEl, persone[0].index);
+  if (emailInput) emailInput.value = '';
   document.getElementById('resetLink').style.display = 'none';
   const lbl = document.getElementById('totalBoxLabel');
   if (lbl) lbl.textContent = 'Saldo stimato da versare:';
