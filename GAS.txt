@@ -285,8 +285,10 @@ function doPost(e) {
     // ============ SALVA TRANSFER ============
     if (action === 'salvaTransfer') {
       const lock = LockService.getScriptLock();
+      let hasLock = false;
       try {
         lock.waitLock(15000);
+        hasLock = true;
       } catch (e) {
         return jsonOut({ success: false, message: 'Server occupato, riprova tra poco.' });
       }
@@ -353,9 +355,10 @@ function doPost(e) {
         Logger.log('ℹ️ Nessuna email fornita, transfer salvati senza invio email');
       }
 
-      return jsonOut({ success: true, emailSent: !!(email && email.includes('@')), risultati });
+      const emailSent = !!(email && email.includes('@') && shouldSend);
+      return jsonOut({ success: true, emailSent, risultati });
       } finally {
-        lock.releaseLock();
+        if (hasLock) lock.releaseLock();
       }
     }
 
