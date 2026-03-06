@@ -1717,6 +1717,7 @@
       document.getElementById('saldoDaVersare').textContent = '€ —';
       breakdownBox.style.display = 'none';
       summaryBox.innerHTML = '⚠️ Opzioni modificate — premi "' + LABELS.recalc + '" per aggiornare.';
+      return;
     } else {
       resetCalcState();
     }
@@ -1860,7 +1861,8 @@
           html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">';
           data.candidates.forEach(c => {
             html += `<button type="button" class="secondary" style="width:auto; font-size:.85rem; padding:4px 10px;" ` +
-              `onclick="selectCandidate(this.closest('.person-card'), ${index}, decodeURIComponent('${encodeURIComponent(String(c.nome || ''))}'))">` +
+              `data-candidate-name="${escapeHtml(String(c.nome || ''))}" ` +
+              `onclick="selectCandidateFromBtn(this, ${index})">` +
               `Sono ${escapeHtml(capitalize(c.nome))}</button>`;
           });
           html += '</div>';
@@ -1905,6 +1907,12 @@
       nomeInp.value = capitalize(nome);
       lookupPersona(card, index);
     }
+  }
+
+  function selectCandidateFromBtn(btn, index) {
+    const card = btn.closest('.person-card');
+    const nome = btn.getAttribute('data-candidate-name') || '';
+    selectCandidate(card, index, nome);
   }
 
 
@@ -1996,7 +2004,6 @@
 
     setCardStatus(card, 'ok', 'Prenotazione caricata ✓');
     updateCardTitles();
-    updatePartialTotal();
 
     // Carica eventuale partner (senza scrollare via dalla card attuale)
     if (data.partner?.persona) {
@@ -2235,7 +2242,14 @@
 
   // ─── CARICAMENTO PARTNER ──────────────────────────────────────────────────────
   function loadPartnerCard(partnerData, shouldScroll = true) {
-    if (persone.some(p => p.row === partnerData.row)) return null; // già presente
+    const partnerNome = normClient(partnerData?.nome || '');
+    const partnerCognome = normClient(partnerData?.cognome || '');
+    if (persone.some(p => {
+      if (partnerData?.row && p.row === partnerData.row) return true;
+      return partnerNome && partnerCognome
+        ? normClient(p.nome || '') === partnerNome && normClient(p.cognome || '') === partnerCognome
+        : false;
+    })) return null; // già presente
 
     const clone = tmpl.content.cloneNode(true);
     const card = clone.querySelector('.person-card');
@@ -2528,7 +2542,6 @@
     lastCalcResult = null;
     _lastSavedHash = null;
     btnPay.disabled = true;
-    breakdownBox.style.display = 'none';
 
     const loadedN = persone.filter(p => p.loaded).length;
     summaryBox.textContent = loadedN > 0 ? '' : LABELS.lookupHint;
@@ -2551,7 +2564,17 @@
 
   // ─── SALVA TRANSFER ──────────────────────────────────────────────────────────
   function _hash(result, email, sendEmail) {
-    return JSON.stringify({ ...result, email: email || '', sendEmail: !!sendEmail });
+    const stable = (value) => {
+      if (Array.isArray(value)) return value.map(stable);
+      if (value && typeof value === 'object') {
+        return Object.keys(value).sort().reduce((acc, k) => {
+          acc[k] = stable(value[k]);
+          return acc;
+        }, {});
+      }
+      return value;
+    };
+    return JSON.stringify(stable({ ...result, email: email || '', sendEmail: !!sendEmail }));
   }
 
   async function doSalvaTransfer(email, sendEmail = true) {
