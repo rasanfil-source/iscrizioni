@@ -2386,17 +2386,20 @@
     updateCardTitles();
     updatePartialTotal();
 
-    // Scroll + highlight sulla nuova card (se richiesto)
-    if (shouldScroll) {
-      setTimeout(() => {
+    // Scroll + highlight sulla nuova card
+    // ⚠️ highlight SEMPRE (indipendente da shouldScroll), scroll solo se richiesto
+    setTimeout(() => {
+      if (shouldScroll) {
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        card.classList.add('partner-highlight');
-        card.addEventListener('animationend', () => {
-          card.classList.remove('partner-highlight');
-          card.style.border = '';
-        }, { once: true });
-      }, 200);
-    }
+      }
+      // Forza reflow prima di aggiungere la classe (evita che il browser salti l'animazione)
+      void card.offsetWidth;
+      card.classList.add('partner-highlight');
+      card.addEventListener('animationend', () => {
+        card.classList.remove('partner-highlight');
+        card.style.border = '';
+      }, { once: true });
+    }, 200);
 
     return index;
   }
