@@ -2278,7 +2278,7 @@ async function confermaEInvia() {
     let serviziList = [];
     loaded.forEach(p => {
       const tr     = getTransfer(p.cardEl);
-      const prefix = loaded.length > 1 ? `${p.nome}: ` : '';
+      const prefix = loaded.length > 1 ? `${escapeHtml(p.nome)}: ` : '';
       if (tr.rf) serviziList.push(prefix + 'Roma-Fiumicino');
       if (tr.pt) serviziList.push(prefix + 'Porto-Tui');
       if (tr.sc) serviziList.push(prefix + 'Santiago-A Coruña');
