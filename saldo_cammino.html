@@ -1667,7 +1667,7 @@
 
     // ── Nomi nel summaryBox ──
     summaryBox.innerHTML = loaded.map(p =>
-      `<div class="summary-line">👤 ${p.cognome} ${p.nome}</div>`
+      `<div class="summary-line">👤 ${escapeHtml(p.cognome)} ${escapeHtml(p.nome)}</div>`
     ).join('');
 
     // ── Calcolo importi live ──
@@ -1907,7 +1907,7 @@
           card.querySelector('.person-nome').classList.add('has-error');
         } else {
           setCardStatus(card, 'error',
-            `Prenotazione non trovata per "<strong>${capitalize(cognomeRaw)}</strong>". ` +
+            `Prenotazione non trovata per "<strong>${escapeHtml(capitalize(cognomeRaw))}</strong>". ` +
             `Controlla l'ortografia o ` +
             `<a href="mailto:info@parrocchiasanteugenio.it" style="color:#c53030;">` +
             `contattaci</a>.`);
@@ -1920,8 +1920,8 @@
 
     } catch (err) {
       if (err.name === 'AbortError') {
-        if (lookupControllers[index]) {
-          // Timeout (non cancel utente)
+        if (lookupControllers[index] === ctrl) {
+          // Timeout della richiesta corrente (non cancel utente / richiesta successiva)
           setCardStatus(card, 'error',
             'Il server sta impiegando troppo tempo. ' +
             `<a href="#" onclick="event.preventDefault();cancelLookup(${index});` +
@@ -2464,7 +2464,7 @@
         if (tr.fr) serviziList.push(prefix + 'Fiumicino-Roma');
       });
 
-      let confirmBody = `<p>Confermi la prenotazione di <strong>${nomi}</strong>?</p>`;
+      let confirmBody = `<p>Confermi la prenotazione di <strong>${escapeHtml(nomi)}</strong>?</p>`;
       if (serviziList.length) {
         confirmBody +=
           `<div style="background:#f7fafc;padding:12px;border-radius:8px;` +
@@ -2475,7 +2475,7 @@
           `<li>${serviziList.join('</li><li>')}</li></ul></div>`;
       }
       confirmBody += `<p style="margin-top:12px;font-size:.9rem;color:#718096;">
-      Verrà inviata un'email di riepilogo a <strong>${email}</strong>.
+      Verrà inviata un'email di riepilogo a <strong>${escapeHtml(email)}</strong>.
     </p>`;
 
       const confirmed = await showConfirmModal('Riepilogo e conferma', confirmBody);
