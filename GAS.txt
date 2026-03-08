@@ -533,7 +533,7 @@ function buildEmailPlain_(persone, totale, caparra, saldo, missingData) {
       righe.push('');
     });
 
-    righe.push('Puoi rispondere direttamente a questa email con i dati richiesti.', 'Grazie!');
+    righe.push('\u00c8 sufficiente rispondere a questa email indicando i dati richiesti.', 'Grazie!');
   }
 
   righe.push('',
@@ -580,7 +580,7 @@ function buildEmailHtml_(persone, totale, caparra, saldo, missingData) {
       <h3 style="margin:0 0 12px;color:#b45309;font-size:18px;">&#128205; Prima di metterci in cammino\u2026</h3>
       <p style="margin:0 0 14px;color:#4a5568;line-height:1.6;">Per completare al meglio l\u2019organizzazione del viaggio, ci manca ancora qualche informazione:</p>
       ${detailsHtml}
-      <p style="margin:12px 0 0;color:#b45309;line-height:1.5;">Puoi inviarci queste informazioni semplicemente rispondendo a questa email.<br>Grazie per la collaborazione &#128155;</p>
+      <p style="margin:12px 0 0;color:#b45309;line-height:1.5;">\u00c8 sufficiente rispondere a questa email indicando i dati richiesti.<br>Grazie per la collaborazione &#128155;</p>
     </div>`;
   }
 
