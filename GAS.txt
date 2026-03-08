@@ -29,6 +29,11 @@ const API_KEY = '';
 const CACHE_KEY = 'sheet_data_v2';
 const CACHE_TTL = 300; // 5 minuti
 
+// Spreadsheet adempimenti pre-partenza (usato solo in salvaTransfer)
+const ADEMP_SPREADSHEET_ID = '1UFNEcC8OXafsm0SBzLxoyNI24bZo-UBaLxdKXgmvtqU';
+const ADEMP_SHEET_NAME = 'LISTADO DE VIAJEROS - Grupo D. Raimondo Sanfilippo';
+const ADEMP_TAB_NAME = 'Copia interna S.Eugenio';
+
 
 /***************
  * HELPERS NORMALIZZAZIONE
@@ -77,6 +82,60 @@ function getSheet_() {
   const sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) throw new Error('Sheet non trovato: ' + SHEET_NAME);
   return sh;
+}
+
+/**
+ * Controlla i dati da completare prima della partenza.
+ * NOTA: da invocare solo dentro salvaTransfer per non impattare i lookup.
+ *
+ * @param {Array<Object>} persone
+ * @returns {{hasMissing:boolean, details:Array<{nome:string,cognome:string,missing:string[]}>}}
+ */
+function checkAdempimenti_(persone) {
+  const output = { hasMissing: false, details: [] };
+  if (!Array.isArray(persone) || persone.length === 0) return output;
+
+  const ss = SpreadsheetApp.openById(ADEMP_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(ADEMP_TAB_NAME) || ss.getSheetByName(ADEMP_SHEET_NAME);
+  if (!sh) throw new Error('Tab adempimenti non trovata: ' + ADEMP_TAB_NAME);
+
+  const lastRow = sh.getLastRow();
+  if (lastRow < 2) return output;
+
+  // UNA SOLA lettura batch: colonne A:L (servono C,D,E,F,H,L)
+  const rows = sh.getRange(2, 1, lastRow - 1, 12).getValues();
+  const byFullName = {};
+
+  for (const row of rows) {
+    const cognome = String(row[2] || '').trim(); // C
+    const nome = String(row[3] || '').trim();    // D
+    if (!nome && !cognome) continue;
+    const k1 = norm(nome + ' ' + cognome);
+    const k2 = norm(cognome + ' ' + nome);
+    if (k1 && !byFullName[k1]) byFullName[k1] = row;
+    if (k2 && !byFullName[k2]) byFullName[k2] = row;
+  }
+
+  for (const p of persone) {
+    const nome = String(p?.nome || '').trim();
+    const cognome = String(p?.cognome || '').trim();
+    const key = norm(nome + ' ' + cognome);
+    const row = byFullName[key];
+    if (!row) continue;
+
+    const missing = [];
+    if (!String(row[11] || '').trim()) missing.push('maglietta');      // L
+    if (!String(row[4]  || '').trim()) missing.push('data_nascita');   // E
+    if (!String(row[5]  || '').trim()) missing.push('documento');      // F
+    if (!String(row[7]  || '').trim()) missing.push('scadenza_doc');   // H
+
+    if (missing.length > 0) {
+      output.details.push({ nome, cognome, missing });
+    }
+  }
+
+  output.hasMissing = output.details.length > 0;
+  return output;
 }
 
 
@@ -341,6 +400,14 @@ function doPost(e) {
       // Dopo la scrittura, invalida la cache così il prossimo lookup rilegge il foglio
       invalidateCache_();
 
+      // Controllo adempimenti separato e resiliente: eventuali errori non bloccano né salvataggio né email.
+      let missingData = { hasMissing: false, details: [] };
+      try {
+        missingData = checkAdempimenti_(persone);
+      } catch (adempErr) {
+        Logger.log('⚠️ checkAdempimenti_ non disponibile: %s', adempErr);
+      }
+
       // Invio email solo se presente un indirizzo valido e non espressamente disabilitato
       const shouldSend = payload.sendEmail !== false;
       const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -349,10 +416,10 @@ function doPost(e) {
           GmailApp.sendEmail(
             email,
             'Cammino 2026 – Ecco il tuo saldo e le istruzioni di pagamento',
-            buildEmailPlain_(persone, totale, caparra, saldo),
+            buildEmailPlain_(persone, totale, caparra, saldo, missingData),
             {
               name: 'Parrocchia S. Eugenio',
-              htmlBody: buildEmailHtml_(persone, totale, caparra, saldo),
+              htmlBody: buildEmailHtml_(persone, totale, caparra, saldo, missingData),
               bcc: 'rasanfil@gmail.com'
             }
           );
@@ -415,7 +482,17 @@ function semplificaAlloggio_(sigla) {
   return '';
 }
 
-function buildEmailPlain_(persone, totale, caparra, saldo) {
+function missingFieldLabel_(key) {
+  switch (key) {
+    case 'maglietta':    return 'Taglia maglietta del Cammino (S, M, L, XL)';
+    case 'data_nascita': return 'Data di nascita';
+    case 'documento':    return 'Numero del documento di identità (carta d’identità o passaporto)';
+    case 'scadenza_doc': return 'Data di scadenza del documento';
+    default:             return key;
+  }
+}
+
+function buildEmailPlain_(persone, totale, caparra, saldo, missingData) {
   const tot = Number(totale)  || 0;
   const cap = Number(caparra) || 0;
   const sal = Number(saldo)   || 0;
@@ -444,13 +521,28 @@ function buildEmailPlain_(persone, totale, caparra, saldo) {
     'Scadenza: 15 maggio 2026', '',
     'Pagamento:', 'PARROCCHIA S. EUGENIO',
     'IBAN: IT77U0306909606100000125525',
-    'Causale: "Saldo Cammino 2026 ' + persone.map(p => p.cognome).filter(Boolean).join(' - ') + '"', '',
+    'Causale: "Saldo Cammino 2026 ' + persone.map(p => p.cognome).filter(Boolean).join(' - ') + '"');
+
+  if (missingData && missingData.hasMissing) {
+    righe.push('', 'PRIMA DI METTERCI IN CAMMINO...', '',
+      'Per completare al meglio l’organizzazione del viaggio, ci manca ancora qualche informazione:', '');
+
+    missingData.details.forEach(d => {
+      righe.push((d.nome || '') + ' ' + (d.cognome || '') + ':');
+      d.missing.forEach(m => righe.push('- ' + missingFieldLabel_(m)));
+      righe.push('');
+    });
+
+    righe.push('Puoi rispondere direttamente a questa email con i dati richiesti.', 'Grazie!');
+  }
+
+  righe.push('',
     'Contatti: info@parrocchiasanteugenio.it',
     'Grazie e buon cammino!');
   return righe.join('\n');
 }
 
-function buildEmailHtml_(persone, totale, caparra, saldo) {
+function buildEmailHtml_(persone, totale, caparra, saldo, missingData) {
   const tot = Number(totale)  || 0;
   const cap = Number(caparra) || 0;
   const sal = Number(saldo)   || 0;
@@ -471,6 +563,26 @@ function buildEmailHtml_(persone, totale, caparra, saldo) {
            escapeHtml_(p.nome || '') + ' ' + escapeHtml_(p.cognome || '') + '</strong>' + alloggioStr + trStr + '</td></tr>';
   }).join('');
   const causaleCognomi = persone.map(p => escapeHtml_(p.cognome)).filter(Boolean).join(' - ');
+  let promemoriaHtml = '';
+
+  if (missingData && missingData.hasMissing) {
+    const detailsHtml = missingData.details.map(d => {
+      const fullName = escapeHtml_((d.nome || '') + ' ' + (d.cognome || ''));
+      const fields = d.missing
+        .map(m => '<li style="margin:6px 0;color:#4a5568;">' + escapeHtml_(missingFieldLabel_(m)) + '</li>')
+        .join('');
+      return '<div style="margin-bottom:14px;"><p style="margin:0 0 6px;color:#1f2937;font-weight:600;">' +
+        fullName + '</p><ul style="margin:0 0 0 18px;padding:0;">' + fields + '</ul></div>';
+    }).join('');
+
+    promemoriaHtml = `
+    <div style="background:#f9fafb;border-left:6px solid #f59e0b;border-radius:8px;padding:18px 20px;margin:28px 0;">
+      <h3 style="margin:0 0 12px;color:#b45309;font-size:18px;">📌 Prima di metterci in cammino…</h3>
+      <p style="margin:0 0 14px;color:#4a5568;line-height:1.6;">Per completare al meglio l’organizzazione del viaggio, ci manca ancora qualche informazione:</p>
+      ${detailsHtml}
+      <p style="margin:12px 0 0;color:#b45309;line-height:1.5;">Puoi inviarci queste informazioni semplicemente rispondendo a questa email.<br>Grazie per la collaborazione 💛</p>
+    </div>`;
+  }
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;margin:0;padding:20px;">
@@ -502,6 +614,7 @@ function buildEmailHtml_(persone, totale, caparra, saldo) {
       <p style="margin:0 0 10px;color:#2c5282;"><strong>IBAN:</strong> <code style="background:#fff;padding:4px 11px;border-radius:4px;font-family:monospace;font-size:16px;letter-spacing:.4px;user-select:all;-webkit-user-select:all;-moz-user-select:all;ms-user-select:all;border:1px solid #d1e9ff;">IT77U0306909606100000125525</code></p>
       <p style="margin:0;color:#2c5282;"><strong>Causale:</strong> "Saldo Cammino 2026 ${causaleCognomi}"</p>
     </div>
+    ${promemoriaHtml}
   </div>
   <div style="background:#f7fafc;padding:20px;text-align:center;border-top:1px solid #e2e8f0;">
     <p style="margin:0;color:#718096;font-size:14px;">Grazie e buon cammino!</p>
