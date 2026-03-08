@@ -1795,6 +1795,11 @@
   function onModalKey(e) {
     if (!_activeModal) return;
     if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
+    if (e.key === 'Enter' && _activeModal.id === 'ibanPopup') {
+      e.preventDefault();
+      document.getElementById('ibanCloseBtn')?.click();
+      return;
+    }
     if (e.key !== 'Tab') return;
     const f = getFocusables(_activeModal);
     if (!f.length) return;
@@ -2700,6 +2705,23 @@
 
   function openTinaba() {
     window.open(TINABA_URL, '_blank');
+  }
+
+  function onGlobalEnterShortcut(e) {
+    if (e.key !== 'Enter' || e.defaultPrevented) return;
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (_activeModal) return;
+    if (!persone.some(p => p.loaded)) return;
+
+    const activeCalcBtn = calcButtons.find(btn => {
+      if (!btn || btn.disabled) return false;
+      if (btn.offsetParent === null) return false;
+      return getComputedStyle(btn).display !== 'none';
+    });
+
+    if (!activeCalcBtn) return;
+    e.preventDefault();
+    activeCalcBtn.click();
   }
 
 
