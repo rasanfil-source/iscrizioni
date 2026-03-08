@@ -44,7 +44,7 @@ function norm(s) {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')   // rimuove accenti: \u00e8\u2192e, \u00e0\u2192a
     .replace(/[''`\u02bc\u2018\u2019\u02bc]/g, '') // apostrofi tipografici e dritti: D'Angelo\u2192dangelo
-    .replace(/[-–—]/g, ' ')            // trattini \u2192 spazio: De-Luca\u2192de luca
+    .replace(/[-\u2013\u2014]/g, ' ')            // trattini \u2192 spazio: De-Luca\u2192de luca
     .replace(/\u00a0/g, ' ')           // spazio non-breaking
     .replace(/\s+/g, ' ')              // spazi multipli → uno
     .trim();
