@@ -194,7 +194,7 @@ function refreshCache_() {
 
 function invalidateCache_() {
   CacheService.getScriptCache().remove(CACHE_KEY);
-  Logger.log('🗑️ Cache invalidata');
+  Logger.log('\uD83D\uDDD1 Cache invalidata');
 }
 
 
@@ -307,7 +307,7 @@ function doPost(e) {
     }
 
     const action = payload.action;
-    Logger.log('🎬 Action: %s', action);
+    Logger.log('\uD83C\uDfac Action: %s', action);
 
     // ============ LOOKUP NOME + COGNOME ============
     if (action === 'lookupPersona') {
@@ -423,7 +423,7 @@ function doPost(e) {
               bcc: 'rasanfil@gmail.com'
             }
           );
-          Logger.log('✅ Email inviata a %s (BCC rasanfil@gmail.com)', email);
+          Logger.log('\u2705 Email inviata a %s (BCC rasanfil@gmail.com)', email);
         } catch (emailErr) {
           Logger.log('❌ Errore email: %s', emailErr);
           return jsonOut({ success: false, message: 'Transfer salvati ma errore email: ' + emailErr.message, risultati });
