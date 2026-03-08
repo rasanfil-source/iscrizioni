@@ -487,7 +487,7 @@ function missingFieldLabel_(key) {
     case 'maglietta':    return 'Taglia maglietta del Cammino (S, M, L, XL)';
     case 'data_nascita': return 'Data di nascita';
     case 'documento':    return 'Numero del documento di identità (carta d’identità o passaporto)';
-    case 'scadenza_doc': return 'Data di scadenza del documento';
+    case 'scadenza_doc': return 'Data di scadenza del documento d\u2019identit\u00e0';
     default:             return key;
   }
 }
@@ -572,7 +572,7 @@ function buildEmailHtml_(persone, totale, caparra, saldo, missingData) {
         .map(m => '<li style="margin:6px 0;color:#4a5568;">' + escapeHtml_(missingFieldLabel_(m)) + '</li>')
         .join('');
       return '<div style="margin-bottom:14px;"><p style="margin:0 0 6px;color:#1f2937;font-weight:600;">' +
-        fullName + '</p><ul style="margin:0 0 0 18px;padding:0;">' + fields + '</ul></div>';
+        fullName + '</p><ul style="margin:0 0 0 18px;padding:0 0 0 20px;">' + fields + '</ul></div>';
     }).join('');
 
     promemoriaHtml = `
