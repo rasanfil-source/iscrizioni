@@ -524,8 +524,8 @@ function buildEmailPlain_(persone, totale, caparra, saldo, missingData) {
     'Causale: "Saldo Cammino 2026 ' + persone.map(p => p.cognome).filter(Boolean).join(' - ') + '"');
 
   if (missingData && missingData.hasMissing) {
-    righe.push('', 'PRIMA DI METTERCI IN CAMMINO...', '',
-      'Per completare al meglio l’organizzazione del viaggio, ci manca ancora qualche informazione:', '');
+    righe.push('', '--- PRIMA DI METTERCI IN CAMMINO ---', '',
+      'Per completare al meglio l\u2019organizzazione del viaggio, ci manca ancora qualche informazione:', '');
 
     missingData.details.forEach(d => {
       righe.push((d.nome || '') + ' ' + (d.cognome || '') + ':');
@@ -577,10 +577,10 @@ function buildEmailHtml_(persone, totale, caparra, saldo, missingData) {
 
     promemoriaHtml = `
     <div style="background:#f9fafb;border-left:6px solid #f59e0b;border-radius:8px;padding:18px 20px;margin:28px 0;">
-      <h3 style="margin:0 0 12px;color:#b45309;font-size:18px;">\uD83D\uDCCD Prima di metterci in cammino\u2026</h3>
+      <h3 style="margin:0 0 12px;color:#b45309;font-size:18px;">&#128205; Prima di metterci in cammino\u2026</h3>
       <p style="margin:0 0 14px;color:#4a5568;line-height:1.6;">Per completare al meglio l\u2019organizzazione del viaggio, ci manca ancora qualche informazione:</p>
       ${detailsHtml}
-      <p style="margin:12px 0 0;color:#b45309;line-height:1.5;">Puoi inviarci queste informazioni semplicemente rispondendo a questa email.<br>Grazie per la collaborazione \uD83D\uDC9B</p>
+      <p style="margin:12px 0 0;color:#b45309;line-height:1.5;">Puoi inviarci queste informazioni semplicemente rispondendo a questa email.<br>Grazie per la collaborazione &#128155;</p>
     </div>`;
   }
 
