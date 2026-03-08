@@ -11,10 +11,10 @@ const COL_NOME           = 4;  // D
 const COL_EMAIL          = 11; // K
 const COL_COLAZIONE      = 16; // P  (COL)
 const COL_ASSIC          = 17; // Q  (ANN)
-const COL_TR_RF          = 18; // R  Roma → Fiumicino
-const COL_TR_PT          = 19; // S  Porto → Tui
-const COL_TR_SC          = 20; // T  Santiago → A Coruña
-const COL_TR_FR          = 21; // U  Fiumicino → Roma
+const COL_TR_RF          = 18; // R  Roma \u2192 Fiumicino
+const COL_TR_PT          = 19; // S  Porto \u2192 Tui
+const COL_TR_SC          = 20; // T  Santiago \u2192 A Coru\u00f1a
+const COL_TR_FR          = 21; // U  Fiumicino \u2192 Roma
 
 // Riga dalla quale partono i dati (la riga 2 contiene i costi)
 const DATA_START_ROW     = 3;
@@ -42,9 +42,9 @@ function norm(s) {
   return String(s || '')
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')   // rimuove accenti: è→e, à→a
-    .replace(/[''`ʼ\u2018\u2019\u02bc]/g, '') // apostrofi tipografici e dritti: D'Angelo→dangelo
-    .replace(/[-–—]/g, ' ')            // trattini → spazio: De-Luca→de luca
+    .replace(/[\u0300-\u036f]/g, '')   // rimuove accenti: \u00e8\u2192e, \u00e0\u2192a
+    .replace(/[''`\u02bc\u2018\u2019\u02bc]/g, '') // apostrofi tipografici e dritti: D'Angelo\u2192dangelo
+    .replace(/[-–—]/g, ' ')            // trattini \u2192 spazio: De-Luca\u2192de luca
     .replace(/\u00a0/g, ' ')           // spazio non-breaking
     .replace(/\s+/g, ' ')              // spazi multipli → uno
     .trim();
@@ -52,13 +52,13 @@ function norm(s) {
 
 function mapAlloggio(sigla) {
   sigla = String(sigla || '').trim().toUpperCase();
-  if (/^DM\d*$/.test(sigla)) return 'Albergo – Doppia matrimoniale (' + sigla + ')';
+  if (/^DM\d*$/.test(sigla)) return 'Albergo \u2013 Doppia matrimoniale (' + sigla + ')';
   switch (sigla) {
-    case 'S':  return 'Albergo – Singola';
-    case 'DS': return 'Albergo – Doppia (letti separati)';
-    case 'T':  return 'Albergo – Tripla';
-    case 'M':  return 'Ostello – Multipla';
-    default:   return sigla ? sigla : '—';
+    case 'S':  return 'Albergo \u2013 Singola';
+    case 'DS': return 'Albergo \u2013 Doppia (letti separati)';
+    case 'T':  return 'Albergo \u2013 Tripla';
+    case 'M':  return 'Ostello \u2013 Multipla';
+    default:   return sigla ? sigla : '\u2014';
   }
 }
 
@@ -185,9 +185,9 @@ function refreshCache_() {
   // CacheService: max 100 KB per voce
   if (json.length < 90000) {
     CacheService.getScriptCache().put(CACHE_KEY, json, CACHE_TTL);
-    Logger.log('✅ Cache aggiornata (%s righe, %s byte)', data.length, json.length);
+    Logger.log('\u2705 Cache aggiornata (%s righe, %s byte)', data.length, json.length);
   } else {
-    Logger.log('⚠️ Dati troppo grandi per la cache (%s byte), nessun caching', json.length);
+    Logger.log('\u26a0 Dati troppo grandi per la cache (%s byte), nessun caching', json.length);
   }
   return minimalData;
 }
@@ -287,7 +287,7 @@ function writeTransfer_(sh, rowNum, tr) {
  ***************/
 function doGet(e) {
   // GET usato anche come ping di warm-up dal frontend
-  return ContentService.createTextOutput('✅ GAS endpoint attivo');
+  return ContentService.createTextOutput('\u2705 GAS endpoint attivo');
 }
 
 function doPost(e) {
@@ -577,10 +577,10 @@ function buildEmailHtml_(persone, totale, caparra, saldo, missingData) {
 
     promemoriaHtml = `
     <div style="background:#f9fafb;border-left:6px solid #f59e0b;border-radius:8px;padding:18px 20px;margin:28px 0;">
-      <h3 style="margin:0 0 12px;color:#b45309;font-size:18px;">📌 Prima di metterci in cammino…</h3>
-      <p style="margin:0 0 14px;color:#4a5568;line-height:1.6;">Per completare al meglio l’organizzazione del viaggio, ci manca ancora qualche informazione:</p>
+      <h3 style="margin:0 0 12px;color:#b45309;font-size:18px;">\uD83D\uDCCD Prima di metterci in cammino\u2026</h3>
+      <p style="margin:0 0 14px;color:#4a5568;line-height:1.6;">Per completare al meglio l\u2019organizzazione del viaggio, ci manca ancora qualche informazione:</p>
       ${detailsHtml}
-      <p style="margin:12px 0 0;color:#b45309;line-height:1.5;">Puoi inviarci queste informazioni semplicemente rispondendo a questa email.<br>Grazie per la collaborazione 💛</p>
+      <p style="margin:12px 0 0;color:#b45309;line-height:1.5;">Puoi inviarci queste informazioni semplicemente rispondendo a questa email.<br>Grazie per la collaborazione \uD83D\uDC9B</p>
     </div>`;
   }
 
