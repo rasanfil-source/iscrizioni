@@ -492,6 +492,13 @@ function missingFieldLabel_(key) {
   }
 }
 
+function selectedOptionsLabels_(persona) {
+  const labels = [];
+  if (persona?.assicurazione) labels.push('Assicurazione');
+  if (persona?.colazione) labels.push('colazioni');
+  return labels;
+}
+
 function buildEmailPlain_(persone, totale, caparra, saldo, missingData) {
   const tot = Number(totale)  || 0;
   const cap = Number(caparra) || 0;
@@ -507,6 +514,8 @@ function buildEmailPlain_(persone, totale, caparra, saldo, missingData) {
     const alloggio = escapeHtml_(semplificaAlloggio_(p.alloggio || p.siglaAlloggio));
     let s = '- ' + (p.nome || '') + ' ' + (p.cognome || '');
     if (alloggio) s += ' – ' + alloggio;
+    const opzioni = selectedOptionsLabels_(p);
+    if (opzioni.length > 0) s += ' (Opzioni: ' + opzioni.join(' + ') + ')';
     const tr = [];
     if (p.transfer?.rf) tr.push('Roma-Fiumicino');
     if (p.transfer?.pt) tr.push('Porto-Tui');
@@ -548,6 +557,7 @@ function buildEmailHtml_(persone, totale, caparra, saldo, missingData) {
   const sal = Number(saldo)   || 0;
   const personeHtml = persone.map(p => {
     const alloggio = escapeHtml_(semplificaAlloggio_(p.alloggio || p.siglaAlloggio));
+    const opzioni = selectedOptionsLabels_(p);
     const tr = [];
     if (p.transfer?.rf) tr.push('Roma-Fiumicino');
     if (p.transfer?.pt) tr.push('Porto-Tui');
@@ -556,11 +566,14 @@ function buildEmailHtml_(persone, totale, caparra, saldo, missingData) {
     const alloggioStr = alloggio
       ? '<br><small style="color:#718096;">Alloggio: ' + alloggio + '</small>'
       : '';
+    const opzioniStr = opzioni.length > 0
+      ? '<br><small style="color:#718096;">Opzioni: ' + opzioni.join(' + ') + '</small>'
+      : '';
     const trStr = tr.length > 0
       ? '<br><small style="color:#718096;">Transfer: ' + tr.join(', ') + '</small>'
       : '';
     return '<tr><td style="padding:12px;border-bottom:1px solid #eee;"><strong>' +
-           escapeHtml_(p.nome || '') + ' ' + escapeHtml_(p.cognome || '') + '</strong>' + alloggioStr + trStr + '</td></tr>';
+           escapeHtml_(p.nome || '') + ' ' + escapeHtml_(p.cognome || '') + '</strong>' + alloggioStr + opzioniStr + trStr + '</td></tr>';
   }).join('');
   const causaleCognomi = persone.map(p => escapeHtml_(p.cognome)).filter(Boolean).join(' - ');
   let promemoriaHtml = '';
