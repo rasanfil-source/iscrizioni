@@ -2533,6 +2533,8 @@
         persone: loaded.map(p => ({
           nome: p.nome, cognome: p.cognome, row: p.row,
           alloggio: p.siglaAlloggio || getSiglaAlloggio(p.alloggio) || '',
+          colazione: !!p.cardEl?.querySelector('.colazione')?.checked,
+          assicurazione: !!p.cardEl?.querySelector('.assicurazione')?.checked,
           transfer: getTransfer(p.cardEl),
         })),
         totaleOpzioni: totale,
