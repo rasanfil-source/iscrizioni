@@ -2583,7 +2583,7 @@
 
     } catch (err) {
       console.error('Errore conferma:', err);
-      setGlobalStatus('error', 'Impossibile confermare: ' + err.message);
+      setGlobalStatus('error', 'Impossibile confermare: ' + escapeHtml(err.message));
       lastCalcResult = null;
     } finally {
       setCalcButtons({ disabled: false });
@@ -2685,7 +2685,7 @@
     try {
       await doSalvaTransfer(email, false);
     } catch (err) {
-      setGlobalStatus('error', 'Errore: ' + err.message);
+      setGlobalStatus('error', 'Errore: ' + escapeHtml(err.message));
       btnPay.disabled = false;
       return;
     }
