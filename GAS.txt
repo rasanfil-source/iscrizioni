@@ -494,7 +494,7 @@ function missingFieldLabel_(key) {
   switch (key) {
     case 'maglietta':    return 'Taglia maglietta del Cammino (S, M, L, XL)';
     case 'data_nascita': return 'Data di nascita';
-    case 'documento':    return 'Numero del documento di identità (carta d’identità o passaporto)';
+    case 'documento':    return 'Numero del documento di identit\u00e0 (carta d\u2019identit\u00e0 o passaporto)';
     case 'scadenza_doc': return 'Data di scadenza del documento d\u2019identit\u00e0';
     default:             return key;
   }

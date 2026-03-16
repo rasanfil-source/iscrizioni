@@ -2225,6 +2225,8 @@
       if (pi !== -1) { persone[pi].cardEl?.remove(); persone.splice(pi, 1); }
     }
 
+    persone.forEach(p => { if (p.partnerIndex === index) p.partnerIndex = null; });
+
     updateCardTitles();
     resetCalcState();
   }
