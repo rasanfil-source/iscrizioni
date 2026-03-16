@@ -2449,10 +2449,8 @@ function resetCalcState() {
     setBookingStatus(null);
   }
 
-  recalcBanner.classList.remove('active');
   hideRecalcBanner();
   setGlobalStatus('', '');
-  updateStepper();
 }
 
 
