@@ -1491,6 +1491,13 @@ function clearCalcButtonsHideTimer() {
   }
 }
 
+function renderLoadedSummary() {
+  const loaded = persone.filter(p => p.loaded);
+  summaryBox.innerHTML = loaded.map(p =>
+    `<div class="summary-line">👤 ${escapeHtml(p.cognome)} ${escapeHtml(p.nome)}</div>`
+  ).join('');
+}
+
 
 // ─── BREAKDOWN LIVE ──────────────────────────────────────────────────────────
 /**
@@ -1513,9 +1520,7 @@ function updateLiveBreakdown() {
   }
 
   // ── Nomi nel summaryBox ──
-  summaryBox.innerHTML = loaded.map(p =>
-    `<div class="summary-line">👤 ${escapeHtml(p.cognome)} ${escapeHtml(p.nome)}</div>`
-  ).join('');
+  renderLoadedSummary();
 
   // ── Calcolo importi live ──
   // ⚠️ REGOLA BUSINESS (anti-regressione): alloggio sempre sommato per persona caricata.
@@ -2403,6 +2408,7 @@ async function confermaEInvia() {
     totalBox.style.display     = 'flex';
 
     // Stato → confermato
+    renderLoadedSummary();
     setBookingStatus('confirmed');
     const lbl = document.getElementById('totalBoxLabel');
     if (lbl) lbl.textContent = 'Saldo da versare:';
