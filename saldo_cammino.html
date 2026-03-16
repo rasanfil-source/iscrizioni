@@ -1887,6 +1887,7 @@
     const key = makeCacheKey(nome, cognome);
     const cached = getFromCache(key);
     if (cached) {
+      cancelLookup(index);
       applyResult(card, p, cached, nomeRaw, cognomeRaw);
       return;
     }
