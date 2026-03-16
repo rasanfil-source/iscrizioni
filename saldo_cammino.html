@@ -2247,6 +2247,7 @@
     if (!p) return;
 
     lookupCache.delete(makeCacheKey(p.nome, p.cognome));
+    lookupCache.delete(makeCacheKey('', p.cognome));
 
     // Rimuovi partner se presente
     if (p.partnerIndex != null) { removeCard(p.partnerIndex); p.partnerIndex = null; }
