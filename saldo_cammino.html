@@ -1500,6 +1500,7 @@
   let recalcNeeded = false;
   let _lastSavedHash = null;
   let _calcInProgress = false;
+  let _calcButtonsHideTimer = null;
   let gasWarmupInProgress = false;
 
   const lookupTimers = {};
@@ -1658,6 +1659,12 @@
     }
   }
 
+  function clearCalcButtonsHideTimer() {
+    if (_calcButtonsHideTimer != null) {
+      clearTimeout(_calcButtonsHideTimer);
+      _calcButtonsHideTimer = null;
+    }
+  }
 
   // ─── BREAKDOWN LIVE ──────────────────────────────────────────────────────────
   /**
@@ -1743,6 +1750,7 @@
 
   // ─── BANNER RICALCOLO ────────────────────────────────────────────────────────
   function showRecalcBanner() {
+    clearCalcButtonsHideTimer();
     recalcNeeded = true;
     recalcBanner.classList.add('active');
     setCalcButtons({ display: 'block', text: LABELS.recalc, disabled: false });
@@ -2573,7 +2581,11 @@
       // Post-conferma: bottone diventa "✔ Scelte confermate" (disabilitato) → poi sparisce
       setCalcButtons({ text: LABELS.confirmed, disabled: true });
       // Piccolo delay, poi nascondi del tutto i bottoni conferma
-      setTimeout(() => setCalcButtons({ display: 'none' }), 1200);
+      clearCalcButtonsHideTimer();
+      _calcButtonsHideTimer = setTimeout(() => {
+        setCalcButtons({ display: 'none' });
+        _calcButtonsHideTimer = null;
+      }, 1200);
       operationSucceeded = true;
 
       btnPay.disabled = false;
@@ -2612,6 +2624,7 @@
   }
 
   function resetCalcState() {
+    clearCalcButtonsHideTimer();
     lastCalcResult = null;
     _lastSavedHash = null;
     btnPay.disabled = true;
