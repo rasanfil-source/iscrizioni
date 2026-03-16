@@ -1773,7 +1773,11 @@
       setGlobalStatus('', '');
       document.getElementById('saldoDaVersare').textContent = '€ —';
       breakdownBox.style.display = 'none';
-      summaryBox.innerHTML = '⚠️ Opzioni modificate — premi "' + LABELS.recalc + '" per aggiornare.';
+      summaryBox.innerHTML =
+        '⚠️ Opzioni modificate — ' +
+        '<a href="#" onclick="event.preventDefault();confermaEInvia();" style="color:#c53030; font-weight:700; text-decoration:underline;">' +
+        LABELS.recalc +
+        '</a> per aggiornare.';
       return;
     } else {
       resetCalcState();
