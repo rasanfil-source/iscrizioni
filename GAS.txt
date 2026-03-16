@@ -43,7 +43,7 @@ function norm(s) {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')   // rimuove accenti: \u00e8\u2192e, \u00e0\u2192a
-    .replace(/[''`\u02bc\u2018\u2019\u02bc]/g, '') // apostrofi tipografici e dritti: D'Angelo\u2192dangelo
+    .replace(/[''`\u02bc\u2018\u2019]/g, '') // apostrofi tipografici e dritti: D'Angelo\u2192dangelo
     .replace(/[-\u2013\u2014]/g, ' ')            // trattini \u2192 spazio: De-Luca\u2192de luca
     .replace(/\u00a0/g, ' ')           // spazio non-breaking
     .replace(/\s+/g, ' ')              // spazi multipli → uno
@@ -502,8 +502,8 @@ function missingFieldLabel_(key) {
 
 function selectedOptionsLabels_(persona) {
   const labels = [];
+  if (persona?.colazione) labels.push('Colazione');
   if (persona?.assicurazione) labels.push('Assicurazione');
-  if (persona?.colazione) labels.push('colazioni');
   return labels;
 }
 
@@ -519,7 +519,7 @@ function buildEmailPlain_(persone, totale, caparra, saldo, missingData) {
     'Persone:'
   ];
   persone.forEach(p => {
-    const alloggio = escapeHtml_(semplificaAlloggio_(p.alloggio || p.siglaAlloggio));
+    const alloggio = semplificaAlloggio_(p.alloggio || p.siglaAlloggio) || '';
     let s = '- ' + (p.nome || '') + ' ' + (p.cognome || '');
     if (alloggio) s += ' – ' + alloggio;
     const opzioni = selectedOptionsLabels_(p);

@@ -1324,6 +1324,7 @@ let lastCalcResult = null;
 let recalcNeeded   = false;
 let _lastSavedHash = null;
 let _calcInProgress= false;
+let gasWarmupInProgress = false;
 
 const lookupTimers      = {};
 const lookupControllers = {};
@@ -1392,12 +1393,17 @@ function mountCalcBtn() {
 mountCalcBtn();
 window.addEventListener('resize', mountCalcBtn);
 
+function setSearchButtonsDisabled(disabled) {
+  document.querySelectorAll('.btn-search-person').forEach(b => { b.disabled = !!disabled; });
+}
+
 
 // ─── WARM-UP GAS ─────────────────────────────────────────────────────────────
-(async () => {
+async function warmupGas() {
   const badge = document.getElementById('warmupBadge');
   if (badge) badge.style.display = 'block';
-  document.querySelectorAll('.btn-search-person').forEach(b => b.disabled = true);
+  gasWarmupInProgress = true;
+  setSearchButtonsDisabled(true);
 
   const hide = () => {
     if (badge) badge.style.display = 'none';
@@ -1414,9 +1420,10 @@ window.addEventListener('resize', mountCalcBtn);
   } catch (_) {
     hide();
   } finally {
-    document.querySelectorAll('.btn-search-person').forEach(b => b.disabled = false);
+    gasWarmupInProgress = false;
+    setSearchButtonsDisabled(false);
   }
-})();
+}
 
 
 // ─── STEPPER ─────────────────────────────────────────────────────────────────
@@ -1588,7 +1595,6 @@ function onOptionsChanged() {
   } else {
     resetCalcState();
   }
-  updateLiveBreakdown();
 }
 
 
@@ -2007,6 +2013,8 @@ function addPersonCard() {
   bindLookupEvents(card, index);
   container.appendChild(card);
 
+  if (gasWarmupInProgress) setSearchButtonsDisabled(true);
+
   persone.push({
     index, nome: '', cognome: '', row: null,
     alloggio: '', siglaAlloggio: '', colazione: false, assicurazione: false,
@@ -2218,6 +2226,8 @@ function loadPartnerCard(partnerData, shouldScroll = true) {
 
   container.appendChild(card);
 
+  if (gasWarmupInProgress) setSearchButtonsDisabled(true);
+
   persone.push({
     index,
     nome:    capitalize(partnerData.nome),
@@ -2280,7 +2290,7 @@ async function confermaEInvia() {
     }
 
     const email = emailInput?.value.trim() || '';
-    if (!email || !email.includes('@')) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setGlobalStatus('error', "Inserisci un'email valida prima di confermare.");
       emailInput?.focus();
       return;
@@ -2343,12 +2353,7 @@ async function confermaEInvia() {
     });
 
     const caparra = COSTI.caparra * loaded.length;
-    const saldo   = totale - caparra;
-
-    if (saldo < 0) {
-      setGlobalStatus('error', 'Il saldo calcolato è negativo. Verifica i dati con la segreteria.');
-      return;
-    }
+    const saldo   = Math.max(0, totale - caparra);
 
     lastCalcResult = {
       persone: loaded.map(p => ({
@@ -2566,4 +2571,7 @@ btnPay.addEventListener('click', openPayPopup);
 document.getElementById('popupOpenBtn')?.addEventListener('click', openTinaba);
 document.getElementById('ibanCloseBtn')?.addEventListener('click', closeModal);
 document.addEventListener('keydown', onGlobalEnterShortcut);
+
+// Warm-up dopo che la prima card è stata creata e i bottoni esistono nel DOM
+warmupGas();
 </script>
