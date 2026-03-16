@@ -1570,7 +1570,7 @@ function updatePartialTotal() { updateLiveBreakdown(); }
 function showRecalcBanner() {
   recalcNeeded = true;
   recalcBanner.classList.add('active');
-  setCalcButtons({ display: 'block', text: LABELS.recalc });
+  setCalcButtons({ display: 'block', text: LABELS.recalc, disabled: false });
   btnPay.disabled  = true;
   totalBox.classList.add('stale');
   _lastSavedHash = null;
