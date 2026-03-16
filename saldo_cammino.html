@@ -2460,6 +2460,7 @@
   async function confermaEInvia() {
     if (_calcInProgress) return;
     _calcInProgress = true;
+    let operationSucceeded = false;
 
     try {
       const loaded = persone.filter(p => p.loaded);
@@ -2572,6 +2573,7 @@
       setCalcButtons({ text: LABELS.confirmed, disabled: true });
       // Piccolo delay, poi nascondi del tutto i bottoni conferma
       setTimeout(() => setCalcButtons({ display: 'none' }), 1200);
+      operationSucceeded = true;
 
       btnPay.disabled = false;
       actionSection.style.display = 'block';
@@ -2591,7 +2593,7 @@
       setGlobalStatus('error', 'Impossibile confermare: ' + escapeHtml(err.message));
       lastCalcResult = null;
     } finally {
-      setCalcButtons({ disabled: false });
+      if (!operationSucceeded) setCalcButtons({ disabled: false });
       _calcInProgress = false;
     }
   }
