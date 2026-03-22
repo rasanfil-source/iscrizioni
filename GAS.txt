@@ -370,7 +370,7 @@ function doPost(e) {
       }
 
       try {
-        const email   = String(payload.email   || '').trim();
+        const email   = normalizeEmailAddress_(payload.email);
         const persone = payload.persone || [];
         const totale  = payload.totale;
         const caparra = payload.caparra;
@@ -505,6 +505,17 @@ function selectedOptionsLabels_(persona) {
   if (persona?.colazione) labels.push('Colazione');
   if (persona?.assicurazione) labels.push('Assicurazione');
   return labels;
+}
+
+function normalizeEmailAddress_(rawEmail) {
+  const trimmed = String(rawEmail || '').trim().toLowerCase();
+  const atIndex = trimmed.lastIndexOf('@');
+  if (atIndex <= 0 || atIndex === trimmed.length - 1) return trimmed;
+
+  const localPart = trimmed.slice(0, atIndex);
+  const domain = trimmed.slice(atIndex + 1);
+  const correctedDomain = domain === 'icluoud.com' ? 'icloud.com' : domain;
+  return `${localPart}@${correctedDomain}`;
 }
 
 function buildEmailPlain_(persone, totale, caparra, saldo, missingData) {

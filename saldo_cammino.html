@@ -2476,6 +2476,47 @@
     };
   }
 
+  const EMAIL_DOMAIN_CORRECTIONS = {
+    'icluoud.com': 'icloud.com',
+  };
+
+  function normalizeEmailAddress(rawEmail) {
+    const trimmed = String(rawEmail || '').trim().toLowerCase();
+    const atIndex = trimmed.lastIndexOf('@');
+    if (atIndex <= 0 || atIndex === trimmed.length - 1) {
+      return { email: trimmed, corrected: false };
+    }
+
+    const localPart = trimmed.slice(0, atIndex);
+    const domain = trimmed.slice(atIndex + 1);
+    const correctedDomain = EMAIL_DOMAIN_CORRECTIONS[domain] || domain;
+
+    return {
+      email: `${localPart}@${correctedDomain}`,
+      corrected: correctedDomain !== domain,
+      originalDomain: domain,
+      correctedDomain,
+    };
+  }
+
+  function getValidatedEmail() {
+    const normalized = normalizeEmailAddress(emailInput?.value || '');
+    const email = normalized.email;
+
+    if (normalized.corrected && emailInput) {
+      emailInput.value = email;
+      setGlobalStatus('ok', `Dominio email corretto automaticamente: ${escapeHtml(normalized.originalDomain)} → ${escapeHtml(normalized.correctedDomain)}.`);
+    }
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setGlobalStatus('error', "Inserisci un'email valida prima di confermare.");
+      emailInput?.focus();
+      return null;
+    }
+
+    return email;
+  }
+
   // ─── CONFERMA E INVIA (sostituisce calcolaTotale + salvaEInvia) ───────────────
   async function confermaEInvia() {
     if (_calcInProgress) return;
@@ -2489,12 +2530,8 @@
         return;
       }
 
-      const email = emailInput?.value.trim() || '';
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        setGlobalStatus('error', "Inserisci un'email valida prima di confermare.");
-        emailInput?.focus();
-        return;
-      }
+      const email = getValidatedEmail();
+      if (!email) return;
 
       // Costruisci modale di conferma
       const nomi = loaded.map(p => `${p.cognome} ${p.nome}`).join(', ');
