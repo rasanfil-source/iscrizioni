@@ -398,7 +398,7 @@
     font-weight: 600;
     padding: 7px 12px;
     border-radius: 8px;
-    margin-bottom: 12px;
+        margin-bottom: 12px;
     letter-spacing: .2px;
     line-height: 1.4;
   }
@@ -1744,16 +1744,29 @@ async function lookupPersona(card, index) {
   setCardStatus(card, 'loading', '<span class="spinner"></span>Caricamento…');
 
   try {
-    const payload = nome
-      ? { action: 'lookupPersona',   nome,    cognome }
-      : { action: 'lookupByCognome',          cognome };
-
-    const data = await gasPost(payload, ctrl.signal);
+  // Ricerca primaria sempre per cognome: se il nome è scritto in forma diversa,
+  // la prenotazione viene comunque trovata quando il cognome è univoco.
+    const data = await gasPost({ action: 'lookupByCognome', cognome }, ctrl.signal);
 
     if (latestLookupToken[index] !== token) return; // risposta obsoleta
 
     if (!data.success) {
       if (data.error === 'duplicate') {
+  // Se nome e cognome coincidono esattamente con una prenotazione, evita la scelta.
+        if (nome) {
+          const exactMatch = data.candidates.find(c => normClient(c.nome || '') === nome);
+          if (exactMatch) {
+            const exactData = await gasPost({ action: 'lookupPersona', nome, cognome }, ctrl.signal);
+            if (latestLookupToken[index] !== token) return;
+            if (exactData.success) {
+              setInCache(key, exactData);
+              setInCache(cognomeOnlyKey, exactData);
+              applyResult(card, p, exactData, nomeRaw, cognomeRaw);
+              return;
+            }
+          }
+        }
+
         let html = '<div style="margin-top:8px;">Ci sono più persone con questo cognome. Quale sei?</div>';
         html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">';
         data.candidates.forEach(c => {
@@ -1778,6 +1791,7 @@ async function lookupPersona(card, index) {
     }
 
     setInCache(key, data);
+    setInCache(cognomeOnlyKey, data);
     applyResult(card, p, data, nomeRaw, cognomeRaw);
 
   } catch (err) {
