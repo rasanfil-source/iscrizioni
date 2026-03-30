@@ -1316,6 +1316,21 @@ async function gasPost(payload, signal) {
   return data;
 }
 
+async function gasPostRetry(payload, signal, retries = 1, retryDelayMs = 250) {
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await gasPost(payload, signal);
+    } catch (err) {
+      lastErr = err;
+      if (err?.name === 'AbortError') throw err;
+      if (attempt >= retries) break;
+      await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+    }
+  }
+  throw lastErr;
+}
+
 
 // ─── STATO APPLICAZIONE ──────────────────────────────────────────────────────
 let persone        = [];
@@ -1727,7 +1742,8 @@ async function lookupPersona(card, index) {
 
   if (!cognome) return;
 
-  const key = makeCacheKey(nome, cognome);
+  const cognomeOnlyKey = makeCacheKey('', cognome);
+  const cached = getFromCache(key) || getFromCache(cognomeOnlyKey);
   const cached = getFromCache(key);
   if (cached) {
     cancelLookup(index);
