@@ -317,6 +317,14 @@ function doPost(e) {
     const action = payload.action;
     Logger.log('\uD83C\uDfac Action: %s', action);
 
+    // Le operazioni di scrittura richiedono sempre una API key configurata.
+    if (action === 'salvaTransfer' && !API_KEY) {
+      return jsonOut({
+        success: false,
+        message: 'Scrittura disabilitata: API key non configurata lato server'
+      });
+    }
+
     // ============ LOOKUP NOME + COGNOME ============
     if (action === 'lookupPersona') {
       const nome    = String(payload.nome    || '').trim();

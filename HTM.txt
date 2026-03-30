@@ -1316,21 +1316,6 @@ async function gasPost(payload, signal) {
   return data;
 }
 
-async function gasPostRetry(payload, signal, retries = 1, retryDelayMs = 250) {
-  let lastErr;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      return await gasPost(payload, signal);
-    } catch (err) {
-      lastErr = err;
-      if (err?.name === 'AbortError') throw err;
-      if (attempt >= retries) break;
-      await new Promise(resolve => setTimeout(resolve, retryDelayMs));
-    }
-  }
-  throw lastErr;
-}
-
 
 // ─── STATO APPLICAZIONE ──────────────────────────────────────────────────────
 let persone        = [];
@@ -1417,28 +1402,49 @@ function setSearchButtonsDisabled(disabled) {
 // ─── WARM-UP GAS ─────────────────────────────────────────────────────────────
 async function warmupGas() {
   const badge = document.getElementById('warmupBadge');
-  if (badge) badge.style.display = 'block';
+  if (badge) {
+    badge.style.display = 'block';
+    badge.textContent = '⏳ Connessione in corso…';
+    badge.classList.remove('ready');
+  }
   gasWarmupInProgress = true;
   setSearchButtonsDisabled(true);
 
-  const hide = () => {
-    if (badge) badge.style.display = 'none';
-    if (desktopShortcut) desktopShortcut.style.display = '';
-  };
+  const MAX_ATTEMPTS = 3;
+  const RETRY_DELAY_MS = 4000;
+  let success = false;
 
-  try {
-    await gasPost({ action: '__ping__' });
-    if (badge) {
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      await gasPost({ action: '__ping__' });
+      success = true;
+      break;
+    } catch (_) {
+      if (attempt < MAX_ATTEMPTS) {
+        if (badge) badge.textContent = `⏳ Tentativo ${attempt + 1}/${MAX_ATTEMPTS}…`;
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+      }
+    }
+  }
+
+  if (badge) {
+    if (success) {
       badge.textContent = '✅ Siamo pronti!';
       badge.classList.add('ready');
+      setTimeout(() => {
+        badge.style.display = 'none';
+        if (desktopShortcut) desktopShortcut.style.display = '';
+      }, 2500);
+    } else {
+      badge.style.display = 'none';
+      if (desktopShortcut) desktopShortcut.style.display = '';
     }
-    setTimeout(hide, 2500);
-  } catch (_) {
-    hide();
-  } finally {
-    gasWarmupInProgress = false;
-    setSearchButtonsDisabled(false);
+  } else if (desktopShortcut) {
+    desktopShortcut.style.display = '';
   }
+
+  gasWarmupInProgress = false;
+  setSearchButtonsDisabled(false);
 }
 
 
@@ -1742,9 +1748,9 @@ async function lookupPersona(card, index) {
 
   if (!cognome) return;
 
+  const key = makeCacheKey(nome, cognome);
   const cognomeOnlyKey = makeCacheKey('', cognome);
   const cached = getFromCache(key) || getFromCache(cognomeOnlyKey);
-  const cached = getFromCache(key);
   if (cached) {
     cancelLookup(index);
     applyResult(card, p, cached, nomeRaw, cognomeRaw);
@@ -1823,7 +1829,18 @@ async function lookupPersona(card, index) {
       }
       return;
     }
-    if (!p.loaded) setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
+    if (!p.loaded) {
+      // Auto-retry una volta: il GAS potrebbe essere appena diventato caldo.
+      if (!p._connRetried) {
+        p._connRetried = true;
+        setCardStatus(card, 'loading', '<span class="spinner"></span>Connessione in corso, riprovo…');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        if (latestLookupToken[index] === token) lookupPersona(card, index);
+      } else {
+        p._connRetried = false;
+        setCardStatus(card, 'error', 'Errore di connessione. Riprova.');
+      }
+    }
   } finally {
     if (lookupControllers[index] === ctrl) delete lookupControllers[index];
   }
@@ -2392,11 +2409,12 @@ async function confermaEInvia() {
     let serviziList = [];
     loaded.forEach(p => {
       const tr     = getTransfer(p.cardEl);
-      const prefix = loaded.length > 1 ? `${escapeHtml(p.nome)}: ` : '';
-      if (tr.rf) serviziList.push(prefix + 'Roma-Fiumicino');
-      if (tr.pt) serviziList.push(prefix + 'Porto-Tui');
-      if (tr.sc) serviziList.push(prefix + 'Santiago-A Coruña');
-      if (tr.fr) serviziList.push(prefix + 'Fiumicino-Roma');
+      const personName = String(p.nome || '');
+      const prefix = loaded.length > 1 ? `${personName}: ` : '';
+      if (tr.rf) serviziList.push(escapeHtml(prefix + 'Roma-Fiumicino'));
+      if (tr.pt) serviziList.push(escapeHtml(prefix + 'Porto-Tui'));
+      if (tr.sc) serviziList.push(escapeHtml(prefix + 'Santiago-A Coruña'));
+      if (tr.fr) serviziList.push(escapeHtml(prefix + 'Fiumicino-Roma'));
     });
 
     let confirmBody = `<p>Confermi la prenotazione di <strong>${escapeHtml(nomi)}</strong>?</p>`;
