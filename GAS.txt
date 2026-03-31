@@ -561,6 +561,28 @@ function normalizeEmailAddress_(rawEmail) {
   return `${localPart}@${correctedDomain}`;
 }
 
+function buildCausaleNominativi_(persone) {
+  const surnameCount = {};
+  persone.forEach(p => {
+    const cognome = String(p?.cognome || '').trim();
+    if (!cognome) return;
+    const cognomeKey = norm(cognome);
+    if (!cognomeKey) return;
+    surnameCount[cognomeKey] = (surnameCount[cognomeKey] || 0) + 1;
+  });
+
+  return persone
+    .map(p => {
+      const nome = String(p?.nome || '').trim();
+      const cognome = String(p?.cognome || '').trim();
+      if (!cognome) return '';
+      const cognomeKey = norm(cognome);
+      return surnameCount[cognomeKey] > 1 && nome ? `${nome} ${cognome}` : cognome;
+    })
+    .filter(Boolean)
+    .join(' - ');
+}
+
 function buildEmailPlain_(persone, totale, caparra, saldo, missingData) {
   const tot = Number(totale)  || 0;
   const cap = Number(caparra) || 0;
@@ -586,13 +608,15 @@ function buildEmailPlain_(persone, totale, caparra, saldo, missingData) {
     if (tr.length > 0) s += ' (Transfer: ' + tr.join(', ') + ')';
     righe.push(s);
   });
+  const causaleNominativi = buildCausaleNominativi_(persone);
+
   righe.push('', 'Totale complessivo: €' + formatEuroIt_(tot),
     'Caparra già versata: €' + formatEuroIt_(cap),
     'Saldo da versare: €' + formatEuroIt_(sal), '',
     'Scadenza: 15 maggio 2026', '',
     'Pagamento:', 'PARROCCHIA S. EUGENIO',
     'IBAN: IT77U0306909606100000125525',
-    'Causale: "Saldo Cammino 2026 ' + persone.map(p => p.cognome).filter(Boolean).join(' - ') + '"');
+    'Causale: "Saldo Cammino 2026 ' + causaleNominativi + '"');
 
   if (missingData && missingData.hasMissing) {
     righe.push('', '--- PRIMA DI METTERCI IN CAMMINO ---', '',
@@ -637,7 +661,7 @@ function buildEmailHtml_(persone, totale, caparra, saldo, missingData) {
     return '<tr><td style="padding:12px;border-bottom:1px solid #eee;"><strong>' +
            escapeHtml_(p.nome || '') + ' ' + escapeHtml_(p.cognome || '') + '</strong>' + alloggioStr + opzioniStr + trStr + '</td></tr>';
   }).join('');
-  const causaleCognomi = persone.map(p => escapeHtml_(p.cognome)).filter(Boolean).join(' - ');
+  const causaleNominativi = escapeHtml_(buildCausaleNominativi_(persone));
   let promemoriaHtml = '';
 
   if (missingData && missingData.hasMissing) {
@@ -707,7 +731,7 @@ function buildEmailHtml_(persone, totale, caparra, saldo, missingData) {
     <div style="background:#ebf8ff;border-radius:8px;padding:20px;">
       <p style="margin:0 0 10px;color:#2c5282;"><strong>Intestatario:</strong> PARROCCHIA S. EUGENIO</p>
       <p style="margin:0 0 10px;color:#2c5282;"><strong>IBAN:</strong> <code style="background:#fff;padding:4px 11px;border-radius:4px;font-family:monospace;font-size:16px;letter-spacing:.4px;user-select:all;-webkit-user-select:all;-moz-user-select:all;ms-user-select:all;border:1px solid #d1e9ff;">IT77U0306909606100000125525</code></p>
-      <p style="margin:0;color:#2c5282;"><strong>Causale:</strong> "Saldo Cammino 2026 ${causaleCognomi}"</p>
+      <p style="margin:0;color:#2c5282;"><strong>Causale:</strong> "Saldo Cammino 2026 ${causaleNominativi}"</p>
     </div>
     <div style="height:12px;"></div>
     ${promemoriaHtml}
