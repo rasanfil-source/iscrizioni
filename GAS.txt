@@ -33,6 +33,8 @@ const CACHE_TTL = 300; // 5 minuti
 const ADEMP_SPREADSHEET_ID = '1UFNEcC8OXafsm0SBzLxoyNI24bZo-UBaLxdKXgmvtqU';
 const ADEMP_SHEET_NAME = 'LISTADO DE VIAJEROS - Grupo D. Raimondo Sanfilippo';
 const ADEMP_TAB_NAME = 'Copia interna S.Eugenio';
+const CACHE_ADEMP_KEY = 'ademp_data_v1';
+const CACHE_ADEMP_TTL = 600; // 10 minuti (si aggiorna di rado)
 
 
 /***************
@@ -86,7 +88,7 @@ function getSheet_() {
 
 /**
  * Controlla i dati da completare prima della partenza.
- * NOTA: da invocare solo dentro salvaTransfer per non impattare i lookup.
+ * USA CACHE: risparmia ~2-3s di apertura spreadsheet secondario.
  *
  * @param {Array<Object>} persone
  * @returns {{hasMissing:boolean, details:Array<{nome:string,cognome:string,missing:string[]}>}}
@@ -95,39 +97,66 @@ function checkAdempimenti_(persone) {
   const output = { hasMissing: false, details: [] };
   if (!Array.isArray(persone) || persone.length === 0) return output;
 
-  const ss = SpreadsheetApp.openById(ADEMP_SPREADSHEET_ID);
-  const sh = ss.getSheetByName(ADEMP_TAB_NAME) || ss.getSheetByName(ADEMP_SHEET_NAME);
-  if (!sh) throw new Error('Tab adempimenti non trovata: ' + ADEMP_TAB_NAME);
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get(CACHE_ADEMP_KEY);
+  let byFullName = {};
 
-  const lastRow = sh.getLastRow();
-  if (lastRow < 2) return output;
+  if (cached) {
+    try { byFullName = JSON.parse(cached); }
+    catch (e) { Logger.log('⚠️ Errore parse cache adempimenti: %s', e); }
+  }
 
-  // UNA SOLA lettura batch: colonne A:L (servono C,D,E,F,H,L)
-  const rows = sh.getRange(2, 1, lastRow - 1, 12).getValues();
-  const byFullName = {};
+  if (Object.keys(byFullName).length === 0) {
+    const ss = SpreadsheetApp.openById(ADEMP_SPREADSHEET_ID);
+    const sh = ss.getSheetByName(ADEMP_TAB_NAME) || ss.getSheetByName(ADEMP_SHEET_NAME);
+    if (!sh) throw new Error('Tab adempimenti non trovata: ' + ADEMP_TAB_NAME);
 
-  for (const row of rows) {
-    const cognome = String(row[2] || '').trim(); // C
-    const nome = String(row[3] || '').trim();    // D
-    if (!nome && !cognome) continue;
-    const k1 = norm(nome + ' ' + cognome);
-    const k2 = norm(cognome + ' ' + nome);
-    if (k1 && !byFullName[k1]) byFullName[k1] = row;
-    if (k2 && !byFullName[k2]) byFullName[k2] = row;
+    const lastRow = sh.getLastRow();
+    if (lastRow < 2) return output;
+
+    // Solo le colonne che servono (C,D,E,F,H,L) -> Range A:L
+    const rows = sh.getRange(2, 1, lastRow - 1, 12).getValues();
+
+    for (const row of rows) {
+      const cog = String(row[2] || '').trim(); // C
+      const nom = String(row[3] || '').trim(); // D
+      if (!nom && !cog) continue;
+
+      const ademp = {
+        m: !String(row[11] || '').trim(), // maglietta (L)
+        d: !String(row[4]  || '').trim(), // data_nascita (E)
+        idx: !String(row[5] || '').trim(), // documento (F)
+        s: !String(row[7]  || '').trim()  // scadenza_doc (H)
+      };
+
+      // Se non ha mancanze, skip per risparmiare spazio in cache
+      if (!ademp.m && !ademp.d && !ademp.idx && !ademp.s) continue;
+
+      const k1 = norm(nom + ' ' + cog);
+      const k2 = norm(cog + ' ' + nom);
+      if (k1 && !byFullName[k1]) byFullName[k1] = ademp;
+      if (k2 && k2 !== k1 && !byFullName[k2]) byFullName[k2] = ademp;
+    }
+
+    const payload = JSON.stringify(byFullName);
+    if (payload.length < 90000) {
+      cache.put(CACHE_ADEMP_KEY, payload, CACHE_ADEMP_TTL);
+      Logger.log('✅ Cache adempimenti aggiornata (%s byte)', payload.length);
+    }
   }
 
   for (const p of persone) {
     const nome = String(p?.nome || '').trim();
     const cognome = String(p?.cognome || '').trim();
     const key = norm(nome + ' ' + cognome);
-    const row = byFullName[key];
-    if (!row) continue;
+    const ademp = byFullName[key];
+    if (!ademp) continue;
 
     const missing = [];
-    if (!String(row[11] || '').trim()) missing.push('maglietta');      // L
-    if (!String(row[4]  || '').trim()) missing.push('data_nascita');   // E
-    if (!String(row[5]  || '').trim()) missing.push('documento');      // F
-    if (!String(row[7]  || '').trim()) missing.push('scadenza_doc');   // H
+    if (ademp.m)   missing.push('maglietta');
+    if (ademp.d)   missing.push('data_nascita');
+    if (ademp.idx) missing.push('documento');
+    if (ademp.s)   missing.push('scadenza_doc');
 
     if (missing.length > 0) {
       output.details.push({ nome, cognome, missing });
@@ -451,18 +480,18 @@ function doPost(e) {
       // Dopo la scrittura, invalida la cache così il prossimo lookup rilegge il foglio
       invalidateCache_();
 
-      // Controllo adempimenti separato e resiliente: eventuali errori non bloccano né salvataggio né email.
-      let missingData = { hasMissing: false, details: [] };
-      try {
-        missingData = checkAdempimenti_(persone);
-      } catch (adempErr) {
-        Logger.log('⚠️ checkAdempimenti_ non disponibile: %s', adempErr);
-      }
-
       // Invio email solo se presente un indirizzo valido e non espressamente disabilitato
       const shouldSend = payload.sendEmail !== false;
       const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       if (isValidEmail && shouldSend) {
+        // checkAdempimenti_ apre un secondo foglio (~1-2s): lo eseguiamo
+        // SOLO quando l'email è effettivamente richiesta.
+        let missingData = { hasMissing: false, details: [] };
+        try {
+          missingData = checkAdempimenti_(persone);
+        } catch (adempErr) {
+          Logger.log('⚠️ checkAdempimenti_ non disponibile: %s', adempErr);
+        }
         try {
           GmailApp.sendEmail(
             email,
@@ -474,19 +503,56 @@ function doPost(e) {
               bcc: 'rasanfil@gmail.com'
             }
           );
-          Logger.log('\u2705 Email inviata a %s (BCC rasanfil@gmail.com)', email);
+          Logger.log('✅ Email inviata a %s (BCC rasanfil@gmail.com)', email);
         } catch (emailErr) {
           Logger.log('❌ Errore email: %s', emailErr);
           return jsonOut({ success: false, message: 'Transfer salvati ma errore email: ' + emailErr.message, risultati });
         }
       } else {
-        Logger.log('ℹ️ Nessuna email fornita, transfer salvati senza invio email');
+        Logger.log('ℹ️ Email non richiesta (sendEmail=false o email assente) — transfer salvati');
       }
 
       const emailSent = !!(isValidEmail && shouldSend);
       return jsonOut({ success: true, emailSent, risultati });
       } finally {
         if (hasLock) lock.releaseLock();
+      }
+    }
+    // ============ INVIA EMAIL (separata dal salvataggio) ============
+    if (action === 'inviaEmail') {
+      const email   = normalizeEmailAddress_(payload.email);
+      const persone = payload.persone || [];
+      const totale  = payload.totale;
+      const caparra = payload.caparra;
+      const saldo   = payload.saldo;
+
+      const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!isValidEmail || persone.length === 0)
+        return jsonOut({ success: false, message: 'Email o dati persone mancanti/non validi' });
+
+      let missingData = { hasMissing: false, details: [] };
+      try {
+        missingData = checkAdempimenti_(persone);
+      } catch (adempErr) {
+        Logger.log('⚠️ checkAdempimenti_ non disponibile: %s', adempErr);
+      }
+
+      try {
+        GmailApp.sendEmail(
+          email,
+          'Cammino 2026 – Ecco il tuo saldo e le istruzioni di pagamento',
+          buildEmailPlain_(persone, totale, caparra, saldo, missingData),
+          {
+            name: 'Parrocchia S. Eugenio',
+            htmlBody: buildEmailHtml_(persone, totale, caparra, saldo, missingData),
+            bcc: 'rasanfil@gmail.com'
+          }
+        );
+        Logger.log('✅ inviaEmail → inviata a %s', email);
+        return jsonOut({ success: true, emailSent: true });
+      } catch (emailErr) {
+        Logger.log('❌ inviaEmail → Errore: %s', emailErr);
+        return jsonOut({ success: false, message: 'Errore invio email: ' + emailErr.message });
       }
     }
 
