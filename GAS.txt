@@ -374,19 +374,14 @@ function doPost(e) {
       return jsonOut({ success: false, error: 'JSON non valido: ' + parseErr.message });
     }
 
-    if (API_KEY && payload.apiKey !== API_KEY) {
-      return jsonOut({ success: false, error: 'API key non valida' });
-    }
-
     const action = payload.action;
-    Logger.log('\uD83C\uDfac Action: %s', action);
+    Logger.log('🎬 Action: %s', action);
 
-    // Le operazioni di scrittura richiedono sempre una API key configurata.
-    if (action === 'salvaTransfer' && !API_KEY) {
-      return jsonOut({
-        success: false,
-        message: 'Scrittura disabilitata: API key non configurata lato server'
-      });
+    // Protezione API key: si attiva solo se API_KEY è configurata sul server.
+    // Con API_KEY = '' il controllo è disabilitato (accesso libero).
+    const writeActions = ['salvaTransfer', 'inviaEmail'];
+    if (API_KEY && writeActions.includes(action) && payload.apiKey !== API_KEY) {
+      return jsonOut({ success: false, error: 'API key non valida' });
     }
 
     // ============ LOOKUP NOME + COGNOME ============
