@@ -2587,7 +2587,7 @@ function resetCalcState() {
 
 
 // ─── SALVA TRANSFER ──────────────────────────────────────────────────────────
-function _hash(result, email, sendEmail) {
+function _hash(result, email) {
   const stable = (value) => {
     if (Array.isArray(value)) return value.map(stable);
     if (value && typeof value === 'object') {
@@ -2598,7 +2598,7 @@ function _hash(result, email, sendEmail) {
     }
     return value;
   };
-  return JSON.stringify(stable({ ...result, email: email || '', sendEmail: !!sendEmail }));
+  return JSON.stringify(stable({ ...result, email: email || '' }));
 }
 
 async function doSalvaTransfer(email, sendEmail = true) {
