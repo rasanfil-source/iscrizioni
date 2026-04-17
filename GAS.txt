@@ -32,7 +32,8 @@ const CACHE_TTL = 300; // 5 minuti
 // Spreadsheet adempimenti pre-partenza (usato solo in salvaTransfer)
 const ADEMP_SPREADSHEET_ID = '1UFNEcC8OXafsm0SBzLxoyNI24bZo-UBaLxdKXgmvtqU';
 const ADEMP_SHEET_NAME = 'LISTADO DE VIAJEROS - Grupo D. Raimondo Sanfilippo';
-const ADEMP_TAB_NAME = 'Copia interna S.Eugenio';
+const ADEMP_TAB_NAME = 'BUENO - Copia interna S.Eugenio';
+const ADEMP_TAB_FALLBACK = 'Copia interna S.Eugenio';
 const CACHE_ADEMP_KEY = 'ademp_data_v1';
 const CACHE_ADEMP_TTL = 600; // 10 minuti (si aggiorna di rado)
 
@@ -79,6 +80,33 @@ function escapeHtml_(value) {
     .replace(/'/g, '&#39;');
 }
 
+function isMissingOrPlaceholder_(value, placeholders) {
+  const normalized = norm(value);
+  if (!normalized) return true;
+  if (!Array.isArray(placeholders) || placeholders.length === 0) return false;
+  return placeholders.some(p => normalized === norm(p));
+}
+
+function hasValidDocumentNumber_(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+
+  // Placeholder frequenti o valori accidentalmente copiati nella colonna documento.
+  if (isMissingOrPlaceholder_(raw, ['m', 's', 'l', 'xl', 'xxl', '-', 'n/a', 'na'])) return false;
+
+  // Deve contenere almeno un numero o essere abbastanza lungo da sembrare un documento reale.
+  const compact = raw.replace(/\s+/g, '');
+  return /\d/.test(compact) || compact.length >= 5;
+}
+
+function hasValidDateValue_(value) {
+  if (value instanceof Date && !isNaN(value.getTime())) return true;
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+  // Accetta formati comuni (dd/mm/yyyy, yyyy-mm-dd, ecc.) purché non siano placeholder.
+  return !isMissingOrPlaceholder_(raw, ['-', 'n/a', 'na', 'nd']);
+}
+
 function getSheet_() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sh = ss.getSheetByName(SHEET_NAME);
@@ -109,7 +137,10 @@ function checkAdempimenti_(persone) {
   if (byFullName === null) {
     byFullName = {};
     const ss = SpreadsheetApp.openById(ADEMP_SPREADSHEET_ID);
-    const sh = ss.getSheetByName(ADEMP_TAB_NAME) || ss.getSheetByName(ADEMP_SHEET_NAME);
+    const sh =
+      ss.getSheetByName(ADEMP_TAB_NAME) ||
+      ss.getSheetByName(ADEMP_TAB_FALLBACK) ||
+      ss.getSheetByName(ADEMP_SHEET_NAME);
     if (!sh) throw new Error('Tab adempimenti non trovata: ' + ADEMP_TAB_NAME);
 
     const lastRow = sh.getLastRow();
@@ -124,10 +155,10 @@ function checkAdempimenti_(persone) {
       if (!nom && !cog) continue;
 
       const ademp = {
-        m: !String(row[11] || '').trim(), // maglietta (L)
-        d: !String(row[4]  || '').trim(), // data_nascita (E)
-        idx: !String(row[5] || '').trim(), // documento (F)
-        s: !String(row[7]  || '').trim()  // scadenza_doc (H)
+        m: isMissingOrPlaceholder_(row[11], []), // maglietta (L): basta non vuoto
+        d: !hasValidDateValue_(row[4]),          // data_nascita (E)
+        idx: !hasValidDocumentNumber_(row[5]),   // documento (F)
+        s: !hasValidDateValue_(row[7])           // scadenza_doc (H)
       };
 
       // Se non ha mancanze, skip per risparmiare spazio in cache
