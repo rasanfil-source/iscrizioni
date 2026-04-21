@@ -1937,8 +1937,8 @@ function applyResult(card, person, data, nomeRaw, cognomeRaw) {
     }
   });
 
-  // Pre-compila email se il campo è vuoto
-  if (emailInput && data.persona?.email && !emailInput.value.trim())
+  // Forza sempre l'email della prenotazione caricata (sovrascrive anche valori precedenti)
+  if (emailInput && data.persona?.email)
     emailInput.value = data.persona.email;
 
   // Blocca i campi di ricerca
